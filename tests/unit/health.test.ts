@@ -61,4 +61,27 @@ describe("Health Check API Route", () => {
     expect(body.status).toBe("degraded");
     expect(body.services.database).toBe("degraded");
   });
+
+  it("returns 200 HTML status page when browser sends Accept text/html", async () => {
+    mockCreateAdminClient.mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue({ data: [{ id: "t-1" }], error: null }),
+        }),
+      }),
+    } as any);
+
+    const mockRequest = {
+      headers: new Headers({ accept: "text/html,application/xhtml+xml" }),
+    };
+
+    const response = await GET({ request: mockRequest } as any);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toContain("text/html");
+
+    const html = await response.text();
+    expect(html).toContain("LaunchPulse");
+    expect(html).toContain("Estado del Sistema");
+    expect(html).toContain("Todos los Sistemas Operativos");
+  });
 });
