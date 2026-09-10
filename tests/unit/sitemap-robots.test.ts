@@ -17,6 +17,7 @@ describe("Dynamic Sitemap & Robots.txt Generation", () => {
     const text = await response.text();
     expect(text).toContain("User-agent: *");
     expect(text).toContain("Disallow: /admin/");
+    expect(text).toContain("Disallow: /backoffice/");
     expect(text).toContain("Disallow: /preview/");
     expect(text).toContain("Sitemap: https://landingsaas.com/sitemap.xml");
   });

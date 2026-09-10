@@ -15,6 +15,7 @@ export const GET: APIRoute = async ({ request }) => {
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /backoffice/
 Disallow: /preview/
 Disallow: /api/
 

@@ -307,12 +307,22 @@ const faqs = [
   <!-- Main Navigation Header -->
   <header class="main-nav">
     <div class="nav-container">
-      <a href="/" class="brand-logo">
+      <a href="/" class="brand-logo" aria-label="LaunchPulse Inicio">
         <div class="brand-icon">
-          <span>LS</span>
+          <svg viewBox="0 0 32 32" fill="none" class="brand-svg-icon" width="22" height="22">
+            <path d="M16 4 C17 10, 21 17, 23 22 L16 20 L9 22 C11 17, 15 10, 16 4 Z" fill="url(#lp-nav-grad)"/>
+            <circle cx="16" cy="13" r="2" fill="#ffffff"/>
+            <path d="M10 26 L13 26 L14 23 L16 28 L17 25 L18 26 L22 26" stroke="#4ade80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="lp-nav-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#818cf8"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
         <div class="brand-text">
-          <span class="brand-title">Landing SaaS</span>
+          <span class="brand-title">LaunchPulse</span>
           <span class="brand-tag">Studio & Engine</span>
         </div>
       </a>
@@ -342,7 +352,7 @@ const faqs = [
     <div class="hero-glow"></div>
     <div class="hero-container">
       <div class="hero-badge">
-        <span class="badge-tag">Plataforma & Agencia</span>
+        <span class="badge-tag">LaunchPulse Platform</span>
         <span class="badge-divider">•</span>
         <span class="badge-desc">Landings de Alta Conversión con Dominios Propios</span>
       </div>
@@ -934,8 +944,20 @@ const faqs = [
     <div class="container footer-content">
       <div class="footer-brand">
         <div class="brand-logo">
-          <div class="brand-icon">LS</div>
-          <span class="brand-title">Landing SaaS</span>
+          <div class="brand-icon">
+            <svg viewBox="0 0 32 32" fill="none" width="20" height="20">
+              <path d="M16 4 C17 10, 21 17, 23 22 L16 20 L9 22 C11 17, 15 10, 16 4 Z" fill="url(#lp-foot-grad)"/>
+              <circle cx="16" cy="13" r="2" fill="#ffffff"/>
+              <path d="M10 26 L13 26 L14 23 L16 28 L17 25 L18 26 L22 26" stroke="#4ade80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="lp-foot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8"/>
+                  <stop offset="100%" stop-color="#818cf8"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="brand-title">LaunchPulse</span>
         </div>
         <p class="footer-tagline">
           Infraestructura de alta conversión y estudio de landings para profesionales y empresas que no se conforman con lo genérico.
@@ -959,7 +981,7 @@ const faqs = [
     </div>
 
     <div class="container footer-bottom">
-      <p>&copy; {new Date().getFullYear()} Landing SaaS Platform. Todos los derechos reservados.</p>
+      <p>&copy; {new Date().getFullYear()} LaunchPulse Platform. Todos los derechos reservados.</p>
       <div class="footer-bottom-links">
         <a href="/admin">Panel de Administración</a>
         <span>•</span>

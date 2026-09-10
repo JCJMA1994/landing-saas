@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" fill="none">
+  <defs>
+    <radialGradient id="bg-radial" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#111d3d"/>
+      <stop offset="60%" stop-color="#060a14"/>
+      <stop offset="100%" stop-color="#020408"/>
+    </radialGradient>
+    <linearGradient id="glow-text" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="card-border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg-radial)"/>
+  
+  <!-- Subtle Grid Lines -->
+  <g stroke="#1e293b" stroke-width="1" opacity="0.25">
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+  </g>
+
+  <!-- Glowing Aura behind Logo -->
+  <circle cx="200" cy="180" r="160" fill="#38bdf8" opacity="0.12" filter="blur(60px)"/>
+
+  <!-- Brand Logo Header -->
+  <g transform="translate(100, 80)">
+    <!-- Isotype Box -->
+    <rect width="72" height="72" rx="18" fill="#0b1329" stroke="#38bdf8" stroke-width="2"/>
+    <!-- Rocket / Pulse Geometry -->
+    <path d="M36 14 C38 24, 43 35, 45 44 L36 41 L27 44 C29 35, 34 24, 36 14 Z" fill="url(#glow-text)"/>
+    <circle cx="36" cy="30" r="3.5" fill="#ffffff"/>
+    <path d="M23 52 L31 52 L33 48 L36 56 L38 50 L40 52 L49 52" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Brand Name -->
+    <text x="96" y="46" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="44" fill="#ffffff" letter-spacing="-0.03em">LaunchPulse</text>
+    <text x="98" y="68" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#38bdf8" letter-spacing="0.2em">STUDIO &amp; ENGINE</text>
+  </g>
+
+  <!-- Main Headline -->
+  <g transform="translate(100, 250)">
+    <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="52" fill="#ffffff" letter-spacing="-0.03em">
+      Landings de Alta Conversión
+    </text>
+    <text x="0" y="64" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="52" fill="url(#glow-text)" letter-spacing="-0.03em">
+      con Dominios Propios &amp; Panel Privado
+    </text>
+    
+    <text x="0" y="130" font-family="system-ui, -apple-system, sans-serif" font-weight="400" font-size="24" fill="#94a3b8" letter-spacing="0">
+      Carga instantánea en el Edge, autogestionable y con motor de campañas estacionales.
+    </text>
+  </g>
+
+  <!-- Metric Badges Row -->
+  <g transform="translate(100, 480)">
+    <!-- Badge 1 -->
+    <rect x="0" y="0" width="220" height="70" rx="14" fill="#0d1527" stroke="url(#card-border)" stroke-width="1.5"/>
+    <text x="24" y="32" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="#38bdf8">&lt; 0.8s</text>
+    <text x="24" y="52" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#94a3b8" letter-spacing="0.05em">CARGA EN EL EDGE</text>
+
+    <!-- Badge 2 -->
+    <rect x="250" y="0" width="220" height="70" rx="14" fill="#0d1527" stroke="url(#card-border)" stroke-width="1.5"/>
+    <text x="274" y="32" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="#4ade80">100%</text>
+    <text x="274" y="52" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#94a3b8" letter-spacing="0.05em">AUTOGESTIONABLE</text>
+
+    <!-- Badge 3 -->
+    <rect x="500" y="0" width="220" height="70" rx="14" fill="#0d1527" stroke="url(#card-border)" stroke-width="1.5"/>
+    <text x="524" y="32" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="#c084fc">SSL + DNS</text>
+    <text x="524" y="52" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#94a3b8" letter-spacing="0.05em">DOMINIOS PROPIOS</text>
+
+    <!-- Badge 4 -->
+    <rect x="750" y="0" width="220" height="70" rx="14" fill="#0d1527" stroke="url(#card-border)" stroke-width="1.5"/>
+    <text x="774" y="32" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="24" fill="#f59e0b">6 ESTILOS</text>
+    <text x="774" y="52" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#94a3b8" letter-spacing="0.05em">ARQUITECTURAS 3D</text>
+  </g>
+</svg>
