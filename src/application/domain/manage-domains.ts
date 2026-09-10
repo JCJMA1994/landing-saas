@@ -50,7 +50,8 @@ export async function addSiteDomainUseCase(
   input: AddDomainInput,
   role: TenantRole,
   domainRepo: DomainRepository,
-  auditGateway: AuditLogGateway
+  auditGateway: AuditLogGateway,
+  appHostname?: string | undefined
 ): Promise<SiteDomain> {
   if (!canEditContent(role)) {
     throw new DomainAuthorizationError();
@@ -59,6 +60,15 @@ export async function addSiteDomainUseCase(
   const normalizedDomain = input.domain.trim().toLowerCase();
   if (!isValidDomain(normalizedDomain)) {
     throw new InvalidDomainError();
+  }
+
+  if (appHostname) {
+    const cleanAppHostname = appHostname.trim().toLowerCase();
+    if (normalizedDomain === cleanAppHostname || normalizedDomain.endsWith(`.${cleanAppHostname}`)) {
+      throw new InvalidDomainError(
+        `El dominio "${normalizedDomain}" es un subdominio propio de la plataforma y ya está activo automáticamente arriba. No requiere ser agregado como dominio personalizado.`
+      );
+    }
   }
 
   const existing = await domainRepo.getDomainByName(normalizedDomain);

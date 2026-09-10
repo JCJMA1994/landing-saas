@@ -92,6 +92,32 @@ describe("Manage Domains Use Cases", () => {
     ).rejects.toThrow(InvalidDomainError);
   });
 
+  it("rejects registering platform subdomain or host as custom domain", async () => {
+    await expect(
+      addSiteDomainUseCase(
+        mockUser,
+        "tenant-1",
+        { siteId: "site-1", domain: "innovaciones-moreno.system-failed-tech.com" },
+        "editor",
+        mockDomainRepo,
+        mockAuditGateway,
+        "system-failed-tech.com"
+      )
+    ).rejects.toThrow(InvalidDomainError);
+
+    await expect(
+      addSiteDomainUseCase(
+        mockUser,
+        "tenant-1",
+        { siteId: "site-1", domain: "system-failed-tech.com" },
+        "editor",
+        mockDomainRepo,
+        mockAuditGateway,
+        "system-failed-tech.com"
+      )
+    ).rejects.toThrow(InvalidDomainError);
+  });
+
   it("rejects duplicate domain registration", async () => {
     const repoWithDuplicate = {
       ...mockDomainRepo,

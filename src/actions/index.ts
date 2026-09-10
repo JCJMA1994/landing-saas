@@ -775,13 +775,15 @@ export const server = {
         await checkTenantFeatureFlagUseCase({ tenantId, feature: "customDomains", repository: subRepo });
         await enforceTenantQuotaUseCase({ tenantId, resource: "custom_domains", repository: subRepo });
 
+        const env = parseServerEnv(import.meta.env, process.env);
         const added = await addSiteDomainUseCase(
           context.locals.user,
           tenantId,
           { siteId, domain, verificationType },
           role,
           domainRepo,
-          auditGateway
+          auditGateway,
+          env.appHostname
         );
 
         return { ok: true, domain: added };

@@ -294,8 +294,12 @@ const automaticSubdomain = `${siteData.slug}.${env.appHostname}`;
       <div class="card">
         <h2 style="font-size: 1.2rem; margin-top: 0;">Dominios Personalizados (Custom Domains)</h2>
         <p style="color: var(--color-text-muted); font-size: 0.9rem;">
-          Conecta el dominio propio de tu cliente (ej. <code>landing.mitaller.pe</code> o <code>mitaller.com</code>).
+          Conectá un dominio o subdominio externo propio de tu cliente (ej. <code>landing.mitaller.pe</code> o <code>mitaller.com</code>).
         </p>
+
+        <div style="background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #bae6fd;">
+          ℹ️ <strong>Importante:</strong> El subdominio de la plataforma (<code>{automaticSubdomain}</code>) <strong>ya está activo y disponible</strong> en el bloque superior sin requerir configuración alguna. Usá este formulario únicamente si tu cliente compró un dominio en un registrador externo (ej. GoDaddy, Cloudflare, Namecheap).
+        </div>
 
         <!-- Formulario Agregar Dominio -->
         <form method="POST" action={actions.addDomain} style="background: var(--color-surface-card); padding: 1.25rem; border-radius: 6px; margin: 1.5rem 0;">
@@ -346,10 +350,10 @@ const automaticSubdomain = `${siteData.slug}.${env.appHostname}`;
                       </h3>
                       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                         <span class={`badge ${dom.status === "verified" ? "badge-success" : dom.status === "pending" ? "badge-warning" : "badge-danger"}`}>
-                          DNS: {dom.status}
+                          DNS: {dom.status.toUpperCase()}
                         </span>
                         <span class={`badge ${dom.sslStatus === "active" ? "badge-success" : dom.sslStatus === "pending" ? "badge-warning" : "badge-danger"}`}>
-                          SSL: {dom.sslStatus}
+                          SSL: {dom.sslStatus.toUpperCase()}
                         </span>
                         <span style="font-size: 0.8rem; color: var(--color-text-muted);">
                           Método: <code>{dom.verificationType.toUpperCase()}</code>
@@ -360,6 +364,11 @@ const automaticSubdomain = `${siteData.slug}.${env.appHostname}`;
                           </span>
                         )}
                       </div>
+                      {dom.domain.endsWith(`.${env.appHostname}`) && (
+                        <div style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-size: 0.8rem; color: #fca5a5;">
+                          ⚠️ <strong>Aviso:</strong> Este es el subdominio canónico de la plataforma y ya está operativo en el bloque superior. No requiere configuración CNAME externa. Hacé clic en <strong>Eliminar</strong> para quitarlo de esta sección de dominios externos.
+                        </div>
+                      )}
                     </div>
 
                     <div style="display: flex; gap: 0.5rem;">
