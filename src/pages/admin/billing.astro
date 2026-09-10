@@ -28,6 +28,11 @@ const isOwner = userRole === "owner";
 
 const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
 const isSuperadmin = Astro.locals.user ? await subRepo.isPlatformSuperadmin(Astro.locals.user.id) : false;
+
+if (isSuperadmin) {
+  return Astro.redirect("/backoffice", 303);
+}
+
 let usageOverview: any = null;
 let trialDaysRemaining = 0;
 

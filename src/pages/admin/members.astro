@@ -18,6 +18,10 @@ if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
 const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
 const isSuperadmin = Astro.locals.user ? await subRepo.isPlatformSuperadmin(Astro.locals.user.id) : false;
 
+if (isSuperadmin) {
+  return Astro.redirect("/backoffice", 303);
+}
+
 const assignResult = Astro.getActionResult(actions.assignMember);
 const removeResult = Astro.getActionResult(actions.removeMember);
 

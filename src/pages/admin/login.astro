@@ -1,13 +1,29 @@
 ---
 import { actions } from "astro:actions";
+import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/subscription-repository";
 import "../../styles/admin.css";
 
-const rawRedirect = Astro.url.searchParams.get("redirect") || "/admin";
-const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/admin";
+const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
+const rawRedirect = Astro.url.searchParams.get("redirect");
 
-if (Astro.locals.user) return Astro.redirect(redirectTo, 303);
+async function resolveDestination(userId: string): Promise<string> {
+  if (rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) {
+    return rawRedirect;
+  }
+  const isSuperadmin = await subRepo.isPlatformSuperadmin(userId);
+  return isSuperadmin ? "/backoffice" : "/admin";
+}
+
+if (Astro.locals.user) {
+  const dest = await resolveDestination(Astro.locals.user.id);
+  return Astro.redirect(dest, 303);
+}
+
 const result = Astro.getActionResult(actions.login);
-if (result?.data?.ok) return Astro.redirect(redirectTo, 303);
+if (result?.data?.ok && Astro.locals.user) {
+  const dest = await resolveDestination(Astro.locals.user.id);
+  return Astro.redirect(dest, 303);
+}
 const showError = Boolean(result && (!result.data || !result.data.ok));
 ---
 <!doctype html>

@@ -12,6 +12,10 @@ if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
 const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
 const isSuperadmin = Astro.locals.user ? await subRepo.isPlatformSuperadmin(Astro.locals.user.id) : false;
 
+if (isSuperadmin) {
+  return Astro.redirect("/backoffice", 303);
+}
+
 const repository = new SupabaseSiteRepository(async () => {
   const result = await Astro.locals.supabase.from("sites").select("id, name, slug").order("name");
   return { data: result.data, error: result.error };

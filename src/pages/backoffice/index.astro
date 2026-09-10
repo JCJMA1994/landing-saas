@@ -35,6 +35,12 @@ try {
   const env = parseServerEnv(import.meta.env, process.env);
   const adminClient = createAdminClient(env);
 
+  // Fetch all superadmin IDs to strictly exclude them from being considered "clients"
+  const { data: superadmins } = await adminClient
+    .from("platform_superadmins")
+    .select("user_id");
+  const superadminUserIds = new Set(superadmins?.map((s) => s.user_id) || []);
+
   // Fetch all tenants with their sites
   const { data: tenants } = await adminClient
     .from("tenants")
@@ -46,7 +52,7 @@ try {
     `)
     .order("created_at", { ascending: false });
 
-  // Fetch owner members to map client email
+  // Fetch members to identify tenant owners
   const { data: members } = await adminClient
     .from("tenant_members")
     .select("tenant_id, user_id, role")
@@ -60,12 +66,12 @@ try {
     }
   }
 
-  const tenantOwnerMap = new Map<string, string>();
+  const tenantOwnerMap = new Map<string, { userId: string; email: string }>();
   if (members) {
     for (const m of members) {
       const email = userEmailMap.get(m.user_id);
       if (email && !tenantOwnerMap.has(m.tenant_id)) {
-        tenantOwnerMap.set(m.tenant_id, email);
+        tenantOwnerMap.set(m.tenant_id, { userId: m.user_id, email });
       }
     }
   }
@@ -78,18 +84,38 @@ try {
     }
   }
 
+  const superadminEmails = new Set<string>();
+  if (superadmins) {
+    for (const s of superadmins) {
+      const email = userEmailMap.get(s.user_id);
+      if (email) superadminEmails.add(email.toLowerCase());
+    }
+  }
+  if (Astro.locals.user?.email) {
+    superadminEmails.add(Astro.locals.user.email.toLowerCase());
+  }
+
   if (tenants) {
-    clientsList = tenants.map((t: any) => {
+    // Exclude any tenant owned by a superadmin — Superadmin is strictly NOT a client
+    const realClientTenants = tenants.filter((t: any) => {
+      const ownerInfo = tenantOwnerMap.get(t.id);
+      if (!ownerInfo) return false;
+      if (superadminUserIds.has(ownerInfo.userId)) return false;
+      if (ownerInfo.email && superadminEmails.has(ownerInfo.email.toLowerCase())) return false;
+      return true;
+    });
+
+    clientsList = realClientTenants.map((t: any) => {
       const sub = subMap.get(t.id);
-      const ownerEmail = tenantOwnerMap.get(t.id) || "N/A";
+      const ownerInfo = tenantOwnerMap.get(t.id);
       const site = Array.isArray(t.sites) && t.sites.length > 0 ? t.sites[0] : null;
       return {
         tenantId: t.id,
         tenantName: t.name,
         createdAt: t.created_at,
-        ownerEmail,
+        ownerEmail: ownerInfo?.email || "Sin email asignado",
         site,
-        planId: sub?.planId || "starter",
+        planId: sub?.planId || "pro",
         status: sub?.status || "active",
         periodEndsAt: sub?.currentPeriodEndsAt || null,
       };
@@ -105,60 +131,80 @@ try {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Platform Backoffice | Landing SaaS Superadmin</title>
+    <title>Platform Master Dashboard | Landing SaaS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
   </head>
-  <body class="backoffice-body">
-    <header class="shell topbar">
-      <div style="display: flex; align-items: center; gap: .75rem;">
-        <span style="background: #f59e0b; color: #000; font-size: .7rem; font-weight: 900; padding: .2rem .5rem; border-radius: 4px;">
-          SUPERADMIN
-        </span>
-        <strong style="color: #f8fafc; font-size: 1.05rem;">Landing SaaS Engine</strong>
+  <body class="superadmin-body">
+    <!-- Top Navigation for Superadmin -->
+    <header class="superadmin-topbar">
+      <div class="topbar-container">
+        <div class="brand-cluster">
+          <div class="superadmin-badge-pulse">
+            <span class="pulse-ring"></span>
+            <span class="badge-core">SUPERADMIN</span>
+          </div>
+          <strong class="platform-title">Landing SaaS <span class="accent-text">Control Center</span></strong>
+        </div>
+
+        <nav class="superadmin-nav" aria-label="Navegación Superadmin">
+          <a href="/backoffice" class="nav-item active">
+            <span class="nav-icon">📊</span>
+            Dashboard & Clientes
+          </a>
+          <a href="/" target="_blank" class="nav-item">
+            <span class="nav-icon">🌐</span>
+            Ver Landing de Ventas ↗
+          </a>
+        </nav>
+
+        <div class="user-cluster">
+          <div class="superadmin-pill" title="Sesión activa como Superadministrador">
+            <span class="user-dot"></span>
+            <span class="user-email">{Astro.locals.user.email}</span>
+          </div>
+          <form method="POST" action={actions.logout}>
+            <button type="submit" class="btn-logout" title="Cerrar sesión">
+              Salir
+            </button>
+          </form>
+        </div>
       </div>
-
-      <nav aria-label="Navegación Backoffice">
-        <ul class="nav-links">
-          <li><a href="/admin" class="nav-link">Espacio de Trabajo (/admin)</a></li>
-          <li><a href="/backoffice" class="nav-link active">Panel Superadmin</a></li>
-          <li><a href="/" target="_blank" class="nav-link" style="color: #38bdf8;">Ver Landing Comercial ↗</a></li>
-        </ul>
-      </nav>
-
-      <form method="POST" action={actions.logout}>
-        <button type="submit" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 6px; padding: .4rem .8rem; cursor: pointer;">
-          Cerrar Sesión
-        </button>
-      </form>
     </header>
 
-    <main class="shell dashboard" style="max-width: 80rem; margin: 0 auto; padding: 2rem 1.5rem 5rem;">
-      <div style="margin-bottom: 2rem;">
-        <p class="eyebrow" style="color: #f59e0b; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .8rem; margin: 0 0 .5rem;">
-          Control Maestro & Multi-Tenant
-        </p>
-        <h1 style="font-size: 2.25rem; font-weight: 900; color: #f8fafc; margin: 0 0 .5rem;">
-          Gestión de Clientes & Plataforma
-        </h1>
-        <p style="color: #94a3b8; margin: 0; font-size: 1rem;">
-          Dá de alta a nuevos clientes, asignales su template y configurá sus landings con total autonomía.
-        </p>
+    <main class="dashboard-content">
+      <!-- Welcome & Header -->
+      <div class="page-intro animate-fade-in">
+        <div class="intro-text">
+          <span class="eyebrow-amber">Panel Maestro de Control</span>
+          <h1 class="page-title">Gestión de Clientes & Landings</h1>
+          <p class="page-subtitle">
+            Administrá tus clientes, dalos de alta con su template asignado y configurá sus landings con control total.
+          </p>
+        </div>
+        <div class="intro-actions">
+          <a href="#alta-cliente" class="btn-cta-gold">
+            <span>➕ Dar de Alta Nuevo Cliente</span>
+          </a>
+        </div>
       </div>
 
-      <!-- Action feedback alerts -->
+      <!-- Action Feedback Banners -->
       {onboardResult?.data?.ok && onboardResult.data.client && (
-        <div class="feedback-banner success" role="status">
-          <div class="banner-icon">🎉</div>
-          <div class="banner-body">
-            <strong>¡Cliente dado de alta con éxito!</strong>
-            <p style="margin: .35rem 0 .75rem; color: #bbf7d0; font-size: .9rem;">
-              Se creó la cuenta para <strong>{onboardResult.data.client.clientEmail}</strong> en el tenant <strong>{onboardResult.data.client.tenantName}</strong> con la landing <strong>"{onboardResult.data.client.siteName}"</strong>.
+        <div class="feedback-banner success animate-slide-down" role="status">
+          <div class="banner-icon-glow">🎉</div>
+          <div class="banner-details">
+            <h3 class="banner-title">¡Cliente dado de alta exitosamente!</h3>
+            <p class="banner-message">
+              Se crearon las credenciales de acceso para <strong>{onboardResult.data.client.clientEmail}</strong> en el tenant <strong>{onboardResult.data.client.tenantName}</strong>. Su landing inicial <strong>"{onboardResult.data.client.siteName}"</strong> está lista.
             </p>
-            <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
-              <a href={`/admin/sites/${onboardResult.data.client.siteId}/theme`} class="btn-action-highlight">
+            <div class="banner-actions">
+              <a href={`/admin/sites/${onboardResult.data.client.siteId}/theme`} class="btn-banner-primary">
                 ⚙️ Configurar Landing del Cliente Ahora &rarr;
               </a>
-              <a href={`/sites/${onboardResult.data.client.siteSlug}`} target="_blank" class="btn-action-ghost">
-                🌐 Ver Landing Pública (/sites/{onboardResult.data.client.siteSlug}) ↗
+              <a href={`/sites/${onboardResult.data.client.siteSlug}`} target="_blank" class="btn-banner-secondary">
+                👁️ Ver Landing Pública (/sites/{onboardResult.data.client.siteSlug}) ↗
               </a>
             </div>
           </div>
@@ -166,240 +212,269 @@ try {
       )}
 
       {onboardResult?.data && !onboardResult.data.ok && (
-        <div class="feedback-banner error" role="alert">
-          <div class="banner-icon">⚠️</div>
-          <div class="banner-body">
-            <strong>Error al dar de alta al cliente:</strong>
-            <p style="margin: .25rem 0 0; color: #fecaca; font-size: .9rem;">
-              {onboardResult.data.error}
-            </p>
+        <div class="feedback-banner error animate-slide-down" role="alert">
+          <div class="banner-icon-glow">⚠️</div>
+          <div class="banner-details">
+            <h3 class="banner-title">Error al procesar el alta</h3>
+            <p class="banner-message">{onboardResult.data.error}</p>
           </div>
         </div>
       )}
 
       {changePlanResult?.data?.ok && changePlanResult.data.subscription && (
-        <div class="feedback-banner success" role="status">
-          <div class="banner-icon">✓</div>
-          <div class="banner-body">
-            Plan actualizado a <strong>{changePlanResult.data.subscription.planId.toUpperCase()}</strong> correctamente.
+        <div class="feedback-banner success animate-slide-down" role="status">
+          <div class="banner-icon-glow">✓</div>
+          <div class="banner-details">
+            <p class="banner-message">
+              Plan actualizado a <strong>{changePlanResult.data.subscription.planId.toUpperCase()}</strong> correctamente.
+            </p>
           </div>
         </div>
       )}
 
       {errorLoading || !overview ? (
-        <p class="error" role="alert">No se pudieron cargar las métricas de la plataforma. Verificá permisos de superadmin.</p>
+        <div class="error-panel">
+          <p>No se pudieron cargar las métricas de la plataforma. Verificá permisos de superadmin.</p>
+        </div>
       ) : (
         <>
-          <!-- Global KPI Cards -->
-          <div class="kpi-grid">
+          <!-- Global KPI Cards with animated glow -->
+          <section class="kpi-section animate-fade-in">
             <div class="kpi-card">
-              <span class="kpi-label">Total Clientes / Tenants</span>
-              <strong class="kpi-value">{overview.totalTenants}</strong>
+              <div class="kpi-header">
+                <span class="kpi-title">Clientes Reales Activos</span>
+                <span class="kpi-badge">Tenants</span>
+              </div>
+              <strong class="kpi-number">{clientsList.length}</strong>
+              <span class="kpi-trend">Excluye cuentas administrativas</span>
             </div>
 
-            <div class="kpi-card">
-              <span class="kpi-label">Suscripciones Activas</span>
-              <strong class="kpi-value" style="color: #22c55e;">{overview.activeSubscriptions}</strong>
+            <div class="kpi-card highlight-green">
+              <div class="kpi-header">
+                <span class="kpi-title">Suscripciones Activas</span>
+                <span class="kpi-badge green">Live</span>
+              </div>
+              <strong class="kpi-number text-green">{overview.activeSubscriptions}</strong>
+              <span class="kpi-trend">Plataforma operando al 100%</span>
             </div>
 
-            <div class="kpi-card">
-              <span class="kpi-label">Períodos de Prueba</span>
-              <strong class="kpi-value" style="color: #38bdf8;">{overview.trialingSubscriptions}</strong>
+            <div class="kpi-card highlight-cyan">
+              <div class="kpi-header">
+                <span class="kpi-title">En Período de Prueba</span>
+                <span class="kpi-badge cyan">Trial</span>
+              </div>
+              <strong class="kpi-number text-cyan">{overview.trialingSubscriptions}</strong>
+              <span class="kpi-trend">Oportunidades de conversión</span>
             </div>
 
-            <div class="kpi-card">
-              <span class="kpi-label">MRR Estimado</span>
-              <strong class="kpi-value">
+            <div class="kpi-card highlight-gold">
+              <div class="kpi-header">
+                <span class="kpi-title">MRR Estimado</span>
+                <span class="kpi-badge gold">Mensual</span>
+              </div>
+              <strong class="kpi-number text-gold">
                 ${overview.estimatedMonthlyRecurringRevenueUsd}
-                <span style="font-size: .85rem; color: #94a3b8; font-weight: 400;">/mes</span>
+                <span class="kpi-unit">USD/mo</span>
               </strong>
+              <span class="kpi-trend">Ingresos recurrentes calculados</span>
             </div>
-          </div>
+          </section>
 
-          <!-- Section: Onboard New Client Form -->
-          <section class="onboard-section">
-            <div class="section-card-header">
-              <div style="display: flex; align-items: center; gap: .6rem;">
-                <span style="font-size: 1.3rem;">🚀</span>
-                <div>
-                  <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: #f8fafc;">
-                    Dar de Alta a un Nuevo Cliente
-                  </h2>
-                  <p style="margin: 0; color: #94a3b8; font-size: .85rem;">
-                    Crea automáticamente el Tenant, el Usuario para que ingrese en <code>/admin/login</code> y su Landing inicial lista para configurar.
-                  </p>
-                </div>
+          <!-- Onboard New Client Form Card -->
+          <section id="alta-cliente" class="onboard-card animate-fade-in">
+            <div class="card-header-cluster">
+              <div class="header-icon-box">🚀</div>
+              <div>
+                <h2 class="card-headline">Alta Directa de Cliente</h2>
+                <p class="card-subtext">
+                  Ingresá los datos del cliente para crear su cuenta de acceso, su tenant aislado y su landing inicial con la dirección visual elegida.
+                </p>
               </div>
             </div>
 
-            <form method="POST" action={actions.onboardClient} class="onboard-form">
-              <div class="form-grid-3">
-                <div class="field-group">
-                  <label for="tenantName">Nombre de Empresa / Cliente *</label>
-                  <input type="text" id="tenantName" name="tenantName" required placeholder="Ej: Consultora Martínez" />
-                  <span class="field-hint">Nombre de la organización o negocio</span>
+            <form method="POST" action={actions.onboardClient} class="onboard-grid-form" id="onboard-form">
+              <!-- Tenant & Auth Details -->
+              <div class="form-section-title">
+                <span>1. Datos del Cliente & Cuenta de Acceso</span>
+              </div>
+
+              <div class="inputs-row-3">
+                <div class="input-field">
+                  <label for="tenantName">Nombre de Empresa o Cliente *</label>
+                  <input type="text" id="tenantName" name="tenantName" required placeholder="Ej: Consultora TechNova" />
+                  <span class="helper-text">Nombre legal o comercial del cliente</span>
                 </div>
 
-                <div class="field-group">
+                <div class="input-field">
                   <label for="clientEmail">Email de Acceso del Cliente *</label>
-                  <input type="email" id="clientEmail" name="clientEmail" required placeholder="cliente@negocio.com" />
-                  <span class="field-hint">Con este email ingresará al panel</span>
+                  <input type="email" id="clientEmail" name="clientEmail" required placeholder="cliente@technova.com" />
+                  <span class="helper-text">Con este email ingresará al login</span>
                 </div>
 
-                <div class="field-group">
-                  <label for="clientPassword">Contraseña Inicial *</label>
-                  <input type="text" id="clientPassword" name="clientPassword" required minlength="8" value="Cliente2026!" />
-                  <span class="field-hint">Mínimo 8 caracteres (puede cambiarla luego)</span>
+                <div class="input-field">
+                  <div class="label-row">
+                    <label for="clientPassword">Contraseña Inicial *</label>
+                    <button type="button" id="btn-generate-password" class="btn-micro-action" title="Generar clave aleatoria">
+                      ⚡ Generar
+                    </button>
+                  </div>
+                  <div class="password-wrapper">
+                    <input type="text" id="clientPassword" name="clientPassword" required minlength="8" value="Cliente2026!" />
+                  </div>
+                  <span class="helper-text">El cliente podrá cambiarla en su panel</span>
                 </div>
               </div>
 
-              <div class="form-grid-4">
-                <div class="field-group">
+              <!-- Site & Template Details -->
+              <div class="form-section-title" style="margin-top: 1.5rem;">
+                <span>2. Configuración de la Landing Page Inicial</span>
+              </div>
+
+              <div class="inputs-row-4">
+                <div class="input-field">
                   <label for="siteName">Nombre de la Landing *</label>
-                  <input type="text" id="siteName" name="siteName" required placeholder="Ej: Martínez & Asociados" />
+                  <input type="text" id="siteName" name="siteName" required placeholder="Ej: TechNova Soluciones" />
+                  <span class="helper-text">Título visible de la landing</span>
                 </div>
 
-                <div class="field-group">
-                  <label for="siteSlug">Identificador / Slug *</label>
-                  <input type="text" id="siteSlug" name="siteSlug" required placeholder="martinez-asociados" />
-                  <span class="field-hint">URL pública: /sites/slug</span>
+                <div class="input-field">
+                  <label for="siteSlug">Slug / Identificador de URL *</label>
+                  <input type="text" id="siteSlug" name="siteSlug" required placeholder="technova-soluciones" />
+                  <span class="helper-text preview-slug" id="slug-preview">Ruta: /sites/technova-soluciones</span>
                 </div>
 
-                <div class="field-group">
+                <div class="input-field">
                   <label for="templateKey">Dirección Visual / Template *</label>
                   <select id="templateKey" name="templateKey" required>
                     {TEMPLATE_KEYS.map((tKey) => (
                       <option value={tKey} selected={tKey === "friendly-tech"}>
-                        {TEMPLATE_MANIFESTS[tKey].name} ({tKey})
+                        {TEMPLATE_MANIFESTS[tKey].name} ({TEMPLATE_MANIFESTS[tKey].personality.split(",")[0]})
                       </option>
                     ))}
                   </select>
+                  <span class="helper-text">Estilo visual y composición base</span>
                 </div>
 
-                <div class="field-group">
+                <div class="input-field">
                   <label for="planId">Plan SaaS Asignado *</label>
                   <select id="planId" name="planId" required>
                     {PLAN_IDS.map((pId) => (
                       <option value={pId} selected={pId === "pro"}>
-                        Plan {pId.toUpperCase()}
+                        Plan {pId.toUpperCase()} {pId === "pro" ? "(Recomendado)" : ""}
                       </option>
                     ))}
                   </select>
+                  <span class="helper-text">Define cuotas y funciones habilitadas</span>
                 </div>
               </div>
 
-              <div class="form-footer">
-                <button type="submit" class="btn-submit-onboard">
-                  <span>➕ Dar de Alta Cliente y Crear Landing</span>
+              <div class="form-submit-row">
+                <button type="submit" class="btn-create-client">
+                  <span>Crear Cuenta de Cliente y Landing</span>
+                  <span class="btn-chevron">&rarr;</span>
                 </button>
               </div>
             </form>
           </section>
 
-          <!-- Section: Clients & Sites Directory Table -->
-          <section style="margin-top: 3.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+          <!-- Section: Client Directory Table -->
+          <section class="directory-section animate-fade-in" style="margin-top: 4rem;">
+            <div class="directory-header">
               <div>
-                <h2 style="font-size: 1.25rem; font-weight: 800; color: #f8fafc; margin: 0 0 .25rem;">
-                  Clientes y Landings en la Plataforma
-                </h2>
-                <p style="color: #94a3b8; font-size: .85rem; margin: 0;">
-                  Accedé a configurar la landing de cualquier cliente o cambiá su plan en tiempo real.
+                <h2 class="section-title">Directorio de Clientes</h2>
+                <p class="section-subtitle">
+                  Listado exclusivo de clientes dados de alta. Podés ingresar a configurar cualquier sitio directamente con tus permisos de superadmin.
                 </p>
               </div>
-              <span style="font-size: .85rem; color: #f59e0b; font-weight: 700;">
-                {clientsList.length} {clientsList.length === 1 ? "cliente registrado" : "clientes registrados"}
-              </span>
+              <div class="directory-counter">
+                <span class="counter-number">{clientsList.length}</span>
+                <span class="counter-text">{clientsList.length === 1 ? "cliente" : "clientes"}</span>
+              </div>
             </div>
 
             {clientsList.length === 0 ? (
-              <div class="empty-box">
-                <p>Aún no hay clientes registrados en la plataforma.</p>
-                <p style="font-size: .85rem; color: #64748b;">Utilizá el formulario de arriba para dar de alta al primero.</p>
+              <div class="empty-state-card">
+                <div class="empty-icon">📂</div>
+                <h3>No hay clientes registrados todavía</h3>
+                <p>Completá el formulario de arriba para dar de alta a tu primer cliente.</p>
               </div>
             ) : (
-              <div class="table-container">
-                <table class="superadmin-table">
+              <div class="super-table-wrapper">
+                <table class="super-table">
                   <thead>
                     <tr>
                       <th>Cliente / Empresa</th>
                       <th>Email de Acceso</th>
-                      <th>Landing / Slug</th>
+                      <th>Landing Asignada</th>
                       <th>Template</th>
                       <th>Plan SaaS</th>
-                      <th>Acciones de Superadmin</th>
+                      <th>Configurar como Superadmin</th>
                     </tr>
                   </thead>
                   <tbody>
                     {clientsList.map((client) => (
-                      <tr>
-                        <td>
-                          <strong style="color: #f8fafc; font-size: .95rem; display: block;">
-                            {client.tenantName}
-                          </strong>
-                          <span style="font-size: .75rem; color: #64748b; font-family: monospace;">
-                            ID: {client.tenantId.substring(0, 8)}...
-                          </span>
+                      <tr class="client-row">
+                        <td class="col-tenant">
+                          <strong class="tenant-name">{client.tenantName}</strong>
+                          <span class="tenant-id">ID: {client.tenantId.substring(0, 8)}...</span>
                         </td>
 
-                        <td>
-                          <span style="color: #cbd5e1; font-size: .85rem; font-family: monospace;">
-                            {client.ownerEmail}
-                          </span>
+                        <td class="col-email">
+                          <span class="email-badge">{client.ownerEmail}</span>
                         </td>
 
-                        <td>
+                        <td class="col-site">
                           {client.site ? (
-                            <div>
-                              <strong style="color: #e2e8f0; font-size: .9rem;">{client.site.name}</strong>
-                              <div style="display: flex; gap: .5rem; align-items: center; margin-top: .2rem;">
-                                <span style="font-size: .75rem; color: #38bdf8; font-family: monospace;">
-                                  /{client.site.slug}
-                                </span>
-                                <a href={`/sites/${client.site.slug}`} target="_blank" class="link-preview">
+                            <div class="site-info-box">
+                              <span class="site-title">{client.site.name}</span>
+                              <div class="site-slug-row">
+                                <span class="site-path">/sites/{client.site.slug}</span>
+                                <a href={`/sites/${client.site.slug}`} target="_blank" class="link-preview-external" title="Ver landing en vivo">
                                   Ver ↗
                                 </a>
                               </div>
                             </div>
                           ) : (
-                            <span style="color: #64748b; font-size: .85rem;">Sin landing creada</span>
+                            <span class="no-site-tag">Sin sitio activo</span>
                           )}
                         </td>
 
-                        <td>
+                        <td class="col-template">
                           {client.site ? (
-                            <span class="template-chip">
-                              {client.site.template_key || "friendly-tech"}
+                            <span class={`template-tag template-${client.site.template_key || "friendly-tech"}`}>
+                              {TEMPLATE_MANIFESTS[client.site.template_key]?.name || client.site.template_key}
                             </span>
                           ) : (
                             <span>-</span>
                           )}
                         </td>
 
-                        <td>
-                          <form method="POST" action={actions.changePlan} class="plan-change-form">
+                        <td class="col-plan">
+                          <form method="POST" action={actions.changePlan} class="plan-form">
                             <input type="hidden" name="tenantId" value={client.tenantId} />
-                            <select name="planId" class="plan-select">
+                            <select name="planId" class="select-plan-compact">
                               {PLAN_IDS.map((pId) => (
                                 <option value={pId} selected={pId === client.planId}>
                                   {pId.toUpperCase()}
                                 </option>
                               ))}
                             </select>
-                            <button type="submit" class="btn-plan-apply" title="Aplicar cambio de plan">
+                            <button type="submit" class="btn-plan-save" title="Guardar cambio de plan">
                               ✓
                             </button>
                           </form>
                         </td>
 
-                        <td>
-                          <div style="display: flex; gap: .5rem; flex-wrap: wrap;">
-                            {client.site && (
-                              <a href={`/admin/sites/${client.site.id}/theme`} class="btn-config-site">
-                                ⚙️ Configurar Landing
+                        <td class="col-actions">
+                          {client.site ? (
+                            <div class="actions-group">
+                              <a href={`/admin/sites/${client.site.id}/theme`} class="btn-manage-landing" title="Configurar Theme, Hero y Secciones">
+                                <span>⚙️ Configurar Landing</span>
                               </a>
-                            )}
-                          </div>
+                            </div>
+                          ) : (
+                            <span class="muted-text">N/A</span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -412,309 +487,860 @@ try {
       )}
     </main>
 
+    <!-- Client-side Interactive Script -->
+    <script>
+      // Auto-generate slug from site name
+      const siteNameInput = document.getElementById("siteName") as HTMLInputElement | null;
+      const siteSlugInput = document.getElementById("siteSlug") as HTMLInputElement | null;
+      const slugPreview = document.getElementById("slug-preview");
+
+      function slugify(text: string): string {
+        return text
+          .toString()
+          .toLowerCase()
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/[\s_]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+
+      if (siteNameInput && siteSlugInput) {
+        let isSlugManuallyEdited = false;
+
+        siteSlugInput.addEventListener("input", () => {
+          isSlugManuallyEdited = true;
+          if (slugPreview) slugPreview.textContent = `Ruta: /sites/${siteSlugInput.value}`;
+        });
+
+        siteNameInput.addEventListener("input", () => {
+          if (!isSlugManuallyEdited) {
+            const generated = slugify(siteNameInput.value);
+            siteSlugInput.value = generated;
+            if (slugPreview) slugPreview.textContent = `Ruta: /sites/${generated}`;
+          }
+        });
+      }
+
+      // Password Generator Button
+      const generateBtn = document.getElementById("btn-generate-password");
+      const passwordInput = document.getElementById("clientPassword") as HTMLInputElement | null;
+
+      if (generateBtn && passwordInput) {
+        generateBtn.addEventListener("click", () => {
+          const chars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*";
+          let pass = "";
+          for (let i = 0; i < 12; i++) {
+            pass += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          passwordInput.value = pass;
+          passwordInput.type = "text";
+        });
+      }
+    </script>
+
     <style>
-      .backoffice-body {
-        background-color: #060a14;
+      /* Base Superadmin Styling */
+      .superadmin-body {
+        background-color: #040813;
         color: #f1f5f9;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         margin: 0;
         min-height: 100vh;
+        line-height: 1.5;
       }
 
-      /* KPI Cards */
-      .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      /* Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes pulseAura {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      .animate-slide-down {
+        animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      /* Topbar */
+      .superadmin-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(4, 8, 19, 0.88);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+      }
+
+      .topbar-container {
+        max-width: 82rem;
+        margin: 0 auto;
+        padding: 0.9rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+      }
+
+      .brand-cluster {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+      }
+
+      .superadmin-badge-pulse {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 4px;
+      }
+
+      .badge-core {
+        background: #f59e0b;
+        color: #060a14;
+        font-size: 0.7rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        padding: 0.25rem 0.55rem;
+        border-radius: 4px;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+      }
+
+      .platform-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #f8fafc;
+        letter-spacing: -0.02em;
+      }
+
+      .accent-text {
+        color: #f59e0b;
+      }
+
+      .superadmin-nav {
+        display: flex;
+        align-items: center;
         gap: 1.25rem;
-        margin-bottom: 2.5rem;
       }
 
-      .kpi-card {
-        background: #0d1527;
-        border: 1px solid #1e293b;
-        border-radius: 0.75rem;
-        padding: 1.25rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-      }
-
-      .kpi-label {
-        display: block;
+      .nav-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 0.4rem 0.75rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .nav-item:hover {
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .nav-item.active {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+      }
+
+      .user-cluster {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .superadmin-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        color: #cbd5e1;
+      }
+
+      .user-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #f59e0b;
+        box-shadow: 0 0 6px #f59e0b;
+      }
+
+      .btn-logout {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #94a3b8;
+        padding: 0.4rem 0.85rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-logout:hover {
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Dashboard Main Content */
+      .dashboard-content {
+        max-width: 82rem;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 6rem;
+      }
+
+      /* Page Intro */
+      .page-intro {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+      }
+
+      .eyebrow-amber {
+        display: inline-block;
         font-size: 0.75rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: #f59e0b;
         margin-bottom: 0.4rem;
       }
 
-      .kpi-value {
-        font-size: 1.85rem;
+      .page-title {
+        font-size: clamp(2rem, 3.5vw, 2.75rem);
         font-weight: 900;
+        letter-spacing: -0.03em;
         color: #f8fafc;
-        letter-spacing: -0.02em;
+        margin: 0 0 0.5rem;
+      }
+
+      .page-subtitle {
+        color: #94a3b8;
+        font-size: 1.05rem;
+        margin: 0;
+        max-width: 44rem;
+      }
+
+      .btn-cta-gold {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #040813;
+        font-weight: 800;
+        font-size: 0.95rem;
+        border-radius: 0.6rem;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .btn-cta-gold:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(245, 158, 11, 0.5);
       }
 
       /* Feedback Banners */
       .feedback-banner {
         display: flex;
-        gap: 1rem;
+        gap: 1.25rem;
         align-items: flex-start;
-        padding: 1.25rem;
-        border-radius: 0.75rem;
-        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2.5rem;
       }
 
       .feedback-banner.success {
-        background: rgba(16, 185, 129, 0.12);
+        background: rgba(16, 185, 129, 0.1);
         border: 1px solid rgba(16, 185, 129, 0.35);
-        color: #f1f5f9;
       }
 
       .feedback-banner.error {
-        background: rgba(239, 68, 68, 0.12);
+        background: rgba(239, 68, 68, 0.1);
         border: 1px solid rgba(239, 68, 68, 0.35);
-        color: #f1f5f9;
       }
 
-      .banner-icon {
-        font-size: 1.5rem;
+      .banner-icon-glow {
+        font-size: 2rem;
       }
 
-      .banner-body strong {
-        font-size: 1.05rem;
-        color: #fff;
+      .banner-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #34d399;
+        margin: 0 0 0.35rem;
       }
 
-      .btn-action-highlight {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        background: #f59e0b;
-        color: #060a14;
-        font-weight: 700;
-        font-size: 0.85rem;
-        border-radius: 0.4rem;
-        text-decoration: none;
+      .banner-message {
+        font-size: 0.95rem;
+        color: #cbd5e1;
+        margin: 0 0 1rem;
+        line-height: 1.5;
       }
 
-      .btn-action-ghost {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #f8fafc;
-        font-size: 0.85rem;
-        font-weight: 600;
-        border-radius: 0.4rem;
-        text-decoration: none;
-      }
-
-      /* Onboard Form Section */
-      .onboard-section {
-        background: #0d1527;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-      }
-
-      .section-card-header {
-        border-bottom: 1px solid #1e293b;
-        padding-bottom: 1.25rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .onboard-form {
+      .banner-actions {
         display: flex;
-        flex-direction: column;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-banner-primary {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.6rem 1.2rem;
+        background: #f59e0b;
+        color: #040813;
+        font-weight: 800;
+        font-size: 0.88rem;
+        border-radius: 0.45rem;
+        text-decoration: none;
+      }
+
+      .btn-banner-secondary {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.6rem 1.2rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #f8fafc;
+        font-weight: 600;
+        font-size: 0.88rem;
+        border-radius: 0.45rem;
+        text-decoration: none;
+      }
+
+      /* KPI Cards */
+      .kpi-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3.5rem;
+      }
+
+      .kpi-card {
+        background: #090e1c;
+        border: 1px solid #1c263d;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        transition: transform 0.25s ease, border-color 0.25s ease;
+      }
+
+      .kpi-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .kpi-card.highlight-gold {
+        border-color: rgba(245, 158, 11, 0.35);
+        background: linear-gradient(180deg, rgba(245, 158, 11, 0.06) 0%, #090e1c 100%);
+      }
+
+      .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .kpi-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .kpi-badge {
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #94a3b8;
+      }
+
+      .kpi-badge.green { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+      .kpi-badge.cyan { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+      .kpi-badge.gold { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+      .kpi-number {
+        display: block;
+        font-size: 2.25rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: #f8fafc;
+        margin-bottom: 0.4rem;
+      }
+
+      .text-green { color: #22c55e; }
+      .text-cyan { color: #38bdf8; }
+      .text-gold { color: #f59e0b; }
+
+      .kpi-unit {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #94a3b8;
+      }
+
+      .kpi-trend {
+        display: block;
+        font-size: 0.78rem;
+        color: #64748b;
+      }
+
+      /* Onboard Form Card */
+      .onboard-card {
+        background: #090e1c;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        border-radius: 1.25rem;
+        padding: 2.5rem;
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+      }
+
+      .card-header-cluster {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        border-bottom: 1px solid #1c263d;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .header-icon-box {
+        font-size: 2rem;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+      }
+
+      .card-headline {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #f8fafc;
+        margin: 0 0 0.3rem;
+      }
+
+      .card-subtext {
+        color: #94a3b8;
+        font-size: 0.92rem;
+        margin: 0;
+      }
+
+      .form-section-title {
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #f59e0b;
+        margin-bottom: 1rem;
+      }
+
+      .inputs-row-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         gap: 1.5rem;
       }
 
-      .form-grid-3 {
+      .inputs-row-4 {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1.5rem;
       }
 
-      .form-grid-4 {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.25rem;
-      }
-
-      .field-group {
+      .input-field {
         display: flex;
         flex-direction: column;
       }
 
-      .field-group label {
+      .label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+      }
+
+      .input-field label {
         font-size: 0.85rem;
         font-weight: 600;
         color: #e2e8f0;
         margin-bottom: 0.4rem;
       }
 
-      .field-group input,
-      .field-group select {
-        background: #070c17;
-        border: 1px solid #243555;
-        border-radius: 0.5rem;
-        padding: 0.65rem 0.85rem;
-        color: #f8fafc;
-        font-size: 0.9rem;
-        font-family: inherit;
-        outline: none;
-        transition: border-color 0.2s ease;
+      .label-row label {
+        margin-bottom: 0;
       }
 
-      .field-group input:focus,
-      .field-group select:focus {
+      .btn-micro-action {
+        background: rgba(245, 158, 11, 0.15);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        color: #f59e0b;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .btn-micro-action:hover {
+        background: #f59e0b;
+        color: #040813;
+      }
+
+      .input-field input,
+      .input-field select {
+        background: #040813;
+        border: 1px solid #23314f;
+        border-radius: 0.55rem;
+        padding: 0.75rem 0.95rem;
+        color: #f8fafc;
+        font-size: 0.92rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .input-field input:focus,
+      .input-field select:focus {
         border-color: #f59e0b;
         box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
       }
 
-      .field-hint {
+      .helper-text {
         font-size: 0.75rem;
         color: #64748b;
         margin-top: 0.35rem;
       }
 
-      .form-footer {
+      .preview-slug {
+        color: #38bdf8;
+        font-family: monospace;
+      }
+
+      .form-submit-row {
         display: flex;
         justify-content: flex-end;
-        border-top: 1px solid #1e293b;
-        padding-top: 1.25rem;
+        border-top: 1px solid #1c263d;
+        padding-top: 1.5rem;
+        margin-top: 2rem;
       }
 
-      .btn-submit-onboard {
-        padding: 0.8rem 1.75rem;
+      .btn-create-client {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.9rem 2rem;
         background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: #060a14;
+        color: #040813;
         font-weight: 800;
-        font-size: 0.95rem;
+        font-size: 1rem;
         border: none;
-        border-radius: 0.5rem;
+        border-radius: 0.6rem;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        transition: transform 0.15s ease;
+        box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+        transition: all 0.2s ease;
       }
 
-      .btn-submit-onboard:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
+      .btn-create-client:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(245, 158, 11, 0.5);
       }
 
       /* Directory Table */
-      .table-container {
-        background: #0d1527;
-        border: 1px solid #1e293b;
-        border-radius: 0.75rem;
-        overflow-x: auto;
+      .directory-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 1.25rem;
+        gap: 1.5rem;
       }
 
-      .superadmin-table {
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #f8fafc;
+        margin: 0 0 0.3rem;
+      }
+
+      .section-subtitle {
+        font-size: 0.92rem;
+        color: #94a3b8;
+        margin: 0;
+      }
+
+      .directory-counter {
+        display: flex;
+        align-items: baseline;
+        gap: 0.35rem;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        padding: 0.3rem 0.8rem;
+        border-radius: 9999px;
+      }
+
+      .counter-number {
+        font-size: 1.1rem;
+        font-weight: 900;
+        color: #f59e0b;
+      }
+
+      .counter-text {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #f59e0b;
+        text-transform: uppercase;
+      }
+
+      .super-table-wrapper {
+        background: #090e1c;
+        border: 1px solid #1c263d;
+        border-radius: 1rem;
+        overflow-x: auto;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+      }
+
+      .super-table {
         width: 100%;
         border-collapse: collapse;
         text-align: left;
-        color: #cbd5e1;
-        font-size: 0.875rem;
+        font-size: 0.9rem;
       }
 
-      .superadmin-table th {
-        background: #080d19;
-        padding: 0.85rem 1rem;
+      .super-table th {
+        background: #050a17;
+        padding: 1rem 1.25rem;
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: #94a3b8;
-        border-bottom: 1px solid #1e293b;
+        border-bottom: 1px solid #1c263d;
       }
 
-      .superadmin-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #15223a;
+      .super-table td {
+        padding: 1.2rem 1.25rem;
+        border-bottom: 1px solid #141c2e;
         vertical-align: middle;
       }
 
-      .template-chip {
-        font-size: 0.75rem;
-        background: rgba(56, 189, 248, 0.1);
-        color: #38bdf8;
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        padding: 0.2rem 0.55rem;
-        border-radius: 9999px;
+      .client-row {
+        transition: background-color 0.15s ease;
       }
 
-      .link-preview {
+      .client-row:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+      }
+
+      .tenant-name {
+        display: block;
+        font-size: 0.98rem;
+        color: #f8fafc;
+        margin-bottom: 0.2rem;
+      }
+
+      .tenant-id {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-family: monospace;
+      }
+
+      .email-badge {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: #cbd5e1;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 0.25rem 0.55rem;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .site-title {
+        display: block;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #e2e8f0;
+      }
+
+      .site-slug-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+      }
+
+      .site-path {
+        font-size: 0.78rem;
+        color: #38bdf8;
+        font-family: monospace;
+      }
+
+      .link-preview-external {
         font-size: 0.75rem;
         color: #94a3b8;
         text-decoration: none;
       }
 
-      .link-preview:hover {
+      .link-preview-external:hover {
         color: #38bdf8;
         text-decoration: underline;
       }
 
-      .plan-change-form {
-        display: flex;
-        gap: 0.35rem;
-        align-items: center;
+      .template-tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.65rem;
+        border-radius: 9999px;
+        background: rgba(56, 189, 248, 0.1);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.25);
       }
 
-      .plan-select {
-        background: #080d19;
-        border: 1px solid #243555;
+      .template-tag.template-friendly-tech {
+        background: rgba(56, 189, 248, 0.12);
+        color: #38bdf8;
+        border-color: rgba(56, 189, 248, 0.3);
+      }
+
+      .template-tag.template-tech-diagnostic {
+        background: rgba(16, 185, 129, 0.12);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.3);
+      }
+
+      .template-tag.template-cyber-performance {
+        background: rgba(168, 85, 247, 0.12);
+        color: #c084fc;
+        border-color: rgba(168, 85, 247, 0.3);
+      }
+
+      .template-tag.template-system-monitor {
+        background: rgba(234, 179, 8, 0.12);
+        color: #facc15;
+        border-color: rgba(234, 179, 8, 0.3);
+      }
+
+      .template-tag.template-repair-workshop {
+        background: rgba(249, 115, 22, 0.12);
+        color: #fb923c;
+        border-color: rgba(249, 115, 22, 0.3);
+      }
+
+      .template-tag.template-tech-editorial {
+        background: rgba(244, 63, 94, 0.12);
+        color: #fb7185;
+        border-color: rgba(244, 63, 94, 0.3);
+      }
+
+      .plan-form {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .select-plan-compact {
+        background: #040813;
+        border: 1px solid #23314f;
         color: #f8fafc;
         border-radius: 4px;
-        padding: 0.25rem 0.5rem;
+        padding: 0.3rem 0.5rem;
         font-size: 0.8rem;
       }
 
-      .btn-plan-apply {
-        background: #243555;
+      .btn-plan-save {
+        background: #23314f;
         color: #38bdf8;
         border: none;
-        padding: 0.25rem 0.55rem;
+        padding: 0.3rem 0.6rem;
         border-radius: 4px;
         font-size: 0.8rem;
         cursor: pointer;
-        font-weight: bold;
+        font-weight: 700;
       }
 
-      .btn-plan-apply:hover {
+      .btn-plan-save:hover {
         background: #38bdf8;
-        color: #060a14;
+        color: #040813;
       }
 
-      .btn-config-site {
+      .btn-manage-landing {
         display: inline-flex;
         align-items: center;
-        gap: 0.3rem;
-        padding: 0.45rem 0.85rem;
+        gap: 0.4rem;
+        padding: 0.55rem 1rem;
         background: rgba(245, 158, 11, 0.15);
         border: 1px solid rgba(245, 158, 11, 0.35);
-        color: #fbbf24;
-        font-size: 0.8rem;
+        color: #f59e0b;
         font-weight: 700;
-        border-radius: 0.4rem;
+        font-size: 0.85rem;
+        border-radius: 0.45rem;
         text-decoration: none;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
       }
 
-      .btn-config-site:hover {
+      .btn-manage-landing:hover {
         background: #f59e0b;
-        color: #060a14;
+        color: #040813;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
       }
 
-      .empty-box {
+      .empty-state-card {
         text-align: center;
-        padding: 3rem 1.5rem;
-        background: #0d1527;
-        border: 1px dashed #1e293b;
-        border-radius: 0.75rem;
+        padding: 4rem 2rem;
+        background: #090e1c;
+        border: 1px dashed #1c263d;
+        border-radius: 1rem;
         color: #94a3b8;
+      }
+
+      .empty-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      @media (max-width: 900px) {
+        .topbar-container {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .page-intro {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .onboard-card {
+          padding: 1.5rem;
+        }
       }
     </style>
   </body>
