@@ -1,0 +1,439 @@
+---
+import { actions } from "astro:actions";
+import { parseServerEnv } from "../../../../infrastructure/config/env";
+import { SupabaseDomainRepository } from "../../../../infrastructure/supabase/domain-repository";
+import { getDnsChallengeRecords } from "../../../../domain/domain/site-domain";
+
+export const prerender = false;
+
+const { id: siteId } = Astro.params;
+if (!siteId) {
+  return Astro.redirect("/admin", 303);
+}
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/admin/login", 303);
+}
+
+const env = parseServerEnv({ ...import.meta.env, ...process.env });
+
+const { data: siteData, error: siteError } = await Astro.locals.supabase
+  .from("sites")
+  .select("id, name, slug, tenant_id")
+  .eq("id", siteId)
+  .maybeSingle();
+
+if (siteError || !siteData) {
+  return Astro.redirect("/admin", 303);
+}
+
+const tenantId = siteData.tenant_id;
+const domainRepo = new SupabaseDomainRepository(Astro.locals.supabase);
+const domains = await domainRepo.listDomains(siteId);
+
+const addResult = Astro.getActionResult(actions.addDomain);
+const verifyResult = Astro.getActionResult(actions.verifyDomain);
+const deleteResult = Astro.getActionResult(actions.deleteDomain);
+
+const isSuccess = Boolean(
+  addResult?.data?.ok ||
+  (verifyResult?.data?.ok && verifyResult.data.verified) ||
+  deleteResult?.data?.ok
+);
+
+const actionMessage = verifyResult?.data?.ok
+  ? verifyResult.data.message
+  : null;
+
+const errorMessage =
+  (addResult && !addResult.data?.ok ? addResult.data?.error : null) ||
+  (verifyResult && !verifyResult.data?.ok ? verifyResult.data?.error : null) ||
+  (verifyResult && verifyResult.data?.ok && !verifyResult.data.verified ? verifyResult.data.message : null) ||
+  (deleteResult && !deleteResult.data?.ok ? deleteResult.data?.error : null);
+
+const cnameTarget = `cname.${env.appHostname}`;
+const automaticSubdomain = `${siteData.slug}.${env.appHostname}`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dominios & DNS | {siteData.name}</title>
+    <style>
+      :root {
+        --color-bg: #071225;
+        --color-surface: #0e1e38;
+        --color-surface-card: #132749;
+        --color-border: #243b66;
+        --color-text: #f0f4fc;
+        --color-text-muted: #95a8c9;
+        --color-primary: #3b82f6;
+        --color-primary-hover: #2563eb;
+        --color-success: #10b981;
+        --color-warning: #f59e0b;
+        --color-danger: #ef4444;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
+        line-height: 1.5;
+      }
+      .shell {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border);
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex-wrap: wrap;
+      }
+      .nav-link {
+        color: var(--color-text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+      .nav-link:hover, .nav-link.active {
+        color: var(--color-text);
+        background: var(--color-surface);
+      }
+      .card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .btn {
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .btn:hover {
+        background: var(--color-primary-hover);
+      }
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+      }
+      .btn-secondary:hover {
+        background: var(--color-surface-card);
+      }
+      .btn-danger {
+        background: transparent;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+      }
+      .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+      }
+      .badge {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+      .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+      .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+      .badge-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+      .dns-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+      }
+      .dns-table th, .dns-table td {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid var(--color-border);
+        text-align: left;
+      }
+      .dns-table th {
+        background: var(--color-surface-card);
+        color: var(--color-text-muted);
+      }
+      code {
+        background: rgba(0,0,0,0.3);
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-family: monospace;
+        color: #93c5fd;
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        margin-bottom: 0.4rem;
+        color: var(--color-text-muted);
+      }
+      .form-input {
+        width: 100%;
+        max-width: 400px;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        padding: 0.5rem 0.8rem;
+        color: var(--color-text);
+        font-size: 0.95rem;
+        box-sizing: border-box;
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="shell topbar">
+      <strong>Landing SaaS</strong>
+      <nav aria-label="Admin navigation">
+        <ul class="nav-links">
+          <li><a href="/admin" class="nav-link active">Sites</a></li>
+          <li><a href="/admin/members" class="nav-link">Members</a></li>
+        </ul>
+      </nav>
+      <form method="POST" action={actions.logout}>
+        <button type="submit" class="btn btn-secondary">Sign out</button>
+      </form>
+    </header>
+
+    <main class="shell dashboard">
+      <p style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 0.5rem;">
+        Dominios & Conectividad &bull; <span class="badge badge-info">Fase 6</span>
+      </p>
+      <h1 style="margin: 0 0 0.5rem 0;">{siteData.name} &mdash; Dominios & DNS</h1>
+      <p style="color: var(--color-text-muted); margin-bottom: 2rem;">
+        Conecta subdominios de la plataforma o dominios personalizados de tus clientes con resolución segura y certificados SSL automáticos.
+      </p>
+
+      <nav aria-label="Site sections" style="margin-bottom: 2rem;">
+        <ul class="nav-links" style="border-bottom: 1px solid var(--color-border); padding-bottom: .75rem;">
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Template</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Theme</a></li>
+          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Cards</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promotions</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacts</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Media</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campaigns</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publish & History</a></li>
+          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link active">Domains</a></li>
+          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analytics</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Preview ↗</a></li>
+        </ul>
+      </nav>
+
+      {isSuccess && (
+        <div class="card" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399; margin-bottom: 1.5rem;" role="status">
+          ✓ Operación completada exitosamente. {actionMessage && <span>&bull; {actionMessage}</span>}
+        </div>
+      )}
+
+      {errorMessage && (
+        <div class="card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #f87171; margin-bottom: 1.5rem;" role="alert">
+          ⚠ {errorMessage}
+        </div>
+      )}
+
+      <!-- Subdominio de plataforma -->
+      <div class="card">
+        <h2 style="font-size: 1.2rem; margin-top: 0;">Subdominio de la Plataforma</h2>
+        <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+          Tu landing se publica automáticamente y de forma instantánea en el subdominio canónico de la plataforma:
+        </p>
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--color-bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--color-border); margin-top: 1rem;">
+          <div>
+            <strong style="font-size: 1.1rem; color: #93c5fd;">{automaticSubdomain}</strong>
+            <span class="badge badge-success" style="margin-left: 0.75rem;">Activo</span>
+          </div>
+          <a href={`/sites/${siteData.slug}`} target="_blank" class="btn btn-secondary">
+            Visitar Landing ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Dominios Personalizados -->
+      <div class="card">
+        <h2 style="font-size: 1.2rem; margin-top: 0;">Dominios Personalizados (Custom Domains)</h2>
+        <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+          Conecta el dominio propio de tu cliente (ej. <code>landing.mitaller.pe</code> o <code>mitaller.com</code>).
+        </p>
+
+        <!-- Formulario Agregar Dominio -->
+        <form method="POST" action={actions.addDomain} style="background: var(--color-surface-card); padding: 1.25rem; border-radius: 6px; margin: 1.5rem 0;">
+          <input type="hidden" name="siteId" value={siteId} />
+          <input type="hidden" name="tenantId" value={tenantId} />
+
+          <h3 style="font-size: 1rem; margin-top: 0; margin-bottom: 1rem;">Conectar Nuevo Dominio</h3>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="domain-input">Nombre de Dominio (FQDN):</label>
+              <input
+                id="domain-input"
+                name="domain"
+                type="text"
+                placeholder="landing.ejemplo.com"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="type-select">Método de Verificación:</label>
+              <select id="type-select" name="verificationType" class="form-input" style="max-width: 200px;">
+                <option value="cname">CNAME (Recomendado)</option>
+                <option value="txt">TXT Challenge</option>
+              </select>
+            </div>
+            <button type="submit" class="btn">
+              Agregar Dominio
+            </button>
+          </div>
+        </form>
+
+        <!-- Lista de Dominios -->
+        {domains.length === 0 ? (
+          <p style="color: var(--color-text-muted); font-style: italic; padding: 1rem 0;">
+            No hay dominios personalizados registrados para este sitio.
+          </p>
+        ) : (
+          <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+            {domains.map((dom) => {
+              const dns = getDnsChallengeRecords(dom.domain, dom.verificationToken, cnameTarget);
+              return (
+                <div style="border: 1px solid var(--color-border); border-radius: 8px; padding: 1.25rem; background: var(--color-surface-card);">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                      <h3 style="margin: 0 0 0.5rem 0; font-size: 1.15rem; color: #fff;">
+                        {dom.domain}
+                      </h3>
+                      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <span class={`badge ${dom.status === "verified" ? "badge-success" : dom.status === "pending" ? "badge-warning" : "badge-danger"}`}>
+                          DNS: {dom.status}
+                        </span>
+                        <span class={`badge ${dom.sslStatus === "active" ? "badge-success" : dom.sslStatus === "pending" ? "badge-warning" : "badge-danger"}`}>
+                          SSL: {dom.sslStatus}
+                        </span>
+                        <span style="font-size: 0.8rem; color: var(--color-text-muted);">
+                          Método: <code>{dom.verificationType.toUpperCase()}</code>
+                        </span>
+                        {dom.verifiedAt && (
+                          <span style="font-size: 0.8rem; color: var(--color-text-muted);">
+                            Verificado el {new Date(dom.verifiedAt).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                      <form method="POST" action={actions.verifyDomain}>
+                        <input type="hidden" name="siteId" value={siteId} />
+                        <input type="hidden" name="tenantId" value={tenantId} />
+                        <input type="hidden" name="domainId" value={dom.id} />
+                        <button type="submit" class="btn btn-secondary">
+                          Verificar DNS ahora
+                        </button>
+                      </form>
+
+                      <form method="POST" action={actions.deleteDomain} onsubmit="return confirm('¿Seguro que deseas eliminar este dominio?');">
+                        <input type="hidden" name="siteId" value={siteId} />
+                        <input type="hidden" name="tenantId" value={tenantId} />
+                        <input type="hidden" name="domainId" value={dom.id} />
+                        <button type="submit" class="btn btn-danger">
+                          Eliminar
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Instrucciones DNS -->
+                  <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+                    <strong style="font-size: 0.85rem; color: var(--color-text-muted); text-transform: uppercase;">
+                      Configuración DNS requerida en tu proveedor:
+                    </strong>
+
+                    {dom.verificationType === "cname" ? (
+                      <div>
+                        <p style="font-size: 0.85rem; margin: 0.5rem 0;">{dns.cname.instruction}</p>
+                        <table class="dns-table">
+                          <thead>
+                            <tr>
+                              <th>Tipo</th>
+                              <th>Nombre / Host</th>
+                              <th>Destino / Valor</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>CNAME</code></td>
+                              <td><code>{dns.cname.host}</code></td>
+                              <td><code>{dns.cname.target}</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div>
+                        <p style="font-size: 0.85rem; margin: 0.5rem 0;">{dns.txt.instruction}</p>
+                        <table class="dns-table">
+                          <thead>
+                            <tr>
+                              <th>Tipo</th>
+                              <th>Nombre / Host</th>
+                              <th>Valor</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>TXT</code></td>
+                              <td><code>{dns.txt.host}</code></td>
+                              <td><code>{dns.txt.target}</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </main>
+  </body>
+</html>

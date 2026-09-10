@@ -1,0 +1,180 @@
+---
+import { actions } from "astro:actions";
+import { SupabaseThemeRepository } from "../../../../infrastructure/supabase/theme-repository";
+import {
+  DEFAULT_SITE_THEME,
+  THEME_BUTTON_VARIANTS,
+  THEME_CARD_VARIANTS,
+  THEME_FONTS,
+  THEME_RADII,
+  type SiteTheme,
+} from "../../../../domain/site/theme";
+import "../../../../styles/admin.css";
+
+const logoutResult = Astro.getActionResult(actions.logout);
+if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+const { id: siteId } = Astro.params;
+if (!siteId) return Astro.redirect("/admin", 303);
+
+// Fetch site details and verify tenant membership
+const { data: siteData, error: siteError } = await Astro.locals.supabase
+  .from("sites")
+  .select("id, name, slug, tenant_id")
+  .eq("id", siteId)
+  .maybeSingle();
+
+if (siteError || !siteData) {
+  return Astro.redirect("/admin", 303);
+}
+
+const themeRepo = new SupabaseThemeRepository(Astro.locals.supabase);
+const existingTheme = await themeRepo.getTheme(siteId);
+
+const theme: SiteTheme = existingTheme ?? {
+  siteId,
+  ...DEFAULT_SITE_THEME,
+};
+
+const saveResult = Astro.getActionResult(actions.saveSiteTheme);
+const isSuccess = Boolean(saveResult?.data?.ok);
+const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error : null;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Theme Settings (Draft) | {siteData.name}</title>
+  </head>
+  <body>
+    <header class="shell topbar">
+      <strong>Landing SaaS</strong>
+      <nav aria-label="Admin navigation">
+        <ul class="nav-links">
+          <li><a href="/admin" class="nav-link active">Sites</a></li>
+          <li><a href="/admin/members" class="nav-link">Members</a></li>
+        </ul>
+      </nav>
+      <form method="POST" action={actions.logout}>
+        <button type="submit">Sign out</button>
+      </form>
+    </header>
+
+    <main class="shell dashboard">
+      <p class="eyebrow">Site Configuration &bull; <span class="badge" style="background: #e5a93c; color: #1c1103;">Draft Mode</span></p>
+      <h1>{siteData.name} &mdash; Theme Tokens</h1>
+      <p class="muted">Configure base visual tokens and identity. Changes are saved as draft until published.</p>
+
+      <nav aria-label="Site sections" style="margin-bottom: 2rem;">
+        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Template</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link active">Theme</a></li>
+          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Cards</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promotions</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacts</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Media</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campaigns</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publish & History</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Preview ↗</a></li>
+        </ul>
+      </nav>
+
+      {isSuccess && <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">Theme draft saved successfully.</p>}
+      {errorMessage && <p class="error" role="alert">{errorMessage}</p>}
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 2rem; align-items: start;">
+        <section class="panel" style="width: 100%;" aria-labelledby="theme-form-title">
+          <h2 id="theme-form-title" style="margin-top: 0;">Color & Style Tokens</h2>
+          <form method="POST" action={actions.saveSiteTheme}>
+            <input type="hidden" name="siteId" value={siteId} />
+            <input type="hidden" name="tenantId" value={siteData.tenant_id} />
+
+            <div class="field">
+              <label for="primaryColor">Primary Color (Hex)</label>
+              <input id="primaryColor" name="primaryColor" type="text" pattern="^#[0-9a-fA-F]{6}$" required value={theme.primaryColor} />
+            </div>
+
+            <div class="field">
+              <label for="secondaryColor">Secondary Color (Hex)</label>
+              <input id="secondaryColor" name="secondaryColor" type="text" pattern="^#[0-9a-fA-F]{6}$" required value={theme.secondaryColor} />
+            </div>
+
+            <div class="field">
+              <label for="accentColor">Accent Color (Hex)</label>
+              <input id="accentColor" name="accentColor" type="text" pattern="^#[0-9a-fA-F]{6}$" required value={theme.accentColor} />
+            </div>
+
+            <div class="field">
+              <label for="backgroundColor">Background Color (Hex)</label>
+              <input id="backgroundColor" name="backgroundColor" type="text" pattern="^#[0-9a-fA-F]{6}$" required value={theme.backgroundColor} />
+            </div>
+
+            <div class="field">
+              <label for="textColor">Text Color (Hex)</label>
+              <input id="textColor" name="textColor" type="text" pattern="^#[0-9a-fA-F]{6}$" required value={theme.textColor} />
+            </div>
+
+            <div class="field">
+              <label for="fontKey">Typography</label>
+              <select id="fontKey" name="fontKey" required>
+                {THEME_FONTS.map((font) => (
+                  <option value={font} selected={font === theme.fontKey}>{font}</option>
+                ))}
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="radiusKey">Corner Radius</label>
+              <select id="radiusKey" name="radiusKey" required>
+                {THEME_RADII.map((radius) => (
+                  <option value={radius} selected={radius === theme.radiusKey}>{radius}</option>
+                ))}
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="buttonVariant">Button Variant</label>
+              <select id="buttonVariant" name="buttonVariant" required>
+                {THEME_BUTTON_VARIANTS.map((variant) => (
+                  <option value={variant} selected={variant === theme.buttonVariant}>{variant}</option>
+                ))}
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="cardVariant">Card Variant</label>
+              <select id="cardVariant" name="cardVariant" required>
+                {THEME_CARD_VARIANTS.map((variant) => (
+                  <option value={variant} selected={variant === theme.cardVariant}>{variant}</option>
+                ))}
+              </select>
+            </div>
+
+            <button type="submit" style="margin-top: 1rem;">Save Theme (Draft)</button>
+          </form>
+        </section>
+
+        <aside class="panel" style="width: 100%;" aria-label="Palette Preview">
+          <h2 style="margin-top: 0;">Visual Tokens Preview</h2>
+          <p class="muted">Live preview of selected brand palette tokens.</p>
+          <div style="display: grid; gap: 1rem; margin-top: 1.5rem;">
+            <div style={`background: ${theme.backgroundColor}; color: ${theme.textColor}; padding: 1.5rem; border: 1px solid #304365; border-radius: .75rem;`}>
+              <h3 style={`color: ${theme.primaryColor}; margin-top: 0;`}>Brand Heading</h3>
+              <p style="margin-bottom: 1rem;">Sample text rendered with selected background and text contrast tokens.</p>
+              <div style="display: flex; gap: .75rem; align-items: center; flex-wrap: wrap;">
+                <span style={`background: ${theme.primaryColor}; color: #ffffff; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Primary</span>
+                <span style={`background: ${theme.secondaryColor}; color: #ffffff; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Secondary</span>
+                <span style={`background: ${theme.accentColor}; color: #000000; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Accent</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 2rem;">
+            <a href="/admin" class="nav-link">&larr; Back to Sites</a>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </body>
+</html>

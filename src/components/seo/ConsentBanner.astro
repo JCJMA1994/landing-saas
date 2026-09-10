@@ -1,0 +1,71 @@
+---
+// Cookie-free privacy consent banner
+---
+
+<div
+  id="saas-consent-banner"
+  role="region"
+  aria-label="Privacidad y Analíticas"
+  style="display: none; position: fixed; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; max-width: 32rem; margin: 0 auto; background: rgba(14, 30, 56, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(145, 183, 255, 0.25); border-radius: 12px; padding: 1.25rem; box-shadow: 0 1rem 3rem rgba(0,0,0,0.5); z-index: 9999; color: #f0f4fc; font-family: system-ui, -apple-system, sans-serif;"
+>
+  <div style="display: flex; gap: 1rem; align-items: flex-start;">
+    <div style="flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 50%; background: rgba(59, 130, 246, 0.2); display: grid; place-items: center; color: #60a5fa; font-size: 1rem;">
+      🛡️
+    </div>
+    <div style="flex: 1;">
+      <strong style="font-size: 0.95rem; display: block; margin-bottom: 0.3rem;">
+        Privacidad y Experiencia
+      </strong>
+      <p style="margin: 0 0 1rem 0; font-size: 0.82rem; color: #95a8c9; line-height: 1.45;">
+        Utilizamos analíticas mínimas y anónimas (sin almacenar datos personales ni cookies de terceros) para medir conversiones y mejorar el servicio.
+      </p>
+      <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+        <button
+          type="button"
+          id="saas-consent-decline"
+          style="background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #95a8c9; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;"
+        >
+          Rechazar
+        </button>
+        <button
+          type="button"
+          id="saas-consent-accept"
+          style="background: #3b82f6; border: none; color: white; padding: 0.4rem 1rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer;"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    if (typeof window === "undefined") return;
+    try {
+      var saved = localStorage.getItem("saas_analytics_consent");
+      if (!saved) {
+        var banner = document.getElementById("saas-consent-banner");
+        if (banner) {
+          banner.style.display = "block";
+          var acceptBtn = document.getElementById("saas-consent-accept");
+          var declineBtn = document.getElementById("saas-consent-decline");
+
+          if (acceptBtn) {
+            acceptBtn.addEventListener("click", function() {
+              localStorage.setItem("saas_analytics_consent", "accepted");
+              banner.style.display = "none";
+            });
+          }
+
+          if (declineBtn) {
+            declineBtn.addEventListener("click", function() {
+              localStorage.setItem("saas_analytics_consent", "declined");
+              banner.style.display = "none";
+            });
+          }
+        }
+      }
+    } catch (e) {}
+  })();
+</script>

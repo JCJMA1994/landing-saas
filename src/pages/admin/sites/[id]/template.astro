@@ -1,0 +1,431 @@
+---
+import { actions } from "astro:actions";
+import { SupabaseThemeRepository } from "../../../../infrastructure/supabase/theme-repository";
+import { SupabaseHeroRepository } from "../../../../infrastructure/supabase/hero-repository";
+import { SupabaseCardRepository } from "../../../../infrastructure/supabase/card-repository";
+import { SupabasePromotionRepository } from "../../../../infrastructure/supabase/promotion-repository";
+import { SupabaseContactRepository } from "../../../../infrastructure/supabase/contact-repository";
+import { SupabaseCampaignRepository } from "../../../../infrastructure/supabase/campaign-repository";
+import {
+  DEFAULT_SITE_THEME,
+  type SiteTheme,
+} from "../../../../domain/site/theme";
+import {
+  TEMPLATE_KEYS,
+  TEMPLATE_MANIFESTS,
+  type TemplateKey,
+} from "../../../../domain/template/manifest";
+import { checkTemplateCompatibility } from "../../../../domain/template/compatibility";
+import TemplateRenderer from "../../../../components/templates/TemplateRenderer.astro";
+import "../../../../styles/admin.css";
+
+const logoutResult = Astro.getActionResult(actions.logout);
+if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+if (!Astro.locals.user) return Astro.redirect("/admin/login", 303);
+
+const { id: siteId } = Astro.params;
+if (!siteId) return Astro.redirect("/admin", 303);
+
+// Fetch site details and verify tenant membership
+const { data: siteData, error: siteError } = await Astro.locals.supabase
+  .from("sites")
+  .select("id, name, slug, tenant_id, template_key")
+  .eq("id", siteId)
+  .maybeSingle();
+
+if (siteError || !siteData) {
+  return Astro.redirect("/admin", 303);
+}
+
+const themeRepo = new SupabaseThemeRepository(Astro.locals.supabase);
+const heroRepo = new SupabaseHeroRepository(Astro.locals.supabase);
+const cardRepo = new SupabaseCardRepository(Astro.locals.supabase);
+const promoRepo = new SupabasePromotionRepository(Astro.locals.supabase);
+const contactRepo = new SupabaseContactRepository(Astro.locals.supabase);
+const campaignRepo = new SupabaseCampaignRepository(Astro.locals.supabase);
+
+const [existingTheme, hero, cards, promotions, contacts, campaigns] = await Promise.all([
+  themeRepo.getTheme(siteId),
+  heroRepo.getHero(siteId),
+  cardRepo.listCards(siteId),
+  promoRepo.listPromotions(siteId),
+  contactRepo.getContacts(siteId),
+  campaignRepo.getActiveOrScheduledCampaigns(siteId),
+]);
+
+const theme: SiteTheme = existingTheme ?? {
+  siteId,
+  ...DEFAULT_SITE_THEME,
+};
+
+const currentTemplateKey: TemplateKey = (siteData.template_key as TemplateKey) || "tech-diagnostic";
+
+const saveResult = Astro.getActionResult(actions.saveSiteTemplate);
+const isSuccess = Boolean(saveResult?.data?.ok);
+const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Template Selection & Preview | {siteData.name}</title>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="header-left">
+        <a href="/admin" class="back-link">← Regresar a Sitios</a>
+        <h1>Visual Direction: {siteData.name}</h1>
+      </div>
+      <div class="header-right">
+        <span class="user-email">{Astro.locals.user.email}</span>
+        <form method="POST" action={actions.logout}>
+          <button type="submit" class="logout-button">Cerrar Sesión</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="admin-container">
+      <div class="site-tabs">
+        <a href={`/admin/sites/${siteId}/template`} class="tab-link active">Template</a>
+        <a href={`/admin/sites/${siteId}/theme`} class="tab-link">Theme</a>
+        <a href={`/admin/sites/${siteId}/hero`} class="tab-link">Hero</a>
+        <a href={`/admin/sites/${siteId}/cards`} class="tab-link">Cards</a>
+        <a href={`/admin/sites/${siteId}/promotions`} class="tab-link">Promotions</a>
+        <a href={`/admin/sites/${siteId}/contacts`} class="tab-link">Contacts</a>
+        <a href={`/admin/sites/${siteId}/media`} class="tab-link">Media</a>
+        <a href={`/admin/sites/${siteId}/campaigns`} class="tab-link">Campaigns</a>
+        <a href={`/admin/sites/${siteId}/publish`} class="tab-link">Publish & History</a>
+        <a href={`/admin/sites/${siteId}/domains`} class="tab-link">Domains</a>
+        <a href={`/admin/sites/${siteId}/analytics`} class="tab-link">Analytics</a>
+        <a href={`/preview/${siteId}`} target="_blank" class="tab-link" style="color: #ffd57a;">Preview ↗</a>
+      </div>
+
+      <div class="draft-indicator-banner">
+        <span class="draft-badge">DRAFT (Borrador)</span>
+        <span class="draft-desc">
+          La dirección visual elegida se aplicará a los datos de borrador del sitio. En la Fase 3 se publicará al dominio en vivo.
+        </span>
+      </div>
+
+      {isSuccess && (
+        <div class="alert alert-success" role="alert">
+          Plantilla visual actualizada exitosamente.
+        </div>
+      )}
+
+      {errorMessage && (
+        <div class="alert alert-error" role="alert">
+          {errorMessage}
+        </div>
+      )}
+
+      <section class="template-selector-section">
+        <h2 class="section-title">Direcciones Visuales Disponibles (6 Auténticas)</h2>
+        <p class="section-desc">
+          Cada plantilla cuenta con su propia composición, jerarquía y metáfora visual adaptada a un tipo de negocio específico.
+        </p>
+
+        <div class="templates-grid">
+          {TEMPLATE_KEYS.map((key) => {
+            const manifest = TEMPLATE_MANIFESTS[key];
+            const isSelected = key === currentTemplateKey;
+            const compatibility = checkTemplateCompatibility({
+              targetTemplateKey: key,
+              activeCampaigns: campaigns,
+              currentTheme: theme,
+              hasHero: Boolean(hero),
+              hasCards: cards.length > 0,
+              hasPromotions: promotions.length > 0,
+              hasContacts: Boolean(contacts),
+            });
+
+            return (
+              <div class={`template-choice-card ${isSelected ? "selected" : ""}`}>
+                <div class="template-choice-header">
+                  <div>
+                    <h3 class="template-choice-name">{manifest.name}</h3>
+                    <span class="badge" style="background: #172a55; color: #91b7ff; font-size: 0.7rem;">v{manifest.version}.0</span>
+                  </div>
+                  {isSelected && <span class="active-pill">ACTIVA</span>}
+                </div>
+                <p class="template-choice-desc">{manifest.description}</p>
+                
+                <div class="template-manifest-details">
+                  <div class="manifest-detail-item">
+                    <span class="detail-label">Personalidad:</span>
+                    <span class="detail-val">{manifest.personality}</span>
+                  </div>
+                  <div class="manifest-detail-item">
+                    <span class="detail-label">Metáfora:</span>
+                    <span class="detail-val">{manifest.visualMetaphor}</span>
+                  </div>
+                  <div class="manifest-detail-item">
+                    <span class="detail-label">Ritmo:</span>
+                    <span class="detail-val">{manifest.compositionRhythm}</span>
+                  </div>
+                  <div class="manifest-detail-item">
+                    <span class="detail-label">Campaign Slots:</span>
+                    <span class="detail-val">{manifest.supportedCampaignSlots.join(", ")}</span>
+                  </div>
+                </div>
+
+                {compatibility.warnings.length > 0 && !isSelected && (
+                  <div style="margin: 0.75rem 0; padding: 0.5rem 0.75rem; background: rgba(234, 179, 8, 0.1); border-left: 2px solid #eab308; border-radius: 0.35rem; font-size: 0.78rem; color: #fef08a;">
+                    <strong style="display: block; margin-bottom: 0.2rem;">Aviso de Compatibilidad:</strong>
+                    {compatibility.warnings.map((w) => (
+                      <div style="line-height: 1.4;">• {w.message}</div>
+                    ))}
+                  </div>
+                )}
+
+                <form method="POST" action={actions.saveSiteTemplate} class="template-select-form">
+                  <input type="hidden" name="siteId" value={siteId} />
+                  <input type="hidden" name="tenantId" value={siteData.tenant_id} />
+                  <input type="hidden" name="templateKey" value={key} />
+                  
+                  {!isSelected && (
+                    <label style="display: flex; align-items: flex-start; gap: 0.4rem; font-size: 0.78rem; color: #b8c3dc; margin: 0.6rem 0; cursor: pointer;">
+                      <input type="checkbox" name="applySuggestedVariants" value="true" checked style="width: auto; margin-top: 0.15rem;" />
+                      <span>
+                        Aplicar variantes recomendadas para esta dirección visual (Fuente: <code>{compatibility.suggestedThemeVariants.fontKey}</code>, Radio: <code>{compatibility.suggestedThemeVariants.radiusKey}</code>)
+                      </span>
+                    </label>
+                  )}
+
+                  <button
+                    type="submit"
+                    class={`select-btn ${isSelected ? "current" : ""}`}
+                    disabled={isSelected}
+                  >
+                    {isSelected ? "Plantilla Seleccionada" : `Activar ${manifest.name}`}
+                  </button>
+                </form>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Live Preview of Current Template */}
+      <section class="live-preview-section">
+        <div class="preview-header-controls">
+          <div>
+            <h2 class="section-title">Vista Previa en Vivo: {TEMPLATE_MANIFESTS[currentTemplateKey].name}</h2>
+            <p class="section-desc">Renderizado interactivo con el contenido y tokens actuales del sitio.</p>
+          </div>
+        </div>
+
+        <div class="preview-viewport-shell">
+          <div class="viewport-frame">
+            <TemplateRenderer
+              templateKey={currentTemplateKey}
+              theme={theme}
+              hero={hero}
+              cards={cards}
+              promotions={promotions}
+              contacts={contacts}
+              siteName={siteData.name}
+            />
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <style>
+      .site-tabs {
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--admin-border, #334155);
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .tab-link {
+        padding: 0.5rem 1rem;
+        color: var(--admin-muted, #94a3b8);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.875rem;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+      }
+
+      .tab-link:hover {
+        color: #f8fafc;
+      }
+
+      .tab-link.active {
+        color: #38bdf8;
+        border-bottom-color: #38bdf8;
+      }
+
+      .draft-indicator-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+      }
+
+      .draft-badge {
+        background: #f59e0b;
+        color: #000;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        letter-spacing: 0.05em;
+      }
+
+      .draft-desc {
+        font-size: 0.875rem;
+        color: #f1f5f9;
+      }
+
+      .template-selector-section {
+        margin-bottom: 3rem;
+      }
+
+      .templates-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+      }
+
+      @media (min-width: 640px) {
+        .templates-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .templates-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .template-choice-card {
+        background: var(--admin-card-bg, #1e293b);
+        border: 1px solid var(--admin-border, #334155);
+        border-radius: 8px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .template-choice-card.selected {
+        border-color: #38bdf8;
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+      }
+
+      .template-choice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .template-choice-name {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin: 0;
+        color: #f8fafc;
+      }
+
+      .active-pill {
+        font-size: 0.65rem;
+        font-weight: 800;
+        background: #38bdf8;
+        color: #0f172a;
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+      }
+
+      .template-choice-desc {
+        font-size: 0.8125rem;
+        color: #cbd5e1;
+        line-height: 1.5;
+        margin: 0 0 1rem 0;
+      }
+
+      .template-manifest-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        background: rgba(0, 0, 0, 0.25);
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1.25rem;
+        font-size: 0.75rem;
+        flex-grow: 1;
+      }
+
+      .manifest-detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+      }
+
+      .detail-label {
+        font-weight: 700;
+        color: #94a3b8;
+      }
+
+      .detail-val {
+        color: #e2e8f0;
+      }
+
+      .select-btn {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border: 1px solid #38bdf8;
+        background: #38bdf8;
+        color: #0f172a;
+        transition: all 0.2s ease;
+      }
+
+      .select-btn:hover:not(:disabled) {
+        background: #0284c7;
+        border-color: #0284c7;
+        color: #ffffff;
+      }
+
+      .select-btn.current {
+        background: rgba(56, 189, 248, 0.1);
+        color: #38bdf8;
+        border-color: rgba(56, 189, 248, 0.3);
+        cursor: default;
+      }
+
+      .live-preview-section {
+        border-top: 1px solid var(--admin-border, #334155);
+        padding-top: 2rem;
+      }
+
+      .preview-viewport-shell {
+        border: 2px solid var(--admin-border, #334155);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #000;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .viewport-frame {
+        width: 100%;
+        overflow-x: auto;
+      }
+    </style>
+  </body>
+</html>

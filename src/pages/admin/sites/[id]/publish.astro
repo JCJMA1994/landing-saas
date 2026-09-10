@@ -1,0 +1,329 @@
+---
+import { actions } from "astro:actions";
+import { SupabasePublicationRepository } from "../../../../infrastructure/supabase/publication-repository";
+import { SupabaseThemeRepository } from "../../../../infrastructure/supabase/theme-repository";
+import { SupabaseHeroRepository } from "../../../../infrastructure/supabase/hero-repository";
+import { SupabaseCardRepository } from "../../../../infrastructure/supabase/card-repository";
+import { SupabasePromotionRepository } from "../../../../infrastructure/supabase/promotion-repository";
+import { SupabaseContactRepository } from "../../../../infrastructure/supabase/contact-repository";
+import {
+  createPublicationSnapshot,
+  calculateSnapshotChecksum,
+} from "../../../../domain/publication/snapshot";
+import { DEFAULT_SITE_THEME } from "../../../../domain/site/theme";
+import { isTemplateKey, type TemplateKey } from "../../../../domain/template/manifest";
+import "../../../../styles/admin.css";
+
+const logoutResult = Astro.getActionResult(actions.logout);
+if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+if (!Astro.locals.user) return Astro.redirect("/admin/login", 303);
+
+const { id: siteId } = Astro.params;
+if (!siteId) return Astro.redirect("/admin", 303);
+
+// Fetch site details and verify tenant membership
+const { data: siteData, error: siteError } = await Astro.locals.supabase
+  .from("sites")
+  .select("id, name, slug, tenant_id, template_key")
+  .eq("id", siteId)
+  .maybeSingle();
+
+if (siteError || !siteData) {
+  return Astro.redirect("/admin", 303);
+}
+
+const publicationRepo = new SupabasePublicationRepository(Astro.locals.supabase);
+const themeRepo = new SupabaseThemeRepository(Astro.locals.supabase);
+const heroRepo = new SupabaseHeroRepository(Astro.locals.supabase);
+const cardRepo = new SupabaseCardRepository(Astro.locals.supabase);
+const promoRepo = new SupabasePromotionRepository(Astro.locals.supabase);
+const contactRepo = new SupabaseContactRepository(Astro.locals.supabase);
+
+const [activePublication, history, existingTheme, hero, cards, promotions, contacts] =
+  await Promise.all([
+    publicationRepo.getActivePublication(siteId),
+    publicationRepo.listHistory(siteId),
+    themeRepo.getTheme(siteId),
+    heroRepo.getHero(siteId),
+    cardRepo.listCards(siteId),
+    promoRepo.listPromotions(siteId),
+    contactRepo.getContacts(siteId),
+  ]);
+
+const templateKey: TemplateKey = isTemplateKey(siteData.template_key)
+  ? (siteData.template_key as TemplateKey)
+  : "tech-diagnostic";
+
+// Calculate draft snapshot and checksum to check if pending changes exist
+const draftSnapshot = createPublicationSnapshot({
+  siteId: siteData.id,
+  siteName: siteData.name,
+  siteSlug: siteData.slug,
+  templateKey,
+  theme: existingTheme ?? { siteId, ...DEFAULT_SITE_THEME },
+  hero,
+  cards,
+  promotions,
+  contacts,
+});
+const draftChecksum = await calculateSnapshotChecksum(draftSnapshot);
+
+const hasPendingChanges = !activePublication || activePublication.checksum !== draftChecksum;
+const nextVersion = history.length > 0 ? Math.max(...history.map((h) => h.version)) + 1 : 1;
+
+const publishResult = Astro.getActionResult(actions.publishSite);
+const rollbackResult = Astro.getActionResult(actions.rollbackSite);
+
+const actionSuccess = publishResult?.data?.ok
+  ? `Versión ${publishResult.data.version} publicada exitosamente con verificación SHA-256.`
+  : rollbackResult?.data?.ok
+    ? `Reversión exitosa: se creó la versión inmutable ${rollbackResult.data.version}.`
+    : null;
+
+const actionError = publishResult && !publishResult.data?.ok
+  ? publishResult.data?.error
+  : rollbackResult && !rollbackResult.data?.ok
+    ? rollbackResult.data?.error
+    : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Publish & Version History | {siteData.name}</title>
+  </head>
+  <body>
+    <header class="shell topbar">
+      <strong>Landing SaaS</strong>
+      <nav aria-label="Admin navigation">
+        <ul class="nav-links">
+          <li><a href="/admin" class="nav-link active">Sites</a></li>
+          <li><a href="/admin/members" class="nav-link">Members</a></li>
+        </ul>
+      </nav>
+      <form method="POST" action={actions.logout}>
+        <button type="submit">Sign out</button>
+      </form>
+    </header>
+
+    <main class="shell dashboard">
+      <p class="eyebrow">Publication Lifecycle &bull; <span class="badge" style="background: #91b7ff; color: #071225;">Phase 3</span></p>
+      <h1>{siteData.name} &mdash; Publicación e Historial</h1>
+      <p class="muted">
+        Control de versiones inmutables y despliegue atómico con sumas de verificación SHA-256. El sitio público sólo lee de la versión activa.
+      </p>
+
+      <nav aria-label="Site sections" style="margin-bottom: 2rem;">
+        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Template</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Theme</a></li>
+          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Cards</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promotions</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacts</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Media</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campaigns</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link active">Publish & History</a></li>
+          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Domains</a></li>
+          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analytics</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Preview ↗</a></li>
+        </ul>
+      </nav>
+
+      {actionSuccess && (
+        <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">
+          {actionSuccess}
+        </p>
+      )}
+      {actionError && <p class="error" role="alert">{actionError}</p>}
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 2rem; margin-bottom: 3rem; align-items: start;">
+        <!-- Status Card -->
+        <section class="panel" style="width: 100%;">
+          <h2 style="margin-top: 0; font-size: 1.25rem;">Estado de Publicación</h2>
+          
+          <div style="margin: 1.5rem 0; display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <span class="muted" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">
+                Versión en Vivo
+              </span>
+              {activePublication ? (
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <span style="font-size: 1.5rem; font-weight: 800; color: #a3e9a4;">
+                    v{activePublication.version}
+                  </span>
+                  <span class="badge" style="background: #1e4620; color: #a3e9a4;">ACTIVA EN VIVO</span>
+                </div>
+              ) : (
+                <span class="badge" style="background: #431d2a; color: #ffd9df;">SIN PUBLICAR (En Construcción)</span>
+              )}
+            </div>
+
+            {activePublication && (
+              <>
+                <div>
+                  <span class="muted" style="font-size: 0.85rem; display: block;">Fecha de publicación:</span>
+                  <strong style="color: #f5f7ff;">
+                    {new Date(activePublication.publishedAt).toLocaleString()}
+                  </strong>
+                </div>
+                <div>
+                  <span class="muted" style="font-size: 0.85rem; display: block;">SHA-256 Checksum:</span>
+                  <code style="background: #091225; padding: 0.2rem 0.5rem; border-radius: 0.4rem; font-size: 0.8rem; color: #91b7ff; word-break: break-all;">
+                    {activePublication.checksum}
+                  </code>
+                </div>
+              </>
+            )}
+
+            <div style="padding-top: 1rem; border-top: 1px solid #293958;">
+              <span class="muted" style="font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Sincronización de Borrador:</span>
+              {hasPendingChanges ? (
+                <div style="padding: 0.75rem 1rem; background: #2f2512; border-left: 3px solid #ffd57a; border-radius: 0.4rem; color: #ffe8b3; font-size: 0.9rem;">
+                  ⚠️ Hay cambios sin publicar en el borrador. La suma del borrador difiere de la versión en vivo.
+                </div>
+              ) : (
+                <div style="padding: 0.75rem 1rem; background: #12281a; border-left: 3px solid #4ade80; border-radius: 0.4rem; color: #bbf7d0; font-size: 0.9rem;">
+                  ✓ El borrador actual coincide 100% con la versión activa en vivo.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
+            <a href={`/preview/${siteId}`} target="_blank" class="button" style="background: #233e66; color: #91b7ff; text-decoration: none; text-align: center; display: inline-block;">
+              Ver Preview de Borrador ↗
+            </a>
+            {activePublication && (
+              <a href={`/sites/${siteData.slug}`} target="_blank" class="button" style="background: #1e4620; color: #a3e9a4; text-decoration: none; text-align: center; display: inline-block;">
+                Ver Sitio en Vivo ↗
+              </a>
+            )}
+          </div>
+        </section>
+
+        <!-- Publish Action Card -->
+        <section class="panel" style="width: 100%;">
+          <h2 style="margin-top: 0; font-size: 1.25rem;">Publicar Nueva Versión</h2>
+          <p class="muted" style="font-size: 0.9rem;">
+            Esta acción generará un snapshot inmutable con los datos actuales de borrador (plantilla, tema, hero, tarjetas, promociones y contactos), calculará su hash criptográfico SHA-256 y lo marcará como la nueva versión activa del sitio.
+          </p>
+
+          <form method="POST" action={actions.publishSite} style="margin-top: 2rem;">
+            <input type="hidden" name="siteId" value={siteId} />
+            <input type="hidden" name="tenantId" value={siteData.tenant_id} />
+            
+            <div style="margin-bottom: 1.5rem; background: #091225; padding: 1rem; border-radius: 0.65rem; border: 1px solid #293958;">
+              <span style="display: block; font-size: 0.85rem; color: #b8c3dc; margin-bottom: 0.25rem;">Próxima versión a emitir:</span>
+              <strong style="font-size: 1.4rem; color: #91b7ff;">v{nextVersion}</strong>
+              <span style="display: block; font-size: 0.8rem; color: #8292b3; margin-top: 0.25rem;">Plantilla: {templateKey}</span>
+            </div>
+
+            <button
+              type="submit"
+              class="button"
+              style="width: 100%; font-size: 1.05rem; padding: 1rem;"
+            >
+              Publicar Ahora (v{nextVersion})
+            </button>
+          </form>
+        </section>
+      </div>
+
+      <!-- History Table Section -->
+      <section>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <h2 style="margin: 0; font-size: 1.4rem;">Historial de Versiones Publicadas</h2>
+          <span class="muted" style="font-size: 0.9rem;">Total de versiones: {history.length}</span>
+        </div>
+        <p class="muted" style="margin-top: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+          Conforme a ADR 0002, el historial es inmutable: ningún registro de publicación se elimina ni se modifica. Al revertir, se crea una versión nueva que clona el snapshot de la versión elegida.
+        </p>
+
+        {history.length === 0 ? (
+          <div class="empty">
+            No se han publicado versiones de este sitio aún. Realiza tu primera publicación arriba.
+          </div>
+        ) : (
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Versión</th>
+                  <th>Estado</th>
+                  <th>Fecha de Publicación</th>
+                  <th>Plantilla</th>
+                  <th>SHA-256 Checksum</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((pub) => {
+                  const isCurrentActive = activePublication?.id === pub.id;
+                  const pubTemplate = (pub.snapshot as any)?.templateKey || "tech-diagnostic";
+                  return (
+                    <tr>
+                      <td>
+                        <strong style="font-size: 1.05rem; color: #f5f7ff;">v{pub.version}</strong>
+                      </td>
+                      <td>
+                        {isCurrentActive ? (
+                          <span class="badge" style="background: #1e4620; color: #a3e9a4;">ACTIVA</span>
+                        ) : (
+                          <span class="badge" style="background: #1b263b; color: #8292b3;">Histórica</span>
+                        )}
+                      </td>
+                      <td>{new Date(pub.publishedAt).toLocaleString()}</td>
+                      <td>
+                        <span class="badge" style="background: #233e66; color: #91b7ff;">{pubTemplate}</span>
+                      </td>
+                      <td>
+                        <code
+                          title={pub.checksum}
+                          style="background: #091225; padding: 0.2rem 0.5rem; border-radius: 0.4rem; font-size: 0.8rem; color: #91b7ff;"
+                        >
+                          {pub.checksum.slice(0, 16)}...
+                        </code>
+                      </td>
+                      <td>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                          <a
+                            href={`/preview/${siteId}?version=${pub.version}`}
+                            target="_blank"
+                            class="button"
+                            style="padding: 0.4rem 0.75rem; font-size: 0.85rem; background: #233e66; color: #91b7ff; text-decoration: none;"
+                          >
+                            Ver Snapshot ↗
+                          </a>
+
+                          {!isCurrentActive && (
+                            <form method="POST" action={actions.rollbackSite} style="margin: 0;">
+                              <input type="hidden" name="siteId" value={siteId} />
+                              <input type="hidden" name="tenantId" value={siteData.tenant_id} />
+                              <input type="hidden" name="targetVersion" value={pub.version} />
+                              <button
+                                type="submit"
+                                class="button"
+                                style="padding: 0.4rem 0.75rem; font-size: 0.85rem; background: #4a3818; color: #ffd57a;"
+                                onclick="return confirm('¿Confirmas la reversión a la versión v' + this.form.targetVersion.value + '? Se creará una nueva versión inmutable.');"
+                              >
+                                Revertir a v{pub.version}
+                              </button>
+                            </form>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </main>
+  </body>
+</html>

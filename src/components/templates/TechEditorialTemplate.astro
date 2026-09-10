@@ -1,0 +1,479 @@
+---
+import type { SiteTheme } from "../../domain/site/theme";
+import type { SiteHero } from "../../domain/site/hero";
+import type { SiteCard } from "../../domain/site/card";
+import type { SitePromotion } from "../../domain/site/promotion";
+import type { SiteContacts } from "../../domain/site/contact";
+import { themeToCssVariables, serializeCssVariables } from "../../domain/design-system/tokens";
+import Button from "../design-system/Button.astro";
+import Badge from "../design-system/Badge.astro";
+import Card from "../design-system/Card.astro";
+import Icon from "../design-system/Icon.astro";
+import WhatsAppButton from "../design-system/WhatsAppButton.astro";
+
+interface Props {
+  theme: SiteTheme;
+  hero: SiteHero | null;
+  cards: SiteCard[];
+  promotions: SitePromotion[];
+  contacts: SiteContacts | null;
+  siteName?: string | undefined;
+}
+
+const { theme, hero, cards, promotions, contacts, siteName = "Tech Editorial" } = Astro.props;
+const cssVars = serializeCssVariables(themeToCssVariables(theme));
+const activePromotions = promotions.filter((p) => p.isActive);
+---
+
+<div class="template-editorial" style={cssVars} data-theme-root>
+  {/* Editorial Masthead */}
+  <header class="edit-masthead">
+    <div class="edit-container edit-masthead-wrap">
+      <div class="edit-issue-tag">
+        <span>EDICIÓN // {new Date().getFullYear()}</span>
+      </div>
+      <div class="edit-pub-title">
+        <span>{siteName}</span>
+      </div>
+      <div class="edit-colophon">
+        <span>REVISIÓN EDITORIAL</span>
+      </div>
+    </div>
+  </header>
+
+  {/* Active Promotion: Curated Highlight */}
+  {activePromotions.length > 0 && (
+    <aside class="edit-curated-notice">
+      <div class="edit-container edit-curated-flex">
+        <Badge variant="neutral" size="sm">DESTACADO DE TEMPORADA</Badge>
+        <span class="edit-curated-title">{activePromotions[0]?.title}</span>
+        {activePromotions[0]?.discountLabel && (
+          <span class="edit-curated-benefit">— {activePromotions[0]?.discountLabel}</span>
+        )}
+        {activePromotions[0]?.couponCode && (
+          <span class="edit-curated-code">Usa el código {activePromotions[0]?.couponCode}</span>
+        )}
+      </div>
+    </aside>
+  )}
+
+  {/* Hero: Asymmetrical Editorial Spread */}
+  {hero && (
+    <section class="edit-hero-section">
+      <div class="edit-container">
+        <div class="edit-hero-layout">
+          <div class="edit-hero-main">
+            <span class="edit-kicker">{hero.badgeText || "PERSPECTIVA & VISIÓN TÉCNICA"}</span>
+            <h1 class="edit-headline">{hero.headline}</h1>
+            {hero.subheadline && <p class="edit-standfirst">{hero.subheadline}</p>}
+
+            <div class="edit-actions-row">
+              {hero.ctaText && hero.ctaLink && (
+                <Button href={hero.ctaLink} variant="solid" size="lg">
+                  {hero.ctaText}
+                </Button>
+              )}
+              {contacts?.whatsappNumber && (
+                <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" />
+              )}
+            </div>
+          </div>
+
+          <aside class="edit-hero-aside">
+            <blockquote class="edit-pullquote">
+              “La sofisticación técnica no reside en la complejidad innecesaria, sino en la impecable ejecución de los fundamentos.”
+            </blockquote>
+          </aside>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Cards: In-depth Editorial Features */}
+  {cards.length > 0 && (
+    <section class="edit-features-section">
+      <div class="edit-container">
+        <div class="edit-section-header">
+          <span class="edit-kicker">PROPUESTA DE VALOR</span>
+          <h2 class="edit-section-title">Ejes Fundamentales de Servicio</h2>
+        </div>
+
+        <div class="edit-features-grid">
+          {cards.map((card, idx) => (
+            <Card variant="flat" class="edit-feature-column">
+              <span class="edit-column-num">{String(idx + 1).padStart(2, "0")}</span>
+              <div class="edit-column-body">
+                <div class="edit-column-icon-wrap">
+                  <Icon name={(card.iconKey as any) || "star"} size={22} />
+                </div>
+                <h3 class="edit-column-title">{card.title}</h3>
+                {card.description && <p class="edit-column-text">{card.description}</p>}
+                {card.badge && (
+                  <div class="edit-column-badge">
+                    <Badge variant="neutral" size="sm">{card.badge}</Badge>
+                  </div>
+                )}
+                {card.linkUrl && (
+                  <div class="edit-column-link-box">
+                    <a href={card.linkUrl} class="edit-column-link">
+                      <span>Continuar leyendo</span>
+                      <Icon name="external" size={12} />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Contacts: Bespoke Correspondence Column */}
+  {contacts && (
+    <section class="edit-contact-section">
+      <div class="edit-container">
+        <div class="edit-contact-spread">
+          <div class="edit-contact-copy">
+            <span class="edit-kicker">CORRESPONDENCIA & ENLACE</span>
+            <h2 class="edit-contact-title">Inicie una Conversación Directa</h2>
+            <p class="edit-contact-lead">
+              Atendemos consultas ejecutivas y proyectos especiales con dedicación personalizada y criterio técnico.
+            </p>
+
+            <div class="edit-contact-lines">
+              {contacts.phone && <p class="edit-contact-item">Línea directa: {contacts.phone}</p>}
+              {contacts.email && <p class="edit-contact-item">Contacto formal: {contacts.email}</p>}
+              {contacts.instagramHandle && (
+                <p class="edit-contact-item">
+                  Presencia: <a href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">@{contacts.instagramHandle.replace(/^@/, "")}</a>
+                </p>
+              )}
+              {contacts.facebookUrl && (
+                <p class="edit-contact-item">
+                  Facebook: <a href={contacts.facebookUrl} target="_blank" rel="noopener noreferrer">Página Oficial</a>
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div class="edit-contact-action-box">
+            {contacts.whatsappNumber && (
+              <div class="edit-whatsapp-envelope">
+                <span class="edit-direct-label">COMUNICACIÓN INMEDIATA</span>
+                <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" label="Escribir por WhatsApp" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Colophon Footer */}
+  <footer class="edit-footer">
+    <div class="edit-container edit-footer-wrap">
+      <span>© {new Date().getFullYear()} {siteName}. Todos los derechos reservados.</span>
+      <span>DISEÑO EDITORIAL TIPOGRÁFICO</span>
+    </div>
+  </footer>
+</div>
+
+<style>
+  .template-editorial {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ds-font-inter, sans-serif);
+    background-color: var(--ds-color-background, #0f172a);
+    color: var(--ds-color-text, #f8fafc);
+  }
+
+  .edit-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--ds-space-6, 1.5rem);
+    box-sizing: border-box;
+  }
+
+  .edit-masthead {
+    border-bottom: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.1));
+    padding: var(--ds-space-4, 1rem) 0;
+  }
+
+  .edit-masthead-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .edit-issue-tag, .edit-colophon {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--ds-color-muted, #94a3b8);
+    text-transform: uppercase;
+  }
+
+  .edit-pub-title {
+    font-size: var(--ds-text-lg, 1.125rem);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .edit-curated-notice {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-3, 0.75rem) 0;
+  }
+
+  .edit-curated-flex {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3, 0.75rem);
+    flex-wrap: wrap;
+    font-size: var(--ds-text-xs, 0.75rem);
+  }
+
+  .edit-curated-benefit {
+    color: var(--ds-color-primary, #60a5fa);
+    font-weight: 600;
+  }
+
+  .edit-curated-code {
+    font-style: italic;
+    color: var(--ds-color-muted, #94a3b8);
+  }
+
+  .edit-hero-section {
+    padding: var(--ds-space-12, 3rem) 0;
+    border-bottom: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.08));
+  }
+
+  .edit-hero-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-10, 2.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .edit-hero-layout {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+
+  .edit-kicker {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ds-color-primary, #60a5fa);
+    display: block;
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .edit-headline {
+    font-size: var(--ds-text-display, 3.25rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin: 0 0 var(--ds-space-6, 1.5rem) 0;
+  }
+
+  .edit-standfirst {
+    font-size: var(--ds-text-lg, 1.125rem);
+    color: var(--ds-color-muted, #cbd5e1);
+    line-height: 1.7;
+    margin: 0 0 var(--ds-space-8, 2rem) 0;
+    max-width: 620px;
+  }
+
+  .edit-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-4, 1rem);
+    align-items: center;
+  }
+
+  .edit-hero-aside {
+    border-left: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.15));
+    padding-left: var(--ds-space-6, 1.5rem);
+  }
+
+  @media (max-width: 899px) {
+    .edit-hero-aside {
+      border-left: none;
+      padding-left: 0;
+      border-top: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.15));
+      padding-top: var(--ds-space-6, 1.5rem);
+    }
+  }
+
+  .edit-pullquote {
+    font-size: var(--ds-text-xl, 1.25rem);
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--ds-color-muted, #cbd5e1);
+    margin: 0;
+  }
+
+  .edit-features-section {
+    padding: var(--ds-space-12, 3rem) 0;
+  }
+
+  .edit-section-header {
+    margin-bottom: var(--ds-space-8, 2rem);
+  }
+
+  .edit-section-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .edit-features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-8, 2rem);
+  }
+
+  @media (min-width: 640px) {
+    .edit-features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .edit-features-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .edit-feature-column {
+    display: flex;
+    gap: var(--ds-space-4, 1rem);
+    padding: 0;
+    background: transparent;
+  }
+
+  .edit-column-num {
+    font-size: var(--ds-text-xl, 1.25rem);
+    font-weight: 800;
+    color: var(--ds-color-primary, #60a5fa);
+    line-height: 1;
+  }
+
+  .edit-column-body {
+    flex-grow: 1;
+  }
+
+  .edit-column-icon-wrap {
+    color: var(--ds-color-muted, #94a3b8);
+    margin-bottom: var(--ds-space-2, 0.5rem);
+  }
+
+  .edit-column-title {
+    font-size: var(--ds-text-lg, 1.125rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+    letter-spacing: -0.01em;
+  }
+
+  .edit-column-text {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.6;
+    margin: 0 0 var(--ds-space-3, 0.75rem) 0;
+  }
+
+  .edit-column-badge {
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .edit-column-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-1, 0.25rem);
+    font-size: var(--ds-text-xs, 0.75rem);
+    color: var(--ds-color-primary, #60a5fa);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .edit-column-link:hover {
+    text-decoration: underline;
+  }
+
+  .edit-contact-section {
+    padding: var(--ds-space-12, 3rem) 0;
+    background: rgba(0, 0, 0, 0.25);
+    border-top: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.08));
+    margin-top: auto;
+  }
+
+  .edit-contact-spread {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-8, 2rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .edit-contact-spread {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+
+  .edit-contact-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-3, 0.75rem) 0;
+  }
+
+  .edit-contact-lead {
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: var(--ds-text-sm, 0.875rem);
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+    line-height: 1.6;
+  }
+
+  .edit-contact-lines {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-1, 0.25rem);
+    font-size: var(--ds-text-sm, 0.875rem);
+  }
+
+  .edit-contact-item a {
+    color: var(--ds-color-primary, #60a5fa);
+    text-decoration: none;
+  }
+
+  .edit-direct-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--ds-color-muted, #94a3b8);
+    display: block;
+    margin-bottom: var(--ds-space-2, 0.5rem);
+  }
+
+  .edit-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-6, 1.5rem) 0;
+    font-size: 0.75rem;
+    color: var(--ds-color-muted, #64748b);
+  }
+
+  .edit-footer-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+</style>

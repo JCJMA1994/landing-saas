@@ -1,0 +1,105 @@
+---
+import { SupabasePublicationRepository } from "../../infrastructure/supabase/publication-repository";
+import { SupabaseCampaignRepository } from "../../infrastructure/supabase/campaign-repository";
+import { resolveSiteCampaignUseCase } from "../../application/campaign/manage-campaigns";
+import {
+  themeToCssVariables,
+  serializeCssVariables,
+} from "../../domain/design-system/tokens";
+import TemplateRenderer from "../../components/templates/TemplateRenderer.astro";
+import SeoHead from "../../components/seo/SeoHead.astro";
+import ConsentBanner from "../../components/seo/ConsentBanner.astro";
+import { buildLandingCacheHeaders } from "../../domain/scale/cache";
+import "../../styles/tokens.css";
+
+const { slug } = Astro.params;
+if (!slug) {
+  return Astro.redirect("/", 302);
+}
+
+const publicationRepo = new SupabasePublicationRepository(Astro.locals.supabase);
+const campaignRepo = new SupabaseCampaignRepository(Astro.locals.supabase);
+
+const activePublication = await publicationRepo.getActivePublicationBySlug(slug);
+
+if (!activePublication) {
+  Astro.response.status = 404;
+}
+
+const snapshot = activePublication?.snapshot;
+const activeCampaign = activePublication
+  ? await resolveSiteCampaignUseCase(activePublication.siteId, new Date(), campaignRepo)
+  : null;
+
+const cssVariables = snapshot ? themeToCssVariables(snapshot.theme) : {};
+const serializedStyle = serializeCssVariables(cssVariables);
+const host = Astro.request.headers.get("host") || "landingsaas.com";
+
+if (snapshot && activePublication) {
+  const cacheHeaders = buildLandingCacheHeaders({
+    checksum: activePublication.checksum,
+    siteId: activePublication.siteId,
+    tenantId: "",
+  });
+  for (const [key, val] of Object.entries(cacheHeaders)) {
+    Astro.response.headers.set(key, val);
+  }
+}
+---
+
+<!doctype html>
+<html lang="es" style={snapshot ? serializedStyle : ""}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {snapshot ? (
+      <SeoHead
+        snapshot={snapshot}
+        host={host}
+        pathname={`/sites/${slug}`}
+      />
+    ) : (
+      <>
+        <title>Sitio no encontrado</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </>
+    )}
+  </head>
+  <body style="margin: 0; padding: 0; background: var(--ds-color-background, #0a0f1e); color: var(--ds-color-text, #f5f7ff); font-family: var(--ds-theme-font, Inter, system-ui, sans-serif);">
+    {snapshot ? (
+      <main>
+        <TemplateRenderer
+          templateKey={snapshot.templateKey}
+          theme={snapshot.theme}
+          hero={snapshot.hero}
+          cards={snapshot.cards}
+          promotions={snapshot.promotions}
+          contacts={snapshot.contacts}
+          siteName={snapshot.siteName}
+          activeCampaign={activeCampaign}
+        />
+        <ConsentBanner />
+      </main>
+    ) : (
+      <main style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem; background: radial-gradient(circle at 50% 30%, #172a55 0, #0a0f1e 70%);">
+        <div style="max-width: 32rem; border: 1px solid #293958; border-radius: 1.25rem; padding: 3rem 2rem; background: rgba(17, 26, 46, 0.9); box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.5);">
+          <span style="font-size: 0.8rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #91b7ff; display: block; margin-bottom: 0.75rem;">
+            Landing SaaS
+          </span>
+          <h1 style="font-size: 2rem; margin: 0 0 1rem; color: #f5f7ff; line-height: 1.2;">
+            Sitio en Construcción
+          </h1>
+          <p style="color: #b8c3dc; font-size: 1rem; line-height: 1.6; margin: 0 0 2rem;">
+            El sitio con identificador <strong>"{slug}"</strong> aún no cuenta con una versión publicada activa.
+          </p>
+          <a
+            href="/admin"
+            style="display: inline-block; padding: 0.8rem 1.6rem; border-radius: 0.7rem; background: #91b7ff; color: #071225; font-weight: 700; text-decoration: none;"
+          >
+            Acceder al Panel de Administración
+          </a>
+        </div>
+      </main>
+    )}
+  </body>
+</html>

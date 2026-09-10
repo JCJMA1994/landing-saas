@@ -1,0 +1,555 @@
+---
+import type { SiteTheme } from "../../domain/site/theme";
+import type { SiteHero } from "../../domain/site/hero";
+import type { SiteCard } from "../../domain/site/card";
+import type { SitePromotion } from "../../domain/site/promotion";
+import type { SiteContacts } from "../../domain/site/contact";
+import { themeToCssVariables, serializeCssVariables } from "../../domain/design-system/tokens";
+import Button from "../design-system/Button.astro";
+import Badge from "../design-system/Badge.astro";
+import Card from "../design-system/Card.astro";
+import Icon from "../design-system/Icon.astro";
+import WhatsAppButton from "../design-system/WhatsAppButton.astro";
+
+interface Props {
+  theme: SiteTheme;
+  hero: SiteHero | null;
+  cards: SiteCard[];
+  promotions: SitePromotion[];
+  contacts: SiteContacts | null;
+  siteName?: string | undefined;
+}
+
+const { theme, hero, cards, promotions, contacts, siteName = "Cyber Performance" } = Astro.props;
+const cssVars = serializeCssVariables(themeToCssVariables(theme));
+const activePromotions = promotions.filter((p) => p.isActive);
+---
+
+<div class="template-cyber" style={cssVars} data-theme-root>
+  {/* Cyber Telemetry Top Bar */}
+  <header class="cyber-header">
+    <div class="cyber-container cyber-header-content">
+      <div class="cyber-badge-boost">
+        <span class="cyber-neon-flash">⚡</span>
+        <span>OVERCLOCK: ACTIVE // 5.8 GHz PROFILED</span>
+      </div>
+      <div class="cyber-brand">
+        <span>{siteName}</span>
+      </div>
+      <div class="cyber-thermal">
+        <span>THERMAL: 42°C // VOLTAGE: 1.25V</span>
+      </div>
+    </div>
+  </header>
+
+  {/* Active Promotion: Turbo Boost Ribbon */}
+  {activePromotions.length > 0 && (
+    <div class="cyber-boost-bar">
+      <div class="cyber-container cyber-boost-content">
+        <Badge variant="accent" size="sm">TURBO BOOST</Badge>
+        <span class="cyber-boost-title">{activePromotions[0]?.title}</span>
+        {activePromotions[0]?.discountLabel && (
+          <span class="cyber-boost-discount">[{activePromotions[0]?.discountLabel}]</span>
+        )}
+        {activePromotions[0]?.couponCode && (
+          <code class="cyber-boost-code">KEY: {activePromotions[0]?.couponCode}</code>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Hero: High Kinetic Cyber Chamber */}
+  {hero && (
+    <section class="cyber-hero-section">
+      <div class="cyber-container cyber-hero-grid">
+        <div class="cyber-hero-copy">
+          <div class="cyber-lane-tag">
+            <span class="cyber-slash">//</span>
+            <span>{hero.badgeText || "HIGH-OCTANE COMPUTING"}</span>
+          </div>
+          <h1 class="cyber-hero-title">{hero.headline}</h1>
+          {hero.subheadline && <p class="cyber-hero-subtitle">{hero.subheadline}</p>}
+
+          <div class="cyber-hero-actions">
+            {hero.ctaText && hero.ctaLink && (
+              <Button href={hero.ctaLink} variant="gradient" size="lg" class="cyber-btn-cut">
+                {hero.ctaText}
+              </Button>
+            )}
+            {contacts?.whatsappNumber && (
+              <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" class="cyber-btn-cut" />
+            )}
+          </div>
+        </div>
+
+        <div class="cyber-hero-media">
+          <div class="cyber-media-bevel">
+            <div class="cyber-overclock-hud">
+              <span class="cyber-hud-chip">CORE SPEED: MAX</span>
+              <div class="cyber-core-bars">
+                <span class="cyber-bar bar-1"></span>
+                <span class="cyber-bar bar-2"></span>
+                <span class="cyber-bar bar-3"></span>
+                <span class="cyber-bar bar-4"></span>
+              </div>
+              <span class="cyber-status-text">STABLE OVERCLOCK APPLIED</span>
+            </div>
+            <div class="cyber-glow-edge" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Cards: Overclocked Performance Matrix */}
+  {cards.length > 0 && (
+    <section class="cyber-cards-section">
+      <div class="cyber-container">
+        <div class="cyber-section-header">
+          <span class="cyber-lane-tag">// PERFORMANCE MODULES</span>
+          <h2 class="cyber-section-title">Aceleración y Arquitectura de Poder</h2>
+        </div>
+
+        <div class="cyber-cards-grid">
+          {cards.map((card, idx) => (
+            <Card variant="glass" class="cyber-card-module">
+              <div class="cyber-card-top">
+                <span class="cyber-core-id">CORE_{String(idx + 1).padStart(2, "0")}</span>
+                <Icon name={(card.iconKey as any) || "bolt"} size={22} />
+              </div>
+              <h3 class="cyber-card-title">{card.title}</h3>
+              {card.description && <p class="cyber-card-desc">{card.description}</p>}
+              {card.badge && (
+                <div class="cyber-card-badge">
+                  <Badge variant="accent" size="sm">{card.badge}</Badge>
+                </div>
+              )}
+              {card.linkUrl && (
+                <div class="cyber-card-action">
+                  <a href={card.linkUrl} class="cyber-card-link">
+                    <span>Desplegar benchmark</span>
+                    <Icon name="external" size={14} />
+                  </a>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Contacts: Kinetic Dispatch */}
+  {contacts && (
+    <section class="cyber-contact-section">
+      <div class="cyber-container">
+        <div class="cyber-contact-box">
+          <div class="cyber-contact-info">
+            <span class="cyber-lane-tag">// DIRECT UPLINK</span>
+            <h2 class="cyber-contact-title">Conexión de Baja Latencia</h2>
+            <p class="cyber-contact-desc">Soporte directo para hardware extremo, configuraciones personalizadas y proyectos de alto calibre.</p>
+
+            <div class="cyber-contact-chips">
+              {contacts.phone && (
+                <div class="cyber-chip">
+                  <Icon name="phone" size={16} />
+                  <span>{contacts.phone}</span>
+                </div>
+              )}
+              {contacts.email && (
+                <div class="cyber-chip">
+                  <Icon name="email" size={16} />
+                  <span>{contacts.email}</span>
+                </div>
+              )}
+              {contacts.instagramHandle && (
+                <div class="cyber-chip">
+                  <Icon name="instagram" size={16} />
+                  <a href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
+                    @{contacts.instagramHandle.replace(/^@/, "")}
+                  </a>
+                </div>
+              )}
+              {contacts.facebookUrl && (
+                <div class="cyber-chip">
+                  <Icon name="facebook" size={16} />
+                  <a href={contacts.facebookUrl} target="_blank" rel="noopener noreferrer">
+                    Facebook Oficial
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div class="cyber-contact-btn-wrap">
+            {contacts.whatsappNumber && (
+              <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" label="Iniciar chat WhatsApp directo" class="cyber-btn-cut" />
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Footer */}
+  <footer class="cyber-footer">
+    <div class="cyber-container cyber-footer-row">
+      <span>© {new Date().getFullYear()} {siteName} // CYBER KINETIC ARCHITECTURE</span>
+      <span>MAXIMUM PERFORMANCE LEVEL</span>
+    </div>
+  </footer>
+</div>
+
+<style>
+  .template-cyber {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ds-font-space-grotesk, sans-serif);
+    background-color: var(--ds-color-background, #05050c);
+    color: var(--ds-color-text, #f8fafc);
+    border-top: 3px solid #ec4899;
+  }
+
+  .cyber-container {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 var(--ds-space-4, 1rem);
+    box-sizing: border-box;
+  }
+
+  .cyber-header {
+    background: #000;
+    border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+    padding: var(--ds-space-2, 0.5rem) 0;
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-family: var(--ds-font-mono);
+  }
+
+  .cyber-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .cyber-badge-boost {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+    color: #ec4899;
+    font-weight: 700;
+  }
+
+  .cyber-brand {
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .cyber-thermal {
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: 0.7rem;
+  }
+
+  .cyber-boost-bar {
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.2), rgba(59, 130, 246, 0.2));
+    border-bottom: 1px solid rgba(236, 72, 153, 0.4);
+    padding: var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .cyber-boost-content {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3, 0.75rem);
+    flex-wrap: wrap;
+    font-size: var(--ds-text-xs, 0.75rem);
+  }
+
+  .cyber-boost-discount {
+    color: #ec4899;
+    font-weight: 700;
+  }
+
+  .cyber-boost-code {
+    background: #000;
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: 1px solid #ec4899;
+  }
+
+  .cyber-hero-section {
+    padding: var(--ds-space-12, 3rem) 0;
+    position: relative;
+  }
+
+  .cyber-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-8, 2rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .cyber-hero-grid {
+      grid-template-columns: 1.3fr 1fr;
+    }
+  }
+
+  .cyber-lane-tag {
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-family: var(--ds-font-mono);
+    color: #ec4899;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: var(--ds-space-2, 0.5rem);
+  }
+
+  .cyber-slash {
+    color: #3b82f6;
+  }
+
+  .cyber-hero-title {
+    font-size: var(--ds-text-4xl, 2.75rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .cyber-hero-subtitle {
+    font-size: var(--ds-text-lg, 1.125rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.6;
+    margin: 0 0 var(--ds-space-8, 2rem) 0;
+  }
+
+  .cyber-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-3, 0.75rem);
+  }
+
+  .cyber-media-bevel {
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%);
+    border: 1px solid #ec4899;
+    background: rgba(15, 10, 25, 0.9);
+    padding: var(--ds-space-8, 2rem);
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cyber-overclock-hud {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ds-space-4, 1rem);
+    font-family: var(--ds-font-mono);
+  }
+
+  .cyber-hud-chip {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ec4899;
+    background: rgba(236, 72, 153, 0.15);
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    border: 1px solid rgba(236, 72, 153, 0.4);
+  }
+
+  .cyber-core-bars {
+    display: flex;
+    gap: 8px;
+    height: 40px;
+    align-items: flex-end;
+  }
+
+  .cyber-bar {
+    width: 14px;
+    background: #ec4899;
+    border-radius: 2px 2px 0 0;
+  }
+  .bar-1 { height: 90%; background: #3b82f6; }
+  .bar-2 { height: 100%; background: #ec4899; }
+  .bar-3 { height: 95%; background: #f59e0b; }
+  .bar-4 { height: 85%; background: #10b981; }
+
+  .cyber-status-text {
+    font-size: 0.7rem;
+    color: var(--ds-color-muted, #94a3b8);
+  }
+
+  .cyber-glow-edge {
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(236, 72, 153, 0.5);
+    pointer-events: none;
+    box-shadow: inset 0 0 25px rgba(236, 72, 153, 0.3);
+  }
+
+  .cyber-cards-section {
+    padding: var(--ds-space-12, 3rem) 0;
+  }
+
+  .cyber-section-header {
+    margin-bottom: var(--ds-space-8, 2rem);
+  }
+
+  .cyber-section-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 800;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .cyber-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-4, 1rem);
+  }
+
+  @media (min-width: 640px) {
+    .cyber-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cyber-cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .cyber-card-module {
+    display: flex;
+    flex-direction: column;
+    border-top: 2px solid #ec4899;
+    background: rgba(15, 10, 25, 0.7);
+  }
+
+  .cyber-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--ds-space-3, 0.75rem);
+    color: #ec4899;
+  }
+
+  .cyber-core-id {
+    font-size: 0.7rem;
+    font-family: var(--ds-font-mono);
+    font-weight: 700;
+  }
+
+  .cyber-card-title {
+    font-size: var(--ds-text-lg, 1.125rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .cyber-card-desc {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.5;
+    flex-grow: 1;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .cyber-card-badge {
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .cyber-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-1, 0.25rem);
+    font-size: var(--ds-text-xs, 0.75rem);
+    color: #ec4899;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .cyber-card-link:hover {
+    text-decoration: underline;
+  }
+
+  .cyber-contact-section {
+    padding: var(--ds-space-10, 2.5rem) 0;
+    margin-top: auto;
+  }
+
+  .cyber-contact-box {
+    background: rgba(20, 10, 30, 0.6);
+    border: 1px solid rgba(236, 72, 153, 0.35);
+    padding: var(--ds-space-8, 2rem);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-6, 1.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .cyber-contact-box {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+
+  .cyber-contact-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 800;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+    text-transform: uppercase;
+  }
+
+  .cyber-contact-desc {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .cyber-contact-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .cyber-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.35rem 0.75rem;
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-family: var(--ds-font-mono);
+  }
+
+  .cyber-chip a {
+    color: #ec4899;
+    text-decoration: none;
+  }
+
+  .cyber-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-4, 1rem) 0;
+    font-size: 0.7rem;
+    font-family: var(--ds-font-mono);
+    color: var(--ds-color-muted, #64748b);
+  }
+
+  .cyber-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+</style>

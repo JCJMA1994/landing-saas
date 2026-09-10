@@ -1,0 +1,123 @@
+---
+import type { PublicationSnapshot } from "../../domain/publication/snapshot";
+import { generateSeoMetadata } from "../../domain/seo/metadata";
+import { generateSchemaOrgJsonLd } from "../../domain/seo/schema-org";
+
+interface Props {
+  snapshot: PublicationSnapshot;
+  host: string;
+  pathname?: string | undefined;
+  customDomain?: string | null | undefined;
+  isDraftOrPreview?: boolean | undefined;
+  tenantId?: string | undefined;
+}
+
+const {
+  snapshot,
+  host,
+  pathname = "/",
+  customDomain,
+  isDraftOrPreview = false,
+  tenantId,
+} = Astro.props;
+
+const seo = generateSeoMetadata({
+  snapshot,
+  host,
+  pathname,
+  customDomain,
+  isDraftOrPreview,
+});
+
+const schemaOrg = generateSchemaOrgJsonLd(snapshot, seo.canonicalUrl);
+const jsonLdString = JSON.stringify(schemaOrg);
+---
+
+<title>{seo.title}</title>
+<meta name="description" content={seo.description} />
+<link rel="canonical" href={seo.canonicalUrl} />
+<meta name="robots" content={seo.robots} />
+{seo.themeColor && <meta name="theme-color" content={seo.themeColor} />}
+
+<!-- Open Graph / Facebook / WhatsApp -->
+<meta property="og:type" content={seo.openGraph.type} />
+<meta property="og:title" content={seo.openGraph.title} />
+<meta property="og:description" content={seo.openGraph.description} />
+<meta property="og:url" content={seo.openGraph.url} />
+<meta property="og:site_name" content={seo.openGraph.siteName} />
+<meta property="og:locale" content={seo.openGraph.locale} />
+{seo.openGraph.imageUrl && <meta property="og:image" content={seo.openGraph.imageUrl} />}
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content={seo.twitter.card} />
+<meta name="twitter:title" content={seo.twitter.title} />
+<meta name="twitter:description" content={seo.twitter.description} />
+{seo.twitter.imageUrl && <meta name="twitter:image" content={seo.twitter.imageUrl} />}
+
+<!-- Schema.org JSON-LD -->
+<script is:inline type="application/ld+json" set:html={jsonLdString} />
+
+<!-- Privacy-First Analytics Telemetry (Cookieless & Non-blocking) -->
+{!isDraftOrPreview && (
+  <script is:inline define:vars={{ siteId: snapshot.siteId, tenantId: tenantId || "" }}>
+    (function() {
+      if (typeof window === "undefined") return;
+
+      function canTrack() {
+        if (navigator.doNotTrack === "1" || window.doNotTrack === "1") return false;
+        try {
+          return localStorage.getItem("saas_analytics_consent") !== "declined";
+        } catch {
+          return true;
+        }
+      }
+
+      function sendEvent(eventName, metadata) {
+        if (!canTrack()) return;
+        var payload = JSON.stringify({
+          siteId: siteId,
+          tenantId: tenantId,
+          eventName: eventName,
+          path: window.location.pathname,
+          referrer: document.referrer || null,
+          metadata: metadata || {}
+        });
+
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon("/api/events", new Blob([payload], { type: "application/json" }));
+        } else {
+          fetch("/api/events", {
+            method: "POST",
+            body: payload,
+            headers: { "Content-Type": "application/json" },
+            keepalive: true
+          }).catch(function() {});
+        }
+      }
+
+      window.saasTrack = sendEvent;
+
+      // Track page view
+      if (document.readyState === "complete" || document.readyState === "interactive") {
+        sendEvent("page_view");
+      } else {
+        window.addEventListener("DOMContentLoaded", function() {
+          sendEvent("page_view");
+        });
+      }
+
+      // Track conversion clicks (WhatsApp and CTAs)
+      document.addEventListener("click", function(e) {
+        var target = e.target && e.target.closest ? e.target.closest("a, button") : null;
+        if (!target) return;
+
+        var href = target.getAttribute("href") || "";
+        if (href.indexOf("wa.me") !== -1 || href.indexOf("whatsapp.com") !== -1) {
+          sendEvent("whatsapp_click", { href: href });
+        } else if (target.hasAttribute("data-cta") || target.classList.contains("cta-button")) {
+          sendEvent("cta_click", { text: (target.textContent || "").trim() });
+        }
+      });
+    })();
+  </script>
+)}

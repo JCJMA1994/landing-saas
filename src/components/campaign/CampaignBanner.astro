@@ -1,0 +1,210 @@
+---
+import type { SiteCampaign } from "../../domain/campaign/campaign";
+import { getCampaignPresetConfig } from "../../domain/campaign/presets";
+
+interface Props {
+  campaign: SiteCampaign;
+}
+
+const { campaign } = Astro.props;
+const presetConfig = getCampaignPresetConfig(campaign.preset);
+
+const bannerText = campaign.bannerText || `${presetConfig.displayName}: Ofertas especiales activas por tiempo limitado.`;
+const badgeLabel = campaign.badgeText || presetConfig.defaultBadgeText;
+const accentColor = campaign.accentColor || presetConfig.defaultAccentColor;
+---
+
+<div
+  class={`campaign-banner intensity-${campaign.intensity}`}
+  role="region"
+  aria-label={`Anuncio de campaña: ${campaign.name}`}
+  style={`--campaign-accent: ${accentColor};`}
+>
+  <div class="banner-inner">
+    <div class="banner-content">
+      <span class="seasonal-tag">
+        <span class="emoji" aria-hidden="true">{presetConfig.seasonalEmoji}</span>
+        <strong class="badge-label">{badgeLabel}</strong>
+      </span>
+      <span class="banner-message">{bannerText}</span>
+    </div>
+
+    <div class="banner-actions">
+      {campaign.showCountdown && (
+        <div class="countdown-wrapper" data-ends-at={campaign.endsAt} id="campaign-countdown">
+          <span class="countdown-prefix">Termina en:</span>
+          <span class="countdown-digits" id="countdown-timer">Calculando...</span>
+        </div>
+      )}
+
+      {campaign.bannerLink && (
+        <a href={campaign.bannerLink} class="banner-cta">
+          Ver Oferta &rarr;
+        </a>
+      )}
+    </div>
+  </div>
+</div>
+
+<script>
+  function initCountdown() {
+    const timerEl = document.getElementById("countdown-timer");
+    const wrapper = document.getElementById("campaign-countdown");
+    if (!timerEl || !wrapper) return;
+
+    const endsAtAttr = wrapper.getAttribute("data-ends-at");
+    if (!endsAtAttr) return;
+
+    const targetTime = new Date(endsAtAttr).getTime();
+
+    const el = timerEl;
+
+    function update() {
+      const now = Date.now();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        el.textContent = "Finalizada";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      if (days > 0) {
+        el.textContent = `${days}d ${hours}h ${minutes}m`;
+      } else {
+        el.textContent = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+    }
+
+    update();
+    setInterval(update, 1000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCountdown);
+  } else {
+    initCountdown();
+  }
+</script>
+
+<style>
+  .campaign-banner {
+    width: 100%;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.98), rgba(24, 33, 56, 0.95));
+    border-bottom: 2px solid var(--campaign-accent, #6366f1);
+    color: #f8fafc;
+    font-family: inherit;
+    font-size: 0.875rem;
+    position: relative;
+    z-index: 900;
+  }
+
+  .banner-inner {
+    max-width: 76rem;
+    margin: 0 auto;
+    padding: 0.6rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .seasonal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .banner-message {
+    color: #f1f5f9;
+    font-weight: 500;
+  }
+
+  .banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .countdown-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .countdown-prefix {
+    color: #94a3b8;
+    font-size: 0.75rem;
+  }
+
+  .countdown-digits {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-weight: 700;
+    color: var(--campaign-accent, #6366f1);
+  }
+
+  .banner-cta {
+    background: var(--campaign-accent, #6366f1);
+    color: #020617;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.4rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .banner-cta:hover {
+    opacity: 0.9;
+  }
+
+  /* Intensity Presets */
+  .intensity-subtle {
+    border-bottom-width: 1px;
+    background: rgba(15, 23, 42, 0.92);
+  }
+
+  .intensity-festive {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(90deg, rgba(20, 20, 45, 0.98), rgba(30, 25, 60, 0.98));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banner-cta {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .banner-inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

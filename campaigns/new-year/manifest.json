@@ -1,0 +1,22 @@
+{
+  "key": "new-year-modern",
+  "label": "Año Nuevo",
+  "supportedIntensity": [
+    "subtle",
+    "balanced",
+    "festive"
+  ],
+  "default": {
+    "theme": {
+      "accent": "#D6B45A"
+    },
+    "hero": {
+      "badge": "Nuevo año, mejor rendimiento",
+      "layoutVariant": "year-count"
+    },
+    "decorations": {
+      "presetKey": "spark-lines",
+      "motionPreset": "subtle"
+    }
+  }
+}

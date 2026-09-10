@@ -1,0 +1,539 @@
+---
+import type { SiteTheme } from "../../domain/site/theme";
+import type { SiteHero } from "../../domain/site/hero";
+import type { SiteCard } from "../../domain/site/card";
+import type { SitePromotion } from "../../domain/site/promotion";
+import type { SiteContacts } from "../../domain/site/contact";
+import { themeToCssVariables, serializeCssVariables } from "../../domain/design-system/tokens";
+import Button from "../design-system/Button.astro";
+import Badge from "../design-system/Badge.astro";
+import Card from "../design-system/Card.astro";
+import Icon from "../design-system/Icon.astro";
+import WhatsAppButton from "../design-system/WhatsAppButton.astro";
+
+interface Props {
+  theme: SiteTheme;
+  hero: SiteHero | null;
+  cards: SiteCard[];
+  promotions: SitePromotion[];
+  contacts: SiteContacts | null;
+  siteName?: string | undefined;
+}
+
+const { theme, hero, cards, promotions, contacts, siteName = "Taller de Reparación" } = Astro.props;
+const cssVars = serializeCssVariables(themeToCssVariables(theme));
+const activePromotions = promotions.filter((p) => p.isActive);
+---
+
+<div class="template-workshop" style={cssVars} data-theme-root>
+  {/* Workshop Service Header */}
+  <header class="work-header">
+    <div class="work-container work-header-flex">
+      <div class="work-station-badge">
+        <Icon name="wrench" size={20} />
+        <span class="work-station-name">{siteName} // BANCO DE SERVICIO TÉCNICO</span>
+      </div>
+      <div class="work-ticket-stamp">
+        <span>ORDEN DE TRABAJO ACTIVA</span>
+      </div>
+    </div>
+  </header>
+
+  {/* Active Promotion Ticket Voucher */}
+  {activePromotions.length > 0 && (
+    <div class="work-voucher-ribbon">
+      <div class="work-container work-voucher-content">
+        <Badge variant="warning" size="md">CUPÓN DE TALLER</Badge>
+        <span class="work-voucher-title">{activePromotions[0]?.title}</span>
+        {activePromotions[0]?.discountLabel && (
+          <span class="work-voucher-discount">{activePromotions[0]?.discountLabel}</span>
+        )}
+        {activePromotions[0]?.couponCode && (
+          <span class="work-voucher-code">CÓDIGO: {activePromotions[0]?.couponCode}</span>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Hero: Workbench Intake Sheet */}
+  {hero && (
+    <section class="work-intake-section">
+      <div class="work-container">
+        <div class="work-intake-card">
+          <div class="work-card-stamp" aria-hidden="true">VERIFICADO</div>
+          <div class="work-intake-grid">
+            <div class="work-intake-copy">
+              <span class="work-intake-label">{hero.badgeText || "SERVICIO ESPECIALIZADO Y DIAGNÓSTICO"}</span>
+              <h1 class="work-intake-title">{hero.headline}</h1>
+              {hero.subheadline && <p class="work-intake-subtitle">{hero.subheadline}</p>}
+
+              <div class="work-intake-actions">
+                {hero.ctaText && hero.ctaLink && (
+                  <Button href={hero.ctaLink} variant="solid" size="lg">
+                    {hero.ctaText}
+                  </Button>
+                )}
+                {contacts?.whatsappNumber && (
+                  <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" />
+                )}
+              </div>
+            </div>
+
+            <div class="work-intake-media">
+              <div class="work-bench-specs">
+                <div class="work-spec-item">
+                  <span class="work-spec-key">BANCO:</span>
+                  <span class="work-spec-val">#04 - CERTIFICADO</span>
+                </div>
+                <div class="work-spec-item">
+                  <span class="work-spec-key">PROTOCOLO:</span>
+                  <span class="work-spec-val">INSPECCIÓN DINÁMICA</span>
+                </div>
+                <div class="work-spec-item">
+                  <span class="work-spec-key">REPUESTOS:</span>
+                  <span class="work-spec-val">ORIGINALES / TRAZADOS</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Cards: Workshop Modular Services */}
+  {cards.length > 0 && (
+    <section class="work-services-section">
+      <div class="work-container">
+        <div class="work-section-title-wrap">
+          <h2 class="work-section-title">Especialidades y Procedimientos de Taller</h2>
+          <p class="work-section-sub">Procedimientos protocolizados con repuestos originales y trazabilidad completa.</p>
+        </div>
+
+        <div class="work-cards-grid">
+          {cards.map((card, index) => (
+            <Card variant="bordered" class="work-card-piece">
+              <div class="work-piece-id">
+                <span class="work-part-no">PARTE #{String(index + 101).padStart(3, "0")}</span>
+                <Icon name={(card.iconKey as any) || "wrench"} size={22} />
+              </div>
+              <h3 class="work-piece-title">{card.title}</h3>
+              {card.description && <p class="work-piece-desc">{card.description}</p>}
+              {card.badge && (
+                <div class="work-piece-badge-wrap">
+                  <Badge variant="neutral" size="sm">{card.badge}</Badge>
+                </div>
+              )}
+              {card.linkUrl && (
+                <div class="work-piece-action">
+                  <a href={card.linkUrl} class="work-piece-link">
+                    <span>Ver detalles del procedimiento</span>
+                    <Icon name="external" size={14} />
+                  </a>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Contacts: Workshop Direct Intake */}
+  {contacts && (
+    <section class="work-contact-section">
+      <div class="work-container">
+        <div class="work-contact-box">
+          <div class="work-contact-text">
+            <h2 class="work-contact-title">Recepción de Equipos y Consultas</h2>
+            <p class="work-contact-desc">Traiga su equipo a nuestro taller o coordine la evaluación técnica por mensajería.</p>
+            
+            <div class="work-contact-details">
+              {contacts.phone && (
+                <div class="work-contact-row">
+                  <Icon name="phone" size={16} />
+                  <span>Teléfono del taller: {contacts.phone}</span>
+                </div>
+              )}
+              {contacts.email && (
+                <div class="work-contact-row">
+                  <Icon name="email" size={16} />
+                  <span>Correo: {contacts.email}</span>
+                </div>
+              )}
+              {contacts.instagramHandle && (
+                <div class="work-contact-row">
+                  <Icon name="instagram" size={16} />
+                  <a href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
+                    @{contacts.instagramHandle.replace(/^@/, "")}
+                  </a>
+                </div>
+              )}
+              {contacts.facebookUrl && (
+                <div class="work-contact-row">
+                  <Icon name="facebook" size={16} />
+                  <a href={contacts.facebookUrl} target="_blank" rel="noopener noreferrer">
+                    Facebook Oficial
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div class="work-contact-action">
+            {contacts.whatsappNumber && (
+              <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" label="Hablar con el técnico por WhatsApp" />
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Footer */}
+  <footer class="work-footer">
+    <div class="work-container work-footer-wrap">
+      <span>© {new Date().getFullYear()} {siteName} - Servicio Técnico y Reparaciones</span>
+      <span>GARANTÍA EN MANO DE OBRA Y REPUESTOS</span>
+    </div>
+  </footer>
+</div>
+
+<style>
+  .template-workshop {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ds-theme-font, sans-serif);
+    background-color: var(--ds-color-background, #12141a);
+    color: var(--ds-color-text, #f1f5f9);
+    border-top: 4px solid var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--ds-space-4, 1rem);
+    box-sizing: border-box;
+  }
+
+  .work-header {
+    background: rgba(0, 0, 0, 0.35);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-3, 0.75rem) 0;
+  }
+
+  .work-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .work-station-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+    font-weight: 700;
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-ticket-stamp {
+    font-size: 0.7rem;
+    font-weight: 700;
+    border: 1px dashed var(--ds-color-border, rgba(255, 255, 255, 0.2));
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .work-voucher-ribbon {
+    background: rgba(245, 158, 11, 0.15);
+    border-bottom: 1px solid rgba(245, 158, 11, 0.35);
+    padding: var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .work-voucher-content {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3, 0.75rem);
+    flex-wrap: wrap;
+    font-size: var(--ds-text-xs, 0.75rem);
+  }
+
+  .work-voucher-title {
+    font-weight: 600;
+  }
+
+  .work-voucher-discount {
+    color: var(--ds-color-accent, #f59e0b);
+    font-weight: 700;
+  }
+
+  .work-voucher-code {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.1rem 0.5rem;
+    border-radius: 3px;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    font-weight: 700;
+  }
+
+  .work-intake-section {
+    padding: var(--ds-space-10, 2.5rem) 0;
+  }
+
+  .work-intake-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px solid var(--ds-color-border, rgba(255, 255, 255, 0.12));
+    border-radius: var(--ds-theme-radius, 4px);
+    padding: var(--ds-space-8, 2rem);
+    position: relative;
+    box-shadow: var(--ds-elevation-subtle);
+  }
+
+  .work-card-stamp {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    border: 2px solid #10b981;
+    color: #10b981;
+    font-size: 0.75rem;
+    font-weight: 900;
+    padding: 4px 10px;
+    transform: rotate(6deg);
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+  }
+
+  .work-intake-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-8, 2rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .work-intake-grid {
+      grid-template-columns: 1.3fr 1fr;
+    }
+  }
+
+  .work-intake-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ds-color-accent, #f59e0b);
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: var(--ds-space-2, 0.5rem);
+  }
+
+  .work-intake-title {
+    font-size: var(--ds-text-3xl, 2.25rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .work-intake-subtitle {
+    font-size: var(--ds-text-base, 1rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.6;
+    margin: 0 0 var(--ds-space-6, 1.5rem) 0;
+  }
+
+  .work-intake-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-3, 0.75rem);
+  }
+
+  .work-bench-specs {
+    border: 1px dashed var(--ds-color-border, rgba(255, 255, 255, 0.2));
+    padding: var(--ds-space-6, 1.5rem);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-3, 0.75rem);
+    font-size: var(--ds-text-xs, 0.75rem);
+  }
+
+  .work-spec-item {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .work-spec-key {
+    color: var(--ds-color-muted, #94a3b8);
+    font-weight: 700;
+  }
+
+  .work-spec-val {
+    color: var(--ds-color-accent, #f59e0b);
+    font-weight: 600;
+  }
+
+  .work-services-section {
+    padding: var(--ds-space-10, 2.5rem) 0;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.06));
+    border-bottom: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.06));
+  }
+
+  .work-section-title-wrap {
+    margin-bottom: var(--ds-space-8, 2rem);
+  }
+
+  .work-section-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .work-section-sub {
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: var(--ds-text-sm, 0.875rem);
+    margin: 0;
+  }
+
+  .work-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-4, 1rem);
+  }
+
+  @media (min-width: 640px) {
+    .work-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .work-cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .work-card-piece {
+    display: flex;
+    flex-direction: column;
+    border-top: 3px solid var(--ds-color-secondary, #64748b);
+  }
+
+  .work-piece-id {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--ds-space-3, 0.75rem);
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-part-no {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .work-piece-title {
+    font-size: var(--ds-text-lg, 1.125rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .work-piece-desc {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.5;
+    flex-grow: 1;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .work-piece-badge-wrap {
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .work-piece-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-1, 0.25rem);
+    color: var(--ds-color-accent, #f59e0b);
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .work-piece-link:hover {
+    text-decoration: underline;
+  }
+
+  .work-contact-section {
+    padding: var(--ds-space-10, 2.5rem) 0;
+    margin-top: auto;
+  }
+
+  .work-contact-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.1));
+    border-radius: var(--ds-theme-radius, 4px);
+    padding: var(--ds-space-6, 1.5rem);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-6, 1.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .work-contact-box {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+
+  .work-contact-title {
+    font-size: var(--ds-text-xl, 1.5rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .work-contact-desc {
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: var(--ds-text-sm, 0.875rem);
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .work-contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-2, 0.5rem);
+    font-size: var(--ds-text-sm, 0.875rem);
+  }
+
+  .work-contact-row {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .work-contact-row a {
+    color: var(--ds-color-accent, #f59e0b);
+    text-decoration: none;
+  }
+
+  .work-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-4, 1rem) 0;
+    font-size: 0.75rem;
+    color: var(--ds-color-muted, #64748b);
+  }
+
+  .work-footer-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+</style>

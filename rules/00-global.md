@@ -1,0 +1,13 @@
+# Global Rules
+- TypeScript strict.
+- Tenant isolation obligatorio.
+- Validar todos los límites de confianza.
+- Migraciones para DB.
+- Tests para comportamiento y seguridad.
+- No `any` salvo adapter aislado.
+- No service role en navegador.
+- No raw CSS/JS/HTML de tenant.
+- No draft mezclado con live.
+- No campaign duplicando páginas completas.
+- No template nuevo si solo cambia color.
+- Accesibilidad, responsive y rendimiento forman parte del DoD.

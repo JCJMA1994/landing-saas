@@ -1,0 +1,629 @@
+---
+import type { SiteTheme } from "../../domain/site/theme";
+import type { SiteHero } from "../../domain/site/hero";
+import type { SiteCard } from "../../domain/site/card";
+import type { SitePromotion } from "../../domain/site/promotion";
+import type { SiteContacts } from "../../domain/site/contact";
+import { themeToCssVariables, serializeCssVariables } from "../../domain/design-system/tokens";
+import Button from "../design-system/Button.astro";
+import Badge from "../design-system/Badge.astro";
+import Card from "../design-system/Card.astro";
+import Icon from "../design-system/Icon.astro";
+import WhatsAppButton from "../design-system/WhatsAppButton.astro";
+
+interface Props {
+  theme: SiteTheme;
+  hero: SiteHero | null;
+  cards: SiteCard[];
+  promotions: SitePromotion[];
+  contacts: SiteContacts | null;
+  siteName?: string | undefined;
+}
+
+const { theme, hero, cards, promotions, contacts, siteName = "System Monitor" } = Astro.props;
+const cssVars = serializeCssVariables(themeToCssVariables(theme));
+const activePromotions = promotions.filter((p) => p.isActive);
+---
+
+<div class="template-monitor" style={cssVars} data-theme-root>
+  {/* Terminal Status Bar */}
+  <header class="mon-header">
+    <div class="mon-container mon-header-wrap">
+      <div class="mon-prompt">
+        <span class="mon-cursor">&gt;</span>
+        <span class="mon-cmd">monitor --cluster="{siteName}" --status=active</span>
+      </div>
+      <div class="mon-uptime">
+        <span class="mon-ping-dot" aria-hidden="true"></span>
+        <span>LATENCY: 18ms // UPTIME: 99.98%</span>
+      </div>
+    </div>
+  </header>
+
+  {/* Active Promotion Broadcast */}
+  {activePromotions.length > 0 && (
+    <div class="mon-broadcast-bar">
+      <div class="mon-container mon-broadcast-content">
+        <Badge variant="success" size="sm">EVENT // ACTIVE</Badge>
+        <span class="mon-broadcast-title">{activePromotions[0]?.title}</span>
+        {activePromotions[0]?.discountLabel && (
+          <span class="mon-broadcast-discount">[{activePromotions[0]?.discountLabel}]</span>
+        )}
+        {activePromotions[0]?.couponCode && (
+          <code class="mon-broadcast-code">${activePromotions[0]?.couponCode}</code>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Hero Section: Monitoring Console */}
+  {hero && (
+    <section class="mon-hero-section">
+      <div class="mon-container">
+        <div class="mon-terminal-window">
+          <div class="mon-window-titlebar">
+            <div class="mon-window-controls">
+              <span class="mon-dot mon-dot-red"></span>
+              <span class="mon-dot mon-dot-yellow"></span>
+              <span class="mon-dot mon-dot-green"></span>
+            </div>
+            <span class="mon-window-title">observability://dashboard/overview</span>
+          </div>
+
+          <div class="mon-terminal-body">
+            <div class="mon-hero-grid">
+              <div class="mon-hero-copy">
+                <div class="mon-status-line">
+                  <span class="mon-badge-live">{hero.badgeText || "HEALTH CHECK: OPTIMAL"}</span>
+                </div>
+                <h1 class="mon-hero-title">{hero.headline}</h1>
+                {hero.subheadline && <p class="mon-hero-subtitle">{hero.subheadline}</p>}
+
+                <div class="mon-hero-actions">
+                  {hero.ctaText && hero.ctaLink && (
+                    <Button href={hero.ctaLink} variant="solid" size="lg">
+                      {hero.ctaText}
+                    </Button>
+                  )}
+                  {contacts?.whatsappNumber && (
+                    <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" />
+                  )}
+                </div>
+              </div>
+
+              <div class="mon-hero-media">
+                <div class="mon-screen-frame">
+                  <div class="mon-terminal-stream">
+                    <p class="mon-stream-line">&gt; init telemetry engine... [OK]</p>
+                    <p class="mon-stream-line">&gt; probing latency vectors... 18ms avg</p>
+                    <p class="mon-stream-line">&gt; service mesh sync: 100% compliant</p>
+                    <p class="mon-stream-line active-stream">&gt; cluster state: HEALTHY_READY</p>
+                  </div>
+                  <div class="mon-scanline" aria-hidden="true"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Cards: Monitored Services & Metrics */}
+  {cards.length > 0 && (
+    <section class="mon-metrics-section">
+      <div class="mon-container">
+        <div class="mon-section-heading">
+          <span class="mon-section-sub">MONITORED LANES & SERVICES</span>
+          <h2 class="mon-section-title">Infraestructura y Soluciones Activas</h2>
+        </div>
+
+        <div class="mon-cards-grid">
+          {cards.map((card, idx) => (
+            <Card variant="glass" class="mon-card-node">
+              <div class="mon-node-header">
+                <div class="mon-node-ident">
+                  <span class="mon-node-status"></span>
+                  <span class="mon-node-id">NODE_0{idx + 1}</span>
+                </div>
+                <Icon name={(card.iconKey as any) || "bolt"} size={20} />
+              </div>
+              <h3 class="mon-node-title">{card.title}</h3>
+              {card.description && <p class="mon-node-desc">{card.description}</p>}
+              {card.badge && (
+                <div class="mon-node-badge-wrap">
+                  <Badge variant="neutral" size="sm">{card.badge}</Badge>
+                </div>
+              )}
+              {card.linkUrl && (
+                <div class="mon-node-footer">
+                  <a href={card.linkUrl} class="mon-node-link">
+                    <span>Ver telemetría del nodo</span>
+                    <Icon name="external" size={14} />
+                  </a>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Contacts: Escalation & Emergency NOC Hotline */}
+  {contacts && (
+    <section class="mon-escalation-section">
+      <div class="mon-container">
+        <div class="mon-escalation-panel">
+          <div class="mon-escalation-info">
+            <span class="mon-section-sub">INCIDENT ESCALATION & DISPATCH</span>
+            <h2 class="mon-escalation-title">Atención Continua y Soporte</h2>
+            <p class="mon-escalation-desc">Contacte a nuestro equipo de guardia técnica para soporte, contingencias y consultas inmediatas.</p>
+
+            <div class="mon-channels-grid">
+              {contacts.phone && (
+                <div class="mon-channel-pill">
+                  <Icon name="phone" size={16} />
+                  <span>{contacts.phone}</span>
+                </div>
+              )}
+              {contacts.email && (
+                <div class="mon-channel-pill">
+                  <Icon name="email" size={16} />
+                  <span>{contacts.email}</span>
+                </div>
+              )}
+              {contacts.instagramHandle && (
+                <div class="mon-channel-pill">
+                  <Icon name="instagram" size={16} />
+                  <a href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
+                    @{contacts.instagramHandle.replace(/^@/, "")}
+                  </a>
+                </div>
+              )}
+              {contacts.facebookUrl && (
+                <div class="mon-channel-pill">
+                  <Icon name="facebook" size={16} />
+                  <a href={contacts.facebookUrl} target="_blank" rel="noopener noreferrer">
+                    NOC Oficial
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div class="mon-escalation-cta">
+            {contacts.whatsappNumber && (
+              <div class="mon-whatsapp-wrap">
+                <span class="mon-noc-badge">GUARDIA WHATSAPP DIRECTA</span>
+                <WhatsAppButton phone={contacts.whatsappNumber} message={contacts.whatsappMessage} size="lg" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Footer */}
+  <footer class="mon-footer">
+    <div class="mon-container mon-footer-flex">
+      <span>© {new Date().getFullYear()} {siteName} // NOC MONITORING STACK</span>
+      <span>ISO 27001 COMPLIANT TELEMETRY</span>
+    </div>
+  </footer>
+</div>
+
+<style>
+  .template-monitor {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ds-font-space-grotesk, monospace);
+    background-color: var(--ds-color-background, #050811);
+    color: var(--ds-color-text, #f8fafc);
+  }
+
+  .mon-container {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 var(--ds-space-4, 1rem);
+    box-sizing: border-box;
+  }
+
+  .mon-header {
+    background: #000000;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+    padding: var(--ds-space-2, 0.5rem) 0;
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-family: var(--ds-font-mono);
+  }
+
+  .mon-header-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .mon-prompt {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+    color: #10b981;
+  }
+
+  .mon-cursor {
+    animation: mon-blink 1s step-end infinite;
+  }
+
+  @keyframes mon-blink {
+    50% { opacity: 0; }
+  }
+
+  .mon-uptime {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: 0.7rem;
+  }
+
+  .mon-ping-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #10b981;
+  }
+
+  .mon-broadcast-bar {
+    background: rgba(16, 185, 129, 0.1);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+    padding: var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .mon-broadcast-content {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3, 0.75rem);
+    flex-wrap: wrap;
+    font-size: var(--ds-text-xs, 0.75rem);
+  }
+
+  .mon-broadcast-discount {
+    color: #10b981;
+    font-weight: 700;
+  }
+
+  .mon-broadcast-code {
+    background: #000;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .mon-hero-section {
+    padding: var(--ds-space-8, 2rem) 0;
+  }
+
+  .mon-terminal-window {
+    background: rgba(10, 15, 30, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--ds-theme-radius, 8px);
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  }
+
+  .mon-window-titlebar {
+    background: rgba(0, 0, 0, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-2, 0.5rem) var(--ds-space-4, 1rem);
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-4, 1rem);
+  }
+
+  .mon-window-controls {
+    display: flex;
+    gap: 6px;
+  }
+
+  .mon-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .mon-dot-red { background: #ef4444; }
+  .mon-dot-yellow { background: #f59e0b; }
+  .mon-dot-green { background: #10b981; }
+
+  .mon-window-title {
+    font-size: 0.75rem;
+    font-family: var(--ds-font-mono);
+    color: var(--ds-color-muted, #94a3b8);
+  }
+
+  .mon-terminal-body {
+    padding: var(--ds-space-8, 2rem);
+  }
+
+  .mon-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-8, 2rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .mon-hero-grid {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+
+  .mon-status-line {
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .mon-badge-live {
+    font-size: 0.7rem;
+    font-family: var(--ds-font-mono);
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    padding: 3px 8px;
+    border-radius: 2px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .mon-hero-title {
+    font-size: var(--ds-text-3xl, 2.25rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .mon-hero-subtitle {
+    font-size: var(--ds-text-base, 1rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.6;
+    margin: 0 0 var(--ds-space-6, 1.5rem) 0;
+  }
+
+  .mon-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-3, 0.75rem);
+  }
+
+  .mon-screen-frame {
+    position: relative;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: var(--ds-theme-radius, 4px);
+    overflow: hidden;
+    background: #000;
+    min-height: 200px;
+    padding: var(--ds-space-4, 1rem);
+    display: flex;
+    align-items: center;
+  }
+
+  .mon-terminal-stream {
+    font-family: var(--ds-font-mono);
+    font-size: var(--ds-text-xs, 0.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-2, 0.5rem);
+    width: 100%;
+  }
+
+  .mon-stream-line {
+    margin: 0;
+    color: var(--ds-color-muted, #94a3b8);
+  }
+
+  .mon-stream-line.active-stream {
+    color: #10b981;
+    font-weight: 700;
+  }
+
+  .mon-scanline {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .mon-metrics-section {
+    padding: var(--ds-space-10, 2.5rem) 0;
+  }
+
+  .mon-section-heading {
+    margin-bottom: var(--ds-space-8, 2rem);
+  }
+
+  .mon-section-sub {
+    font-size: 0.75rem;
+    font-family: var(--ds-font-mono);
+    color: #10b981;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: var(--ds-space-1, 0.25rem);
+  }
+
+  .mon-section-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .mon-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-4, 1rem);
+  }
+
+  @media (min-width: 640px) {
+    .mon-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .mon-cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .mon-card-node {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .mon-node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .mon-node-ident {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .mon-node-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+  }
+
+  .mon-node-id {
+    font-size: 0.7rem;
+    font-family: var(--ds-font-mono);
+    color: var(--ds-color-muted, #94a3b8);
+  }
+
+  .mon-node-title {
+    font-size: var(--ds-text-lg, 1.125rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .mon-node-desc {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.5;
+    flex-grow: 1;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .mon-node-badge-wrap {
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .mon-node-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-1, 0.25rem);
+    color: #10b981;
+    font-size: var(--ds-text-xs, 0.75rem);
+    text-decoration: none;
+    font-family: var(--ds-font-mono);
+  }
+
+  .mon-node-link:hover {
+    text-decoration: underline;
+  }
+
+  .mon-escalation-section {
+    padding: var(--ds-space-8, 2rem) 0;
+    margin-top: auto;
+  }
+
+  .mon-escalation-panel {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--ds-theme-radius, 8px);
+    padding: var(--ds-space-8, 2rem);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-6, 1.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .mon-escalation-panel {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+
+  .mon-escalation-title {
+    font-size: var(--ds-text-xl, 1.5rem);
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .mon-escalation-desc {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .mon-channels-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .mon-channel-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-family: var(--ds-font-mono);
+  }
+
+  .mon-channel-pill a {
+    color: #10b981;
+    text-decoration: none;
+  }
+
+  .mon-whatsapp-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .mon-noc-badge {
+    font-size: 0.65rem;
+    font-family: var(--ds-font-mono);
+    color: #10b981;
+    letter-spacing: 0.08em;
+  }
+
+  .mon-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-4, 1rem) 0;
+    font-size: 0.7rem;
+    font-family: var(--ds-font-mono);
+    color: var(--ds-color-muted, #64748b);
+  }
+
+  .mon-footer-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+</style>

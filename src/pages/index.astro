@@ -1,0 +1,254 @@
+---
+import { SupabasePublicationRepository } from "../infrastructure/supabase/publication-repository";
+import { SupabaseCampaignRepository } from "../infrastructure/supabase/campaign-repository";
+import { SupabaseDomainRepository } from "../infrastructure/supabase/domain-repository";
+import { resolveSiteCampaignUseCase } from "../application/campaign/manage-campaigns";
+import {
+  themeToCssVariables,
+  serializeCssVariables,
+} from "../domain/design-system/tokens";
+import TemplateRenderer from "../components/templates/TemplateRenderer.astro";
+import SeoHead from "../components/seo/SeoHead.astro";
+import ConsentBanner from "../components/seo/ConsentBanner.astro";
+import "../styles/tokens.css";
+
+const hostRouting = Astro.locals.hostRouting;
+
+let siteSlug: string | null = null;
+if (hostRouting?.kind === "subdomain") {
+  siteSlug = hostRouting.slug;
+} else if (hostRouting?.kind === "custom_domain") {
+  const domainRepo = new SupabaseDomainRepository(Astro.locals.supabase);
+  const verifiedDomain = await domainRepo.getVerifiedDomain(hostRouting.domain);
+  if (verifiedDomain) {
+    const { data: site } = await Astro.locals.supabase
+      .from("sites")
+      .select("slug")
+      .eq("id", verifiedDomain.siteId)
+      .maybeSingle();
+    siteSlug = site?.slug ?? null;
+  }
+}
+
+const publicationRepo = new SupabasePublicationRepository(Astro.locals.supabase);
+const campaignRepo = new SupabaseCampaignRepository(Astro.locals.supabase);
+
+let snapshot: any = null;
+let activeCampaign: any = null;
+let pageTitle = "Landing SaaS — Plataforma Multi-Tenant";
+let pageDescription =
+  "Plataforma SaaS Multi-Tenant para Landings Técnicas de Alta Conversión con ciclo de publicación inmutable y direcciones visuales auténticas.";
+let serializedStyle = "";
+
+if (siteSlug) {
+  const activePublication = await publicationRepo.getActivePublicationBySlug(siteSlug);
+  if (!activePublication) {
+    Astro.response.status = 404;
+    pageTitle = "Sitio no encontrado";
+  } else {
+    snapshot = activePublication.snapshot;
+    activeCampaign = await resolveSiteCampaignUseCase(
+      activePublication.siteId,
+      new Date(),
+      campaignRepo
+    );
+    const cssVariables = themeToCssVariables(snapshot.theme);
+    serializedStyle = serializeCssVariables(cssVariables);
+    pageTitle = snapshot.siteName;
+    pageDescription = snapshot.hero?.subheadline || `${pageTitle} — Landing Page`;
+  }
+}
+
+// Otherwise (platform portal), list all published sites
+const publishedSites = [];
+if (!siteSlug) {
+  const { data: sites } = await Astro.locals.supabase
+    .from("sites")
+    .select("id, name, slug");
+
+  if (sites && sites.length > 0) {
+    for (const s of sites) {
+      const pub = await publicationRepo.getActivePublication(s.id);
+      if (pub) {
+        publishedSites.push({
+          id: s.id,
+          name: s.name,
+          slug: s.slug,
+          version: pub.version,
+          publishedAt: pub.publishedAt,
+          templateKey: pub.snapshot.templateKey,
+        });
+      }
+    }
+  }
+}
+---
+
+<!doctype html>
+<html lang="es" style={snapshot ? serializedStyle : ""}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {snapshot ? (
+      <SeoHead
+        snapshot={snapshot}
+        host={Astro.request.headers.get("host") || "landingsaas.com"}
+        pathname="/"
+        customDomain={hostRouting?.kind === "custom_domain" ? hostRouting.domain : undefined}
+      />
+    ) : (
+      <>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        {siteSlug ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : (
+          <meta name="robots" content="index, follow" />
+        )}
+      </>
+    )}
+  </head>
+  <body
+    style={
+      siteSlug
+        ? "margin: 0; padding: 0; background: var(--ds-color-background, #0a0f1e); color: var(--ds-color-text, #f5f7ff); font-family: var(--ds-theme-font, Inter, system-ui, sans-serif);"
+        : "margin: 0; padding: 0; min-height: 100vh; background: radial-gradient(circle at 80% 0%, #172a55 0, transparent 40rem), #0a0f1e; color: #f5f7ff; font-family: Inter, system-ui, -apple-system, sans-serif;"
+    }
+  >
+    {siteSlug ? (
+      snapshot ? (
+        <main>
+          <TemplateRenderer
+            templateKey={snapshot.templateKey}
+            theme={snapshot.theme}
+            hero={snapshot.hero}
+            cards={snapshot.cards}
+            promotions={snapshot.promotions}
+            contacts={snapshot.contacts}
+            siteName={snapshot.siteName}
+            activeCampaign={activeCampaign}
+          />
+          <ConsentBanner />
+        </main>
+      ) : (
+        <main style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem; background: radial-gradient(circle at 50% 30%, #172a55 0, #0a0f1e 70%);">
+          <div style="max-width: 32rem; border: 1px solid #293958; border-radius: 1.25rem; padding: 3rem 2rem; background: rgba(17, 26, 46, 0.9); box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.5);">
+            <span style="font-size: 0.8rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #91b7ff; display: block; margin-bottom: 0.75rem;">
+              Landing SaaS
+            </span>
+            <h1 style="font-size: 2rem; margin: 0 0 1rem; color: #f5f7ff; line-height: 1.2;">
+              Sitio en Construcción
+            </h1>
+            <p style="color: #b8c3dc; font-size: 1rem; line-height: 1.6; margin: 0 0 2rem;">
+              El sitio con identificador <strong>"{siteSlug}"</strong> aún no cuenta con una versión publicada activa.
+            </p>
+          </div>
+        </main>
+      )
+    ) : (
+      <div>
+        <header style="border-bottom: 1px solid rgba(41, 57, 88, 0.7); backdrop-filter: blur(12px); background: rgba(10, 15, 30, 0.85); position: sticky; top: 0; z-index: 100;">
+          <div style="max-width: 72rem; margin: 0 auto; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: linear-gradient(135deg, #91b7ff, #38bdf8); display: grid; place-items: center; font-weight: 900; color: #071225;">
+                S
+              </div>
+              <strong style="font-size: 1.2rem; letter-spacing: -0.02em;">Landing SaaS</strong>
+            </div>
+
+            <nav style="display: flex; align-items: center; gap: 1rem;">
+              <a
+                href="/admin"
+                style="display: inline-block; padding: 0.6rem 1.25rem; border-radius: 0.6rem; background: #91b7ff; color: #071225; font-weight: 700; text-decoration: none; font-size: 0.9rem;"
+              >
+                Panel de Control (Admin) →
+              </a>
+            </nav>
+          </div>
+        </header>
+
+        <main style="max-width: 72rem; margin: 0 auto; padding: 4rem 1.5rem 6rem;">
+          <section style="text-align: center; max-width: 48rem; margin: 0 auto 5rem;">
+            <span style="display: inline-block; padding: 0.4rem 1rem; border-radius: 9999px; background: rgba(145, 183, 255, 0.1); border: 1px solid rgba(145, 183, 255, 0.3); color: #91b7ff; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;">
+              Plataforma Multi-Tenant SaaS &bull; Fase 6
+            </span>
+            <h1 style="font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; line-height: 1.1; margin: 0 0 1.5rem; letter-spacing: -0.03em;">
+              Landings Técnicas de Alta Conversión con Dominios Propios
+            </h1>
+            <p style="font-size: 1.15rem; line-height: 1.6; color: #95a8c9; margin: 0 0 2.5rem;">
+              Arquitectura multi-tenant con separación estricta de borrador y producción, motor de campañas, verificación DNS y direcciones visuales auténticas.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <a
+                href="/admin"
+                style="padding: 0.875rem 2rem; border-radius: 0.6rem; background: #91b7ff; color: #071225; font-weight: 700; text-decoration: none; font-size: 1rem;"
+              >
+                Iniciar Sesión en el Admin
+              </a>
+              <a
+                href="/api/health"
+                target="_blank"
+                style="padding: 0.875rem 2rem; border-radius: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 600; text-decoration: none; font-size: 1rem;"
+              >
+                Health Check (/api/health) ↗
+              </a>
+            </div>
+          </section>
+
+          <section>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid rgba(41, 57, 88, 0.5); padding-bottom: 1rem;">
+              <div>
+                <h2 style="font-size: 1.5rem; margin: 0 0 0.5rem; letter-spacing: -0.02em;">
+                  Sitios Públicos Activos
+                </h2>
+                <p style="color: #95a8c9; margin: 0; font-size: 0.95rem;">
+                  Landings con publicaciones inmutables activas listas para producción.
+                </p>
+              </div>
+              <span style="font-size: 0.85rem; color: #91b7ff; font-weight: 600;">
+                {publishedSites.length} {publishedSites.length === 1 ? "sitio publicado" : "sitios publicados"}
+              </span>
+            </div>
+
+            {publishedSites.length === 0 ? (
+              <div style="text-align: center; padding: 4rem 2rem; background: rgba(14, 30, 56, 0.4); border: 1px dashed rgba(41, 57, 88, 0.8); border-radius: 1rem;">
+                <p style="color: #95a8c9; font-size: 1.1rem; margin: 0 0 1rem;">
+                  Aún no hay sitios con publicaciones activas.
+                </p>
+                <p style="color: #637b9f; font-size: 0.9rem; margin: 0;">
+                  Accede al panel de administración para configurar y publicar tu primer sitio.
+                </p>
+              </div>
+            ) : (
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: 1.5rem;">
+                {publishedSites.map((s) => (
+                  <article style="background: #0e1e38; border: 1px solid #243b66; border-radius: 0.75rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <h3 style="font-size: 1.25rem; margin: 0; color: #fff;">
+                          {s.name}
+                        </h3>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                          v{s.version}
+                        </span>
+                      </div>
+                      <p style="color: #95a8c9; font-size: 0.85rem; margin: 0 0 1rem; font-family: monospace;">
+                        slug: /{s.slug} &bull; template: {s.templateKey}
+                      </p>
+                    </div>
+                    <a
+                      href={`/sites/${s.slug}`}
+                      style="display: block; text-align: center; padding: 0.6rem 1rem; border-radius: 0.5rem; background: rgba(145, 183, 255, 0.1); border: 1px solid rgba(145, 183, 255, 0.3); color: #91b7ff; font-weight: 600; text-decoration: none; font-size: 0.9rem;"
+                    >
+                      Ver Landing Pública &rarr;
+                    </a>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </main>
+      </div>
+    )}
+  </body>
+</html>

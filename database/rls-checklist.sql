@@ -1,0 +1,3 @@
+-- RLS checklist template
+-- Enable RLS, revoke broad grants, add per-operation policies, index policy predicates.
+-- Tests must cover owner/editor allow, viewer write deny, cross-tenant deny, anon rules.

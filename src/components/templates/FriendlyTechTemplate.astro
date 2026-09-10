@@ -1,0 +1,522 @@
+---
+import type { SiteTheme } from "../../domain/site/theme";
+import type { SiteHero } from "../../domain/site/hero";
+import type { SiteCard } from "../../domain/site/card";
+import type { SitePromotion } from "../../domain/site/promotion";
+import type { SiteContacts } from "../../domain/site/contact";
+import { themeToCssVariables, serializeCssVariables } from "../../domain/design-system/tokens";
+import Button from "../design-system/Button.astro";
+import Badge from "../design-system/Badge.astro";
+import Card from "../design-system/Card.astro";
+import Icon from "../design-system/Icon.astro";
+import WhatsAppButton from "../design-system/WhatsAppButton.astro";
+
+interface Props {
+  theme: SiteTheme;
+  hero: SiteHero | null;
+  cards: SiteCard[];
+  promotions: SitePromotion[];
+  contacts: SiteContacts | null;
+  siteName?: string | undefined;
+}
+
+const { theme, hero, cards, promotions, contacts, siteName = "Friendly Tech" } = Astro.props;
+const cssVars = serializeCssVariables(themeToCssVariables(theme));
+const activePromotions = promotions.filter((p) => p.isActive);
+---
+
+<div class="template-friendly" style={cssVars} data-theme-root>
+  {/* Friendly Header Bar */}
+  <header class="friendly-header">
+    <div class="friendly-container friendly-header-wrap">
+      <div class="friendly-brand">
+        <Icon name="heart" size={20} class="friendly-heart-icon" />
+        <span class="friendly-brand-text">{siteName}</span>
+      </div>
+      <div class="friendly-motto">
+        <span>Tecnología simple, clara y a tu alcance</span>
+      </div>
+    </div>
+  </header>
+
+  {/* Active Promotion: Welcome Benefit Card */}
+  {activePromotions.length > 0 && (
+    <div class="friendly-perk-banner">
+      <div class="friendly-container friendly-perk-flex">
+        <Badge variant="accent" size="md">BENEFICIO ESPECIAL</Badge>
+        <span class="friendly-perk-title">{activePromotions[0]?.title}</span>
+        {activePromotions[0]?.discountLabel && (
+          <span class="friendly-perk-badge">{activePromotions[0]?.discountLabel}</span>
+        )}
+        {activePromotions[0]?.couponCode && (
+          <span class="friendly-perk-coupon">Menciona el código <strong>{activePromotions[0]?.couponCode}</strong></span>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Hero: Warm and Approachable */}
+  {hero && (
+    <section class="friendly-hero-section">
+      <div class="friendly-container friendly-hero-grid">
+        <div class="friendly-hero-copy">
+          <div class="friendly-pill-tag">
+            <span>{hero.badgeText || "👋 TE DAMOS LA BIENVENIDA"}</span>
+          </div>
+          <h1 class="friendly-hero-title">{hero.headline}</h1>
+          {hero.subheadline && <p class="friendly-hero-subtitle">{hero.subheadline}</p>}
+
+          <div class="friendly-hero-actions">
+            {contacts?.whatsappNumber && (
+              <WhatsAppButton
+                phone={contacts.whatsappNumber}
+                message={contacts.whatsappMessage}
+                size="lg"
+                label="Hablemos por WhatsApp"
+                class="friendly-cta-pill"
+              />
+            )}
+            {hero.ctaText && hero.ctaLink && (
+              <Button href={hero.ctaLink} variant="solid" size="lg" class="friendly-cta-pill">
+                {hero.ctaText}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div class="friendly-hero-media">
+          <div class="friendly-welcome-card">
+            <div class="friendly-welcome-icon">
+              <Icon name="heart" size={36} />
+            </div>
+            <h3 class="friendly-welcome-title">Estamos para acompañarte</h3>
+            <p class="friendly-welcome-text">Sin trámites complejos ni demoras. Asesoramiento humano directo.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Cards: Approachable Solutions */}
+  {cards.length > 0 && (
+    <section class="friendly-cards-section">
+      <div class="friendly-container">
+        <div class="friendly-section-heading">
+          <h2 class="friendly-section-title">¿Cómo podemos ayudarte hoy?</h2>
+          <p class="friendly-section-subtitle">Explicamos todo de forma clara y sin términos complicados.</p>
+        </div>
+
+        <div class="friendly-cards-grid">
+          {cards.map((card) => (
+            <Card variant="elevated" class="friendly-card-bubble">
+              <div class="friendly-card-icon-bubble">
+                <Icon name={(card.iconKey as any) || "heart"} size={24} />
+              </div>
+              <h3 class="friendly-card-title">{card.title}</h3>
+              {card.description && <p class="friendly-card-desc">{card.description}</p>}
+              {card.badge && (
+                <div class="friendly-card-badge-wrap">
+                  <Badge variant="primary" size="sm">{card.badge}</Badge>
+                </div>
+              )}
+              {card.linkUrl && (
+                <div class="friendly-card-link-box">
+                  <a href={card.linkUrl} class="friendly-card-link">
+                    <span>Conocer más detalles</span>
+                    <Icon name="external" size={14} />
+                  </a>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Contacts: Friendly Invitation */}
+  {contacts && (
+    <section class="friendly-contact-section">
+      <div class="friendly-container">
+        <div class="friendly-contact-card">
+          <div class="friendly-contact-content">
+            <h2 class="friendly-contact-title">Estamos para responder todas tus dudas</h2>
+            <p class="friendly-contact-sub">Escribinos sin compromiso. Te asesoramos con gusto y transparencia.</p>
+
+            <div class="friendly-contact-channels">
+              {contacts.phone && (
+                <div class="friendly-channel-item">
+                  <Icon name="phone" size={18} />
+                  <span>{contacts.phone}</span>
+                </div>
+              )}
+              {contacts.email && (
+                <div class="friendly-channel-item">
+                  <Icon name="email" size={18} />
+                  <span>{contacts.email}</span>
+                </div>
+              )}
+              {contacts.instagramHandle && (
+                <div class="friendly-channel-item">
+                  <Icon name="instagram" size={18} />
+                  <a href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
+                    @{contacts.instagramHandle.replace(/^@/, "")}
+                  </a>
+                </div>
+              )}
+              {contacts.facebookUrl && (
+                <div class="friendly-channel-item">
+                  <Icon name="facebook" size={18} />
+                  <a href={contacts.facebookUrl} target="_blank" rel="noopener noreferrer">
+                    Facebook
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div class="friendly-contact-button-wrap">
+            {contacts.whatsappNumber && (
+              <WhatsAppButton
+                phone={contacts.whatsappNumber}
+                message={contacts.whatsappMessage}
+                size="lg"
+                label="Envíanos un mensaje"
+                class="friendly-cta-pill"
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Footer */}
+  <footer class="friendly-footer">
+    <div class="friendly-container friendly-footer-row">
+      <span>© {new Date().getFullYear()} {siteName}. Hecho con calidez humana.</span>
+      <span>ATENCIÓN TRANSPARENTE</span>
+    </div>
+  </footer>
+</div>
+
+<style>
+  .template-friendly {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ds-font-outfit, sans-serif);
+    background-color: var(--ds-color-background, #0c1222);
+    color: var(--ds-color-text, #f8fafc);
+  }
+
+  .friendly-container {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 var(--ds-space-6, 1.5rem);
+    box-sizing: border-box;
+  }
+
+  .friendly-header {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-4, 1rem) 0;
+  }
+
+  .friendly-header-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .friendly-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .friendly-heart-icon {
+    color: var(--ds-color-primary, #3b82f6);
+  }
+
+  .friendly-brand-text {
+    font-size: var(--ds-text-lg, 1.125rem);
+    font-weight: 700;
+  }
+
+  .friendly-motto {
+    font-size: var(--ds-text-xs, 0.75rem);
+    color: var(--ds-color-muted, #94a3b8);
+  }
+
+  .friendly-perk-banner {
+    background: rgba(59, 130, 246, 0.1);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    padding: var(--ds-space-3, 0.75rem) 0;
+  }
+
+  .friendly-perk-flex {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3, 0.75rem);
+    flex-wrap: wrap;
+    font-size: var(--ds-text-sm, 0.875rem);
+  }
+
+  .friendly-perk-badge {
+    color: var(--ds-color-primary, #60a5fa);
+    font-weight: 700;
+  }
+
+  .friendly-perk-coupon strong {
+    color: #ffffff;
+  }
+
+  .friendly-hero-section {
+    padding: var(--ds-space-12, 3rem) 0;
+  }
+
+  .friendly-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-10, 2.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .friendly-hero-grid {
+      grid-template-columns: 1.3fr 1fr;
+    }
+  }
+
+  .friendly-pill-tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-weight: 600;
+    margin-bottom: var(--ds-space-4, 1rem);
+  }
+
+  .friendly-hero-title {
+    font-size: var(--ds-text-4xl, 2.75rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+    letter-spacing: -0.01em;
+  }
+
+  .friendly-hero-subtitle {
+    font-size: var(--ds-text-lg, 1.125rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.6;
+    margin: 0 0 var(--ds-space-8, 2rem) 0;
+  }
+
+  .friendly-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-3, 0.75rem);
+  }
+
+  .friendly-cta-pill {
+    border-radius: 9999px !important;
+  }
+
+  .friendly-welcome-card {
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: var(--ds-space-8, 2rem);
+    text-align: center;
+    box-shadow: var(--ds-elevation-floating);
+  }
+
+  .friendly-welcome-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--ds-color-primary, #60a5fa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--ds-space-4, 1rem) auto;
+  }
+
+  .friendly-welcome-title {
+    font-size: var(--ds-text-xl, 1.25rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .friendly-welcome-text {
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: var(--ds-text-sm, 0.875rem);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .friendly-cards-section {
+    padding: var(--ds-space-12, 3rem) 0;
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .friendly-section-heading {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto var(--ds-space-10, 2.5rem) auto;
+  }
+
+  .friendly-section-title {
+    font-size: var(--ds-text-3xl, 2rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .friendly-section-subtitle {
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: var(--ds-text-base, 1rem);
+    margin: 0;
+  }
+
+  .friendly-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-6, 1.5rem);
+  }
+
+  @media (min-width: 640px) {
+    .friendly-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .friendly-cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .friendly-card-bubble {
+    border-radius: 16px;
+    padding: var(--ds-space-6, 1.5rem);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .friendly-card-icon-bubble {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--ds-color-primary, #60a5fa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--ds-space-4, 1rem);
+  }
+
+  .friendly-card-title {
+    font-size: var(--ds-text-xl, 1.25rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .friendly-card-desc {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    line-height: 1.6;
+    flex-grow: 1;
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .friendly-card-badge-wrap {
+    margin-bottom: var(--ds-space-3, 0.75rem);
+  }
+
+  .friendly-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-1, 0.25rem);
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-primary, #60a5fa);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .friendly-card-link:hover {
+    text-decoration: underline;
+  }
+
+  .friendly-contact-section {
+    padding: var(--ds-space-12, 3rem) 0;
+    margin-top: auto;
+  }
+
+  .friendly-contact-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(245, 158, 11, 0.08));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: var(--ds-space-8, 2rem);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-6, 1.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .friendly-contact-card {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+
+  .friendly-contact-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 700;
+    margin: 0 0 var(--ds-space-2, 0.5rem) 0;
+  }
+
+  .friendly-contact-sub {
+    font-size: var(--ds-text-sm, 0.875rem);
+    color: var(--ds-color-muted, #94a3b8);
+    margin: 0 0 var(--ds-space-4, 1rem) 0;
+  }
+
+  .friendly-contact-channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-3, 0.75rem);
+    font-size: var(--ds-text-sm, 0.875rem);
+  }
+
+  .friendly-channel-item {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .friendly-channel-item a {
+    color: var(--ds-color-primary, #60a5fa);
+    text-decoration: none;
+  }
+
+  .friendly-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--ds-space-6, 1.5rem) 0;
+    font-size: 0.75rem;
+    color: var(--ds-color-muted, #64748b);
+  }
+
+  .friendly-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2, 0.5rem);
+  }
+</style>

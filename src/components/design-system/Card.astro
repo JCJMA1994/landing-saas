@@ -1,0 +1,58 @@
+---
+import type { ThemeCardVariant } from "../../domain/site/theme";
+
+export interface Props {
+  variant?: ThemeCardVariant | undefined;
+  as?: "div" | "article" | "section" | undefined;
+  class?: string | undefined;
+}
+
+const { variant = "bordered", as: Element = "div", class: className = "" } = Astro.props;
+---
+
+<Element class={`ds-card ds-card-${variant} ${className}`}>
+  <slot />
+</Element>
+
+<style>
+  .ds-card {
+    border-radius: var(--ds-theme-radius, 8px);
+    padding: var(--ds-space-6, 1.5rem);
+    transition: transform var(--ds-transition-base, 200ms ease),
+                box-shadow var(--ds-transition-base, 200ms ease),
+                border-color var(--ds-transition-base, 200ms ease);
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ds-card-flat {
+    background-color: var(--ds-color-surface, rgba(255, 255, 255, 0.04));
+    border: none;
+    box-shadow: none;
+  }
+
+  .ds-card-elevated {
+    background-color: var(--ds-color-surface-elevated, rgba(255, 255, 255, 0.08));
+    border: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.1));
+    box-shadow: var(--ds-elevation-elevated);
+  }
+
+  .ds-card-bordered {
+    background-color: var(--ds-color-surface, rgba(255, 255, 255, 0.03));
+    border: 1px solid var(--ds-color-border, rgba(255, 255, 255, 0.15));
+    box-shadow: none;
+  }
+
+  .ds-card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .ds-card:hover {
+    border-color: var(--ds-color-primary, #3b82f6);
+  }
+</style>

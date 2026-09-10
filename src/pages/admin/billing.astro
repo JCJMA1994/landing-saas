@@ -1,0 +1,209 @@
+---
+import { actions } from "astro:actions";
+import { getTenantUsageOverviewUseCase } from "../../application/saas/manage-subscription";
+import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/subscription-repository";
+import { PLANS, PLAN_IDS } from "../../domain/saas/plan";
+import { calculateTrialDaysRemaining } from "../../domain/saas/subscription";
+import "../../styles/admin.css";
+
+if (!Astro.locals.user) {
+  return Astro.redirect("/admin/login", 303);
+}
+
+const logoutResult = Astro.getActionResult(actions.logout);
+if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+const changePlanResult = Astro.getActionResult(actions.changePlan);
+
+// Get current user's tenant
+const { data: memberData } = await Astro.locals.supabase
+  .from("tenant_members")
+  .select("tenant_id, role")
+  .eq("user_id", Astro.locals.user.id)
+  .maybeSingle();
+
+const tenantId = memberData?.tenant_id;
+const userRole = memberData?.role;
+const isOwner = userRole === "owner";
+
+const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
+let usageOverview: any = null;
+let trialDaysRemaining = 0;
+
+if (tenantId) {
+  try {
+    usageOverview = await getTenantUsageOverviewUseCase(tenantId, subRepo);
+    trialDaysRemaining = calculateTrialDaysRemaining(usageOverview.subscription);
+  } catch (e) {
+    // Graceful fallback
+  }
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Billing & Quotas | Landing SaaS</title>
+  </head>
+  <body>
+    <header class="shell topbar">
+      <strong>Landing SaaS</strong>
+      <nav aria-label="Admin navigation">
+        <ul class="nav-links">
+          <li><a href="/admin" class="nav-link">Sites</a></li>
+          <li><a href="/admin/members" class="nav-link">Members</a></li>
+          <li><a href="/admin/billing" class="nav-link active">Billing</a></li>
+        </ul>
+      </nav>
+      <form method="POST" action={actions.logout}>
+        <button type="submit">Sign out</button>
+      </form>
+    </header>
+
+    <main class="shell dashboard">
+      <p class="eyebrow">Subscription & Resource Quotas</p>
+      <h1>Billing & Usage</h1>
+
+      {changePlanResult?.error && (
+        <p class="error" role="alert">{changePlanResult.error.message}</p>
+      )}
+      {changePlanResult?.data?.ok && changePlanResult.data.subscription && (
+        <p class="success" role="status" style="background: #14532d; color: #bbf7d0; padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          Plan successfully updated to {changePlanResult.data.subscription.planId.toUpperCase()}!
+        </p>
+      )}
+
+      {!usageOverview ? (
+        <p class="muted">Loading subscription details...</p>
+      ) : (
+        <>
+          <!-- Current Plan & Trial Banner -->
+          <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; color: #f8fafc;">Plan: {usageOverview.plan.name}</h2>
+                <span style={`font-size: .75rem; font-weight: 600; padding: .2rem .6rem; border-radius: 9999px; text-transform: uppercase; ${usageOverview.subscription.status === "active" ? "background: #166534; color: #bbf7d0;" : "background: #854d0e; color: #fef08a;"}`}>
+                  {usageOverview.subscription.status}
+                </span>
+              </div>
+              <p style="margin: 0; color: #94a3b8; font-size: .95rem;">{usageOverview.plan.tagline}</p>
+              {usageOverview.subscription.status === "trialing" && (
+                <p style="margin: .5rem 0 0; color: #38bdf8; font-size: .9rem;">
+                  ⏳ <strong>{trialDaysRemaining} days remaining</strong> on your free Pro trial.
+                </p>
+              )}
+            </div>
+            <div>
+              <span style="font-size: 2rem; font-weight: 700; color: #f8fafc;">
+                ${usageOverview.plan.priceMonthlyUsd}
+              </span>
+              <span style="color: #94a3b8; font-size: .9rem;">/month</span>
+            </div>
+          </div>
+
+          <!-- Quota Meters -->
+          <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #f8fafc;">Resource Usage & Quotas</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
+              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Published Sites</p>
+              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
+                {usageOverview.quotas.sites.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.sites.limit}</span>
+              </p>
+              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
+                <div style={`background: ${usageOverview.quotas.sites.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.sites.usagePercentage}%;`}></div>
+              </div>
+            </div>
+
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
+              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Custom Domains</p>
+              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
+                {usageOverview.quotas.custom_domains.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.custom_domains.limit}</span>
+              </p>
+              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
+                <div style={`background: ${usageOverview.quotas.custom_domains.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.custom_domains.usagePercentage}%;`}></div>
+              </div>
+            </div>
+
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
+              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Active Campaigns</p>
+              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
+                {usageOverview.quotas.campaigns.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.campaigns.limit}</span>
+              </p>
+              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
+                <div style={`background: ${usageOverview.quotas.campaigns.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.campaigns.usagePercentage}%;`}></div>
+              </div>
+            </div>
+
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
+              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Media Assets</p>
+              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
+                {usageOverview.quotas.media_assets.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.media_assets.limit}</span>
+              </p>
+              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
+                <div style={`background: ${usageOverview.quotas.media_assets.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.media_assets.usagePercentage}%;`}></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan Comparison & Upgrade Matrix -->
+          <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #f8fafc;">Available Plans</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            {PLAN_IDS.map((pId) => {
+              const p = PLANS[pId];
+              const isCurrent = usageOverview.subscription.planId === pId;
+
+              return (
+                <div style={`background: #1e293b; border: 2px solid ${isCurrent ? "#3b82f6" : "#334155"}; border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;`}>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem;">
+                      <h3 style="margin: 0; font-size: 1.35rem; color: #f8fafc;">{p.name}</h3>
+                      {isCurrent && (
+                        <span style="background: #1d4ed8; color: #eff6ff; font-size: .75rem; font-weight: 600; padding: .2rem .5rem; border-radius: 4px;">
+                          CURRENT
+                        </span>
+                      )}
+                    </div>
+                    <p style="margin: 0 0 1rem; color: #94a3b8; font-size: .9rem;">{p.tagline}</p>
+                    <div style="margin-bottom: 1.5rem;">
+                      <span style="font-size: 2.25rem; font-weight: 800; color: #f8fafc;">${p.priceMonthlyUsd}</span>
+                      <span style="color: #64748b; font-size: .9rem;"> / month</span>
+                    </div>
+
+                    <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem; color: #cbd5e1; font-size: .9rem; display: flex; flex-direction: column; gap: .5rem;">
+                      <li>✓ Up to {p.limits.maxSites} Published Sites</li>
+                      <li>{p.features.customDomains ? "✓" : "✗"} {p.limits.maxCustomDomains} Custom Domains</li>
+                      <li>{p.features.campaigns ? "✓" : "✗"} Up to {p.limits.maxActiveCampaigns} Active Campaigns</li>
+                      <li>{p.features.advancedAnalytics ? "✓ Advanced Analytics" : "✗ Basic Analytics"}</li>
+                      <li>{p.features.removeBranding ? "✓ Remove Platform Branding" : "✗ Platform Branding Included"}</li>
+                      <li>{p.features.prioritySupport ? "✓ Priority 24/7 SLA" : "✗ Standard Support"}</li>
+                    </ul>
+                  </div>
+
+                  {isOwner ? (
+                    isCurrent ? (
+                      <button type="button" disabled style="background: #334155; color: #94a3b8; border: none; padding: .6rem; border-radius: 6px; font-weight: 600; cursor: not-allowed; width: 100%;">
+                        Active Plan
+                      </button>
+                    ) : (
+                      <form method="POST" action={actions.changePlan}>
+                        <input type="hidden" name="tenantId" value={tenantId} />
+                        <input type="hidden" name="planId" value={pId} />
+                        <button type="submit" style="background: #2563eb; color: #ffffff; border: none; padding: .6rem; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%;">
+                          {p.priceMonthlyUsd > usageOverview.plan.priceMonthlyUsd ? "Upgrade to " + p.name : "Switch to " + p.name}
+                        </button>
+                      </form>
+                    )
+                  ) : (
+                    <p style="font-size: .8rem; color: #64748b; margin: 0; text-align: center;">Contact organization owner to change plans.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </main>
+  </body>
+</html>

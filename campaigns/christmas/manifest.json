@@ -1,0 +1,22 @@
+{
+  "key": "christmas-classic",
+  "label": "Navidad",
+  "supportedIntensity": [
+    "subtle",
+    "balanced",
+    "festive"
+  ],
+  "default": {
+    "theme": {
+      "accent": "#C9A227"
+    },
+    "hero": {
+      "badge": "Especial de Navidad",
+      "layoutVariant": "seasonal-editorial"
+    },
+    "decorations": {
+      "presetKey": "warm-lights",
+      "motionPreset": "subtle"
+    }
+  }
+}

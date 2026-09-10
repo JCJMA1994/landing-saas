@@ -1,0 +1,195 @@
+---
+import { actions } from "astro:actions";
+import { SupabaseMemberRepository } from "../../infrastructure/supabase/member-repository";
+import { SupabaseAuditGateway } from "../../infrastructure/supabase/audit-gateway";
+import {
+  listMembersUseCase,
+  type MemberAuthorizationError,
+} from "../../application/members/manage-members";
+import type { TenantMember } from "../../application/members/member-repository";
+import type { AuditLogEntry } from "../../application/audit/audit-gateway";
+import { canManageMembers, type TenantRole } from "../../domain/tenant/roles";
+import "../../styles/admin.css";
+
+const logoutResult = Astro.getActionResult(actions.logout);
+if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+const assignResult = Astro.getActionResult(actions.assignMember);
+const removeResult = Astro.getActionResult(actions.removeMember);
+
+// Determine active tenant from user's membership
+const { data: membershipsData } = await Astro.locals.supabase
+  .from("tenant_members")
+  .select("tenant_id, role")
+  .limit(1);
+
+const currentMembership = membershipsData?.[0] as { tenant_id: string; role: TenantRole } | undefined;
+const tenantId = currentMembership?.tenant_id ?? null;
+const userRole = currentMembership?.role ?? null;
+const isManager = userRole ? canManageMembers(userRole) : false;
+
+let members: TenantMember[] = [];
+let recentAuditLogs: AuditLogEntry[] = [];
+let loadError: string | null = null;
+
+if (tenantId && Astro.locals.user) {
+  const memberRepo = new SupabaseMemberRepository(Astro.locals.supabase);
+  const auditGateway = new SupabaseAuditGateway(Astro.locals.supabase);
+  try {
+    members = await listMembersUseCase(Astro.locals.user, tenantId, memberRepo);
+    if (isManager) {
+      recentAuditLogs = await auditGateway.listRecent(tenantId, 10);
+    }
+  } catch (err: unknown) {
+    const error = err as MemberAuthorizationError;
+    loadError = error.message || "Failed to load tenant members.";
+  }
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Members & Permissions | Landing SaaS</title>
+  </head>
+  <body>
+    <header class="shell topbar">
+      <strong>Landing SaaS</strong>
+      <nav aria-label="Admin navigation">
+        <ul class="nav-links">
+          <li><a href="/admin" class="nav-link">Sites</a></li>
+          <li><a href="/admin/members" class="nav-link active">Members</a></li>
+          <li><a href="/admin/billing" class="nav-link">Billing</a></li>
+        </ul>
+      </nav>
+      <form method="POST" action={actions.logout}>
+        <button type="submit">Sign out</button>
+      </form>
+    </header>
+
+    <main class="shell dashboard">
+      <p class="eyebrow">Access Control</p>
+      <h1>Workspace Members</h1>
+      <p class="muted">Manage roles, permissions, and inspect immutable security audit logs.</p>
+
+      {assignResult && !assignResult.data?.ok && (
+        <p class="error" role="alert">{assignResult.data?.error ?? "Failed to update member."}</p>
+      )}
+      {removeResult && !removeResult.data?.ok && (
+        <p class="error" role="alert">{removeResult.data?.error ?? "Failed to remove member."}</p>
+      )}
+      {loadError && (
+        <p class="error" role="alert">{loadError}</p>
+      )}
+
+      {!tenantId ? (
+        <p class="empty">No tenant associated with your account.</p>
+      ) : (
+        <>
+          <section aria-labelledby="members-list-title">
+            <h2 id="members-list-title">Current Members</h2>
+            {members.length === 0 ? (
+              <p class="empty">No members found.</p>
+            ) : (
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>User ID</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                    {isManager && <th>Actions</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {members.map((m) => (
+                    <tr>
+                      <td>
+                        <code>{m.userId}</code>
+                        {m.userId === Astro.locals.user?.id && <span class="badge">You</span>}
+                      </td>
+                      <td>
+                        <span class={`badge badge-${m.role}`}>{m.role}</span>
+                      </td>
+                      <td>{new Date(m.createdAt).toLocaleDateString()}</td>
+                      {isManager && (
+                        <td>
+                          {m.userId !== Astro.locals.user?.id && (
+                            <form method="POST" action={actions.removeMember} class="inline-form">
+                              <input type="hidden" name="tenantId" value={tenantId} />
+                              <input type="hidden" name="userId" value={m.userId} />
+                              <button type="submit" class="button-danger" onclick="return confirm('Remove member?');">
+                                Remove
+                              </button>
+                            </form>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          {isManager && (
+            <section class="panel" style="margin-top: 2.5rem;" aria-labelledby="add-member-title">
+              <h2 id="add-member-title" style="margin-top: 0;">Add or Update Member</h2>
+              <p class="muted">Enter a preprovisioned User UUID and select their assigned privilege level.</p>
+              <form method="POST" action={actions.assignMember}>
+                <input type="hidden" name="tenantId" value={tenantId} />
+                <div class="field">
+                  <label for="userId">User ID (UUID)</label>
+                  <input
+                    id="userId"
+                    name="userId"
+                    type="text"
+                    required
+                    pattern="^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                    placeholder="00000000-0000-0000-0000-000000000000"
+                  />
+                </div>
+                <div class="field">
+                  <label for="role">Role</label>
+                  <select id="role" name="role" required>
+                    {userRole === "owner" && <option value="owner">Owner (Full admin & ownership)</option>}
+                    <option value="admin">Admin (Member & site management)</option>
+                    <option value="editor" selected>Editor (Content & themes)</option>
+                    <option value="viewer">Viewer (Read-only)</option>
+                  </select>
+                </div>
+                <button type="submit">Save Member</button>
+              </form>
+            </section>
+          )}
+
+          {isManager && recentAuditLogs.length > 0 && (
+            <section style="margin-top: 3rem;" aria-labelledby="audit-log-title">
+              <h2 id="audit-log-title">Security Audit Log (Recent Activity)</h2>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Actor ID</th>
+                    <th>Action</th>
+                    <th>Resource</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentAuditLogs.map((log) => (
+                    <tr>
+                      <td>{log.createdAt ? new Date(log.createdAt).toLocaleString() : "Just now"}</td>
+                      <td><code>{log.actorUserId}</code></td>
+                      <td><span class="badge">{log.action}</span></td>
+                      <td><code>{log.resourceType}:{log.resourceId}</code></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )}
+        </>
+      )}
+    </main>
+  </body>
+</html>

@@ -1,0 +1,285 @@
+---
+import { SupabasePublicationRepository } from "../../infrastructure/supabase/publication-repository";
+import { SupabaseThemeRepository } from "../../infrastructure/supabase/theme-repository";
+import { SupabaseHeroRepository } from "../../infrastructure/supabase/hero-repository";
+import { SupabaseCardRepository } from "../../infrastructure/supabase/card-repository";
+import { SupabasePromotionRepository } from "../../infrastructure/supabase/promotion-repository";
+import { SupabaseContactRepository } from "../../infrastructure/supabase/contact-repository";
+import { SupabaseCampaignRepository } from "../../infrastructure/supabase/campaign-repository";
+import { resolveSiteCampaignUseCase } from "../../application/campaign/manage-campaigns";
+import {
+  createPublicationSnapshot,
+  type PublicationSnapshot,
+} from "../../domain/publication/snapshot";
+import { DEFAULT_SITE_THEME } from "../../domain/site/theme";
+import { isTemplateKey, type TemplateKey } from "../../domain/template/manifest";
+import {
+  themeToCssVariables,
+  serializeCssVariables,
+} from "../../domain/design-system/tokens";
+import TemplateRenderer from "../../components/templates/TemplateRenderer.astro";
+import "../../styles/tokens.css";
+
+if (!Astro.locals.user) {
+  return Astro.redirect("/admin/login", 303);
+}
+
+const { id: siteId } = Astro.params;
+if (!siteId) {
+  return Astro.redirect("/admin", 303);
+}
+
+// Fetch site details and verify tenant membership
+const { data: siteData, error: siteError } = await Astro.locals.supabase
+  .from("sites")
+  .select("id, name, slug, tenant_id, template_key")
+  .eq("id", siteId)
+  .maybeSingle();
+
+if (siteError || !siteData) {
+  return Astro.redirect("/admin", 303);
+}
+
+const versionParam = Astro.url.searchParams.get("version");
+const simulateDateParam = Astro.url.searchParams.get("simulateDate");
+
+const publicationRepo = new SupabasePublicationRepository(Astro.locals.supabase);
+const campaignRepo = new SupabaseCampaignRepository(Astro.locals.supabase);
+
+let snapshot: PublicationSnapshot;
+let isHistorical = false;
+let historicalVersion: number | null = null;
+let publishedAtString: string | null = null;
+
+if (versionParam) {
+  const versionNumber = parseInt(versionParam, 10);
+  if (isNaN(versionNumber) || versionNumber < 1) {
+    return new Response("Invalid version parameter", { status: 400 });
+  }
+
+  const publication = await publicationRepo.getPublicationByVersion(siteId, versionNumber);
+  if (!publication) {
+    return new Response(`Publication snapshot version ${versionNumber} not found`, {
+      status: 404,
+    });
+  }
+
+  snapshot = publication.snapshot;
+  isHistorical = true;
+  historicalVersion = publication.version;
+  publishedAtString = new Date(publication.publishedAt).toLocaleString();
+} else {
+  // Load live draft
+  const themeRepo = new SupabaseThemeRepository(Astro.locals.supabase);
+  const heroRepo = new SupabaseHeroRepository(Astro.locals.supabase);
+  const cardRepo = new SupabaseCardRepository(Astro.locals.supabase);
+  const promoRepo = new SupabasePromotionRepository(Astro.locals.supabase);
+  const contactRepo = new SupabaseContactRepository(Astro.locals.supabase);
+
+  const [existingTheme, hero, cards, promotions, contacts] = await Promise.all([
+    themeRepo.getTheme(siteId),
+    heroRepo.getHero(siteId),
+    cardRepo.listCards(siteId),
+    promoRepo.listPromotions(siteId),
+    contactRepo.getContacts(siteId),
+  ]);
+
+  const templateKey: TemplateKey = isTemplateKey(siteData.template_key)
+    ? (siteData.template_key as TemplateKey)
+    : "tech-diagnostic";
+
+  snapshot = createPublicationSnapshot({
+    siteId: siteData.id,
+    siteName: siteData.name,
+    siteSlug: siteData.slug,
+    templateKey,
+    theme: existingTheme ?? { siteId, ...DEFAULT_SITE_THEME },
+    hero,
+    cards,
+    promotions,
+    contacts,
+  });
+}
+
+// Campaign resolution (time-travel simulated or real-time now)
+const isSimulated = Boolean(simulateDateParam);
+const targetResolutionDate = simulateDateParam ? new Date(simulateDateParam) : new Date();
+const activeCampaign = await resolveSiteCampaignUseCase(siteId, targetResolutionDate, campaignRepo);
+
+const cssVariables = themeToCssVariables(snapshot.theme);
+const serializedStyle = serializeCssVariables(cssVariables);
+---
+
+<!doctype html>
+<html lang="en" style={serializedStyle}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>
+      [PREVIEW] {snapshot.siteName} &mdash; {isHistorical ? `v${historicalVersion}` : "Borrador"}
+      {isSimulated ? " (Simulado)" : ""}
+    </title>
+  </head>
+  <body style="margin: 0; padding: 0; background: var(--ds-color-background); color: var(--ds-color-text); font-family: var(--ds-theme-font);">
+    <!-- Preview Sticky Banner -->
+    <aside
+      role="region"
+      aria-label="Preview Mode Notice"
+      style="
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 99999;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 0.65rem 1.5rem;
+        background: rgba(10, 15, 30, 0.96);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(145, 183, 255, 0.2);
+        color: #f5f7ff;
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 0.85rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      "
+    >
+      <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+        {isHistorical ? (
+          <>
+            <span
+              style="
+                background: #172a55;
+                color: #91b7ff;
+                padding: 0.25rem 0.6rem;
+                border-radius: 0.35rem;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                border: 1px solid #2f4168;
+              "
+            >
+              HISTÓRICO v{historicalVersion}
+            </span>
+            {publishedAtString && (
+              <span style="color: #94a3b8; font-size: 0.78rem;">
+                Emitido: {publishedAtString}
+              </span>
+            )}
+          </>
+        ) : (
+          <span
+            style="
+              background: #4a3818;
+              color: #ffd57a;
+              padding: 0.25rem 0.6rem;
+              border-radius: 0.35rem;
+              font-weight: 800;
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+              font-size: 0.75rem;
+              border: 1px solid #735722;
+            "
+          >
+            BORRADOR (DRAFT)
+          </span>
+        )}
+
+        {isSimulated && (
+          <span
+            style="
+              background: #3b0764;
+              color: #d8b4fe;
+              padding: 0.25rem 0.6rem;
+              border-radius: 0.35rem;
+              font-weight: 800;
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+              font-size: 0.75rem;
+              border: 1px solid #6b21a8;
+            "
+          >
+            FECHA SIMULADA: {targetResolutionDate.toLocaleDateString()} {targetResolutionDate.toLocaleTimeString()}
+          </span>
+        )}
+
+        <span>
+          {activeCampaign ? (
+            <span style="color: #a3e9a4; font-weight: 600;">
+              Campaña Activa: {activeCampaign.name} ({activeCampaign.preset})
+            </span>
+          ) : (
+            <span style="color: #94a3b8;">
+              Sin campaña activa en esta fecha (Theme Base).
+            </span>
+          )}
+        </span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        {isSimulated && (
+          <a
+            href={`/preview/${siteId}`}
+            style="
+              background: rgba(255, 255, 255, 0.1);
+              color: #f1f5f9;
+              padding: 0.4rem 0.75rem;
+              border-radius: 0.45rem;
+              text-decoration: none;
+              font-size: 0.8rem;
+            "
+          >
+            Limpiar Simulación
+          </a>
+        )}
+        <a
+          href={`/admin/sites/${siteId}/campaigns`}
+          style="
+            background: #233e66;
+            color: #91b7ff;
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.45rem;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.8rem;
+          "
+        >
+          Campañas
+        </a>
+        <a
+          href={`/admin/sites/${siteId}/publish`}
+          style="
+            background: #91b7ff;
+            color: #071225;
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.45rem;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: inline-block;
+          "
+        >
+          {isHistorical ? "← Volver al Historial" : "← Publicar"}
+        </a>
+      </div>
+    </aside>
+
+    <!-- Isolated Template Renderer using Snapshot & Resolved Campaign -->
+    <main>
+      <TemplateRenderer
+        templateKey={snapshot.templateKey}
+        theme={snapshot.theme}
+        hero={snapshot.hero}
+        cards={snapshot.cards}
+        promotions={snapshot.promotions}
+        contacts={snapshot.contacts}
+        siteName={snapshot.siteName}
+        activeCampaign={activeCampaign}
+      />
+    </main>
+  </body>
+</html>

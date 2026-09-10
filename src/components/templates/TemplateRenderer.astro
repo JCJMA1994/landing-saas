@@ -1,0 +1,74 @@
+---
+import type { TemplateKey } from "../../domain/template/manifest";
+import type { SiteTheme } from "../../domain/site/theme";
+import type { SiteHero } from "../../domain/site/hero";
+import type { SiteCard } from "../../domain/site/card";
+import type { SitePromotion } from "../../domain/site/promotion";
+import type { SiteContacts } from "../../domain/site/contact";
+import type { SiteCampaign } from "../../domain/campaign/campaign";
+import CampaignBanner from "../campaign/CampaignBanner.astro";
+
+import TechDiagnosticTemplate from "./TechDiagnosticTemplate.astro";
+import RepairWorkshopTemplate from "./RepairWorkshopTemplate.astro";
+import SystemMonitorTemplate from "./SystemMonitorTemplate.astro";
+import TechEditorialTemplate from "./TechEditorialTemplate.astro";
+import CyberPerformanceTemplate from "./CyberPerformanceTemplate.astro";
+import FriendlyTechTemplate from "./FriendlyTechTemplate.astro";
+
+interface Props {
+  templateKey: TemplateKey;
+  theme: SiteTheme;
+  hero: SiteHero | null;
+  cards: SiteCard[];
+  promotions: SitePromotion[];
+  contacts: SiteContacts | null;
+  siteName?: string | undefined;
+  activeCampaign?: SiteCampaign | null | undefined;
+}
+
+const {
+  templateKey = "tech-diagnostic",
+  theme,
+  hero,
+  cards,
+  promotions,
+  contacts,
+  siteName,
+  activeCampaign,
+} = Astro.props;
+
+// Allowlisted seasonal theme tint: applies only when intensity is balanced or festive
+const effectiveTheme: SiteTheme =
+  activeCampaign &&
+  activeCampaign.accentColor &&
+  (activeCampaign.intensity === "balanced" || activeCampaign.intensity === "festive")
+    ? { ...theme, accentColor: activeCampaign.accentColor }
+    : theme;
+
+// Hero badge seasonal override if present in campaign
+const effectiveHero: SiteHero | null =
+  hero && activeCampaign?.badgeText
+    ? { ...hero, badgeText: activeCampaign.badgeText }
+    : hero;
+---
+
+{activeCampaign && <CampaignBanner campaign={activeCampaign} />}
+
+{templateKey === "tech-diagnostic" && (
+  <TechDiagnosticTemplate theme={effectiveTheme} hero={effectiveHero} cards={cards} promotions={promotions} contacts={contacts} siteName={siteName} />
+)}
+{templateKey === "repair-workshop" && (
+  <RepairWorkshopTemplate theme={effectiveTheme} hero={effectiveHero} cards={cards} promotions={promotions} contacts={contacts} siteName={siteName} />
+)}
+{templateKey === "system-monitor" && (
+  <SystemMonitorTemplate theme={effectiveTheme} hero={effectiveHero} cards={cards} promotions={promotions} contacts={contacts} siteName={siteName} />
+)}
+{templateKey === "tech-editorial" && (
+  <TechEditorialTemplate theme={effectiveTheme} hero={effectiveHero} cards={cards} promotions={promotions} contacts={contacts} siteName={siteName} />
+)}
+{templateKey === "cyber-performance" && (
+  <CyberPerformanceTemplate theme={effectiveTheme} hero={effectiveHero} cards={cards} promotions={promotions} contacts={contacts} siteName={siteName} />
+)}
+{templateKey === "friendly-tech" && (
+  <FriendlyTechTemplate theme={effectiveTheme} hero={effectiveHero} cards={cards} promotions={promotions} contacts={contacts} siteName={siteName} />
+)}

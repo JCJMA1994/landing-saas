@@ -1,0 +1,80 @@
+---
+import Icon from "./Icon.astro";
+import { generateWhatsAppUrl } from "../../domain/site/contact";
+
+interface Props {
+  phone: string;
+  message?: string | undefined;
+  label?: string | undefined;
+  size?: "sm" | "md" | "lg" | undefined;
+  class?: string | undefined;
+}
+
+const {
+  phone,
+  message = "Hola, me gustaría solicitar información.",
+  label = "Contactar por WhatsApp",
+  size = "md",
+  class: className = "",
+} = Astro.props;
+
+const href = generateWhatsAppUrl(phone, message);
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  class={`ds-whatsapp-btn ds-whatsapp-${size} ${className}`}
+  aria-label={label}
+>
+  <Icon name="whatsapp" size={size === "lg" ? 22 : 18} />
+  <span>{label}</span>
+</a>
+
+<style>
+  .ds-whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ds-space-2, 0.5rem);
+    background-color: #25d366;
+    color: #ffffff;
+    font-family: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    line-height: 1.25;
+    border-radius: var(--ds-theme-radius, 8px);
+    transition: all var(--ds-transition-fast, 150ms ease);
+    cursor: pointer;
+    box-sizing: border-box;
+    border: none;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+  }
+
+  .ds-whatsapp-btn:hover {
+    background-color: #20ba5a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+  }
+
+  .ds-whatsapp-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.5);
+  }
+
+  .ds-whatsapp-sm {
+    padding: var(--ds-space-1, 0.25rem) var(--ds-space-3, 0.75rem);
+    font-size: var(--ds-text-xs, 0.75rem);
+  }
+
+  .ds-whatsapp-md {
+    padding: var(--ds-space-2, 0.5rem) var(--ds-space-5, 1.25rem);
+    font-size: var(--ds-text-sm, 0.875rem);
+  }
+
+  .ds-whatsapp-lg {
+    padding: var(--ds-space-3, 0.75rem) var(--ds-space-6, 1.5rem);
+    font-size: var(--ds-text-base, 1rem);
+  }
+</style>

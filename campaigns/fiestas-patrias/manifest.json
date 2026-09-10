@@ -1,0 +1,22 @@
+{
+  "key": "fiestas-patrias-pe",
+  "label": "Fiestas Patrias Perú",
+  "supportedIntensity": [
+    "subtle",
+    "balanced",
+    "festive"
+  ],
+  "default": {
+    "theme": {
+      "accent": "#D91023"
+    },
+    "hero": {
+      "badge": "Especial Fiestas Patrias",
+      "layoutVariant": "patriotic-split"
+    },
+    "decorations": {
+      "presetKey": "peru-ribbon",
+      "motionPreset": "subtle"
+    }
+  }
+}

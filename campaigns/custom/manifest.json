@@ -1,0 +1,15 @@
+{
+  "key": "custom-campaign",
+  "label": "Campaña personalizada",
+  "supportedIntensity": [
+    "subtle",
+    "balanced",
+    "festive"
+  ],
+  "default": {
+    "decorations": {
+      "presetKey": "none",
+      "motionPreset": "none"
+    }
+  }
+}

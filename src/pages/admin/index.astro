@@ -1,0 +1,71 @@
+---
+import { actions } from "astro:actions";
+import { listAccessibleSites } from "../../application/sites/list-accessible-sites";
+import { SiteRepositoryError, type AccessibleSite } from "../../application/sites/site-repository";
+import { SupabaseSiteRepository } from "../../infrastructure/supabase/site-repository";
+import "../../styles/admin.css";
+
+const logoutResult = Astro.getActionResult(actions.logout);
+if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+const repository = new SupabaseSiteRepository(async () => {
+  const result = await Astro.locals.supabase.from("sites").select("id, name, slug").order("name");
+  return { data: result.data, error: result.error };
+});
+
+let sites: AccessibleSite[] = [];
+let loadError = false;
+try {
+  sites = await listAccessibleSites(Astro.locals.user, repository);
+} catch (error) {
+  loadError = error instanceof SiteRepositoryError;
+  if (!loadError) throw error;
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Sites | Landing SaaS</title>
+  </head>
+  <body>
+    <header class="shell topbar">
+      <strong>Landing SaaS</strong>
+      <nav aria-label="Admin navigation">
+        <ul class="nav-links">
+          <li><a href="/admin" class="nav-link active">Sites</a></li>
+          <li><a href="/admin/members" class="nav-link">Members</a></li>
+          <li><a href="/admin/billing" class="nav-link">Billing</a></li>
+        </ul>
+      </nav>
+      <form method="POST" action={actions.logout}>
+        <button type="submit">Sign out</button>
+      </form>
+    </header>
+    <main class="shell dashboard">
+      <p class="eyebrow">Admin workspace</p>
+      <h1>Your sites</h1>
+      <p class="muted">Only sites available to your authenticated account are shown.</p>
+      {logoutResult?.data && !logoutResult.data.ok && <p class="error" role="alert">Unable to sign out. Please try again.</p>}
+      {loadError ? (
+        <p class="error" role="alert">Sites are temporarily unavailable. Please try again.</p>
+      ) : sites.length === 0 ? (
+        <p class="empty">No sites are available for this account.</p>
+      ) : (
+        <ul class="site-grid">
+          {sites.map((site) => (
+            <li class="site-card">
+              <h2>{site.name}</h2>
+              <p class="muted">Slug: <code>{site.slug}</code></p>
+              <div style="display: flex; gap: .75rem; margin-top: 1rem;">
+                <a href={`/admin/sites/${site.id}/theme`} class="button" style="text-decoration: none; font-size: .85rem; padding: .5rem .8rem;">Theme (Draft)</a>
+                <a href={`/admin/sites/${site.id}/hero`} class="button" style="text-decoration: none; font-size: .85rem; padding: .5rem .8rem; background: #2f4168; color: #f5f7ff;">Hero (Draft)</a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
+  </body>
+</html>
