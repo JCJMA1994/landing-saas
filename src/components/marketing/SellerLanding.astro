@@ -22,7 +22,18 @@ const templateShowcase = [
     description: "Diseño limpio, amigable y dinámico con micro-interacciones. Pensado para retener usuarios y maximizar registros.",
     accent: "#38bdf8",
     badge: "Alta Conversión",
-    tags: ["Prueba Gratuita", "SaaS B2B", "Apps Móviles"]
+    tags: ["Prueba Gratuita", "SaaS B2B", "Apps Móviles"],
+    mockUrl: "friendly-saas.app",
+    mockBadge: "✨ Plataforma SaaS 3.0",
+    mockHeadline: "El software que acelera tus ventas sin fricción",
+    mockSub: "Automatizaciones inteligentes, onboarding intuitivo y analíticas claras para hacer crecer tu negocio.",
+    btnMain: "Comenzar Prueba Gratis",
+    btnGhost: "Ver Demo en Vivo",
+    features: [
+      { icon: "🚀", title: "Activación Rápida", desc: "Configuración guiada en menos de 3 minutos.", metric: "+180% leads" },
+      { icon: "📈", title: "Crecimiento Continuo", desc: "Embudos optimizados para retención constante.", metric: "99.2% retención" },
+      { icon: "🔒", title: "Seguridad Bancaria", desc: "Cifrado integral de datos en el Edge.", metric: "SSL Activo" }
+    ]
   },
   {
     key: "tech-diagnostic",
@@ -31,7 +42,18 @@ const templateShowcase = [
     description: "Estilo técnico de precisión con tarjetas de diagnóstico y métricas de confiabilidad para empresas tecnológicas.",
     accent: "#818cf8",
     badge: "Corporativo Tech",
-    tags: ["Auditoría IT", "Ciberseguridad", "Cloud"]
+    tags: ["Auditoría IT", "Ciberseguridad", "Cloud"],
+    mockUrl: "diagnostic-it.tech",
+    mockBadge: "🛡️ Auditoría & Blindaje de Sistemas",
+    mockHeadline: "Diagnóstico continuo e infraestructura protegida 24/7",
+    mockSub: "Monitoreo preventivo, análisis de vulnerabilidades y certificación técnica para empresas exigentes.",
+    btnMain: "Solicitar Diagnóstico",
+    btnGhost: "Ver Reporte Técnico",
+    features: [
+      { icon: "🔍", title: "Escaneo Predictivo", desc: "Detección proactiva antes de que ocurra una falla.", metric: "0 incidentes" },
+      { icon: "⚡", title: "Baja Latencia", desc: "Conexión a servidores ultra veloces en el Edge.", metric: "0.4ms avg" },
+      { icon: "📋", title: "Compliance ISO", desc: "Cumplimiento normativo y auditoría documentada.", metric: "100% compliant" }
+    ]
   },
   {
     key: "cyber-performance",
@@ -40,7 +62,18 @@ const templateShowcase = [
     description: "Paleta oscura de alto contraste con acentos neón y estética futurista orientada a servicios de alto impacto.",
     accent: "#a855f7",
     badge: "Máximo Impacto",
-    tags: ["Hardware", "DevOps", "Servicios Pro"]
+    tags: ["Hardware", "DevOps", "Servicios Pro"],
+    mockUrl: "cyber-performance.io",
+    mockBadge: "⚡ HIGH-OCTANE PERFORMANCE",
+    mockHeadline: "Potencia extrema sin cuellos de botella",
+    mockSub: "Ingeniería de vanguardia, estética cyberpunk y overclocking garantizado con refrigeración activa.",
+    btnMain: "Configurar Servidor",
+    btnGhost: "Benchmarks en Vivo",
+    features: [
+      { icon: "⚡", title: "360 FPS Sostenidos", desc: "Fluidez absoluta en renderizado y procesamiento.", metric: "Max Peak" },
+      { icon: "❄️", title: "Térmica Controlada", desc: "Gestión de flujo de aire y disipación líquida.", metric: "24°C Idle" },
+      { icon: "🎮", title: "Zero Lag Tech", desc: "Optimización de drivers y ancho de banda dedicado.", metric: "100 Gbps" }
+    ]
   },
   {
     key: "system-monitor",
@@ -49,7 +82,18 @@ const templateShowcase = [
     description: "Estructura modular con indicadores de estado en tiempo real, tablas comparativas y dashboards visuales.",
     accent: "#34d399",
     badge: "Métricas en Vivo",
-    tags: ["Monitoreo", "APIs", "Data Analytics"]
+    tags: ["Monitoreo", "APIs", "Data Analytics"],
+    mockUrl: "telemetry-cloud.net",
+    mockBadge: "🟢 ALL CLUSTERS OPERATIONAL",
+    mockHeadline: "Telemetría y observabilidad en tiempo real",
+    mockSub: "Consola unificada para tus APIs, microservicios, bases de datos y métricas de carga.",
+    btnMain: "Abrir Telemetría",
+    btnGhost: "Explorar API Docs",
+    features: [
+      { icon: "📊", title: "Uptime 99.999%", desc: "Disponibilidad ininterrumpida con failover automático.", metric: "Cluster US-East" },
+      { icon: "📡", title: "Throughput API", desc: "Procesamiento masivo de peticiones por segundo.", metric: "48.2k req/s" },
+      { icon: "🔔", title: "Alertas Críticas", desc: "Disparadores instantáneos vía Webhook y Slack.", metric: "<1s alert" }
+    ]
   },
   {
     key: "repair-workshop",
@@ -58,7 +102,18 @@ const templateShowcase = [
     description: "Diseño robusto, confiable y directo con llamadas a la acción inmediatas vía WhatsApp y cotizaciones rápidas.",
     accent: "#f59e0b",
     badge: "Cotización Rápida",
-    tags: ["Mantenimiento", "Talleres", "Ingeniería"]
+    tags: ["Mantenimiento", "Talleres", "Ingeniería"],
+    mockUrl: "taller-oficial.com",
+    mockBadge: "🔧 SERVICIO TÉCNICO OFICIAL",
+    mockHeadline: "Reparación certificada con garantía escrita de 1 año",
+    mockSub: "Atención express, repuestos originales y diagnóstico transparente directo en tu WhatsApp.",
+    btnMain: "Solicitar Turno Express",
+    btnGhost: "Cotizar por WhatsApp 📲",
+    features: [
+      { icon: "🛠️", title: "Diagnóstico en el Día", desc: "Revisión integral sin cargo para presupuestos.", metric: "24hs entrega" },
+      { icon: "⭐", title: "Repuestos Genuinos", desc: "Piezas originales homologadas por fábrica.", metric: "100% original" },
+      { icon: "🚚", title: "Retiro a Domicilio", desc: "Logística y retiro puerta a puerta en tu zona.", metric: "Cobertura total" }
+    ]
   },
   {
     key: "tech-editorial",
@@ -67,7 +122,18 @@ const templateShowcase = [
     description: "Tipografía refinada, espacios generosos y narrativa profunda para consultoras de alto valor y marcas premium.",
     accent: "#f43f5e",
     badge: "Diseño Editorial",
-    tags: ["Agencias", "Venture Capital", "Estudios"]
+    tags: ["Agencias", "Venture Capital", "Estudios"],
+    mockUrl: "atelier-studio.agency",
+    mockBadge: "ISSUE 08 • STRATEGIC PERSPECTIVES",
+    mockHeadline: "Estrategia digital y narrativa de marca para el futuro",
+    mockSub: "Combinamos dirección de arte premium, tipografía refinada y arquitectura web de clase mundial.",
+    btnMain: "Ver Casos de Éxito",
+    btnGhost: "Agendar Consulta Privada",
+    features: [
+      { icon: "🖋️", title: "Dirección de Arte", desc: "Identidad visual cuidada hasta el último píxel.", metric: "Bespoke" },
+      { icon: "📖", title: "Contenido Editorial", desc: "Storytelling estratégico que cautiva clientes e inversores.", metric: "High impact" },
+      { icon: "🌐", title: "Presencia Global", desc: "Sitios multilingües con alcance internacional.", metric: "Tier-1 Brands" }
+    ]
   },
 ];
 
@@ -292,8 +358,8 @@ const faqs = [
         </div>
       </div>
 
-      <!-- Interactive Mockup Preview -->
-      <div class="mockup-frame">
+      <!-- Interactive Live Template Showcase Mockup Simulator -->
+      <div class="mockup-frame" id="live-mockup-stage">
         <div class="mockup-header">
           <div class="mockup-dots">
             <span class="dot red"></span>
@@ -302,43 +368,83 @@ const faqs = [
           </div>
           <div class="mockup-url-bar">
             <span class="url-lock">🔒</span>
-            <span class="url-text">tunegocio.com</span>
+            <span class="url-text" id="mockup-url-display">friendly-saas.app</span>
             <span class="url-badge">EN VIVO</span>
           </div>
           <div class="mockup-admin-link">
-            <span class="admin-pill">Panel de Control: Activo</span>
+            <span class="admin-pill">Simulador de Diseños Activo</span>
           </div>
         </div>
 
-        <div class="mockup-viewport">
-          <!-- Visual preview cards inside mockup -->
-          <div class="mockup-hero-preview">
-            <div class="preview-badge">Tu Negocio Online</div>
-            <div class="preview-heading">Aumentá tus ventas con una experiencia digital superior</div>
-            <div class="preview-sub">Atraé a tus clientes ideales con un diseño profesional y contacto directo.</div>
-            <div class="preview-action-row">
-              <span class="preview-btn-main">Contactar por WhatsApp</span>
-              <span class="preview-btn-ghost">Ver Servicios</span>
-            </div>
+        <!-- Interactive Template Selector Bar -->
+        <div class="mockup-template-tabs">
+          <div class="tabs-label">
+            <span class="tab-live-pulse"></span>
+            <span>Explorá las 6 arquitecturas en vivo:</span>
           </div>
+          <div class="tabs-list" role="tablist">
+            {templateShowcase.map((t, idx) => (
+              <button
+                type="button"
+                class={`mockup-tab-btn ${idx === 0 ? "active" : ""}`}
+                data-template-target={t.key}
+                role="tab"
+                aria-selected={idx === 0 ? "true" : "false"}
+                style={`--tab-accent: ${t.accent};`}
+                title={`Ver diseño ${t.name}`}
+              >
+                <span class="tab-indicator-dot" style={`background: ${t.accent}; box-shadow: 0 0 6px ${t.accent};`}></span>
+                <span class="tab-btn-title">{t.name}</span>
+              </button>
+            ))}
+          </div>
+          <!-- Auto-rotation progress indicator -->
+          <div class="tab-progress-track">
+            <div class="tab-progress-bar" id="mockup-progress-bar"></div>
+          </div>
+        </div>
 
-          <div class="mockup-features-row">
-            <div class="preview-card">
-              <span class="card-icon">🚀</span>
-              <strong>Servicio Principal</strong>
-              <p>Descripción clara y vendedora de tu propuesta.</p>
+        <div class="mockup-viewport" id="mockup-viewport-stage">
+          {templateShowcase.map((t, idx) => (
+            <div
+              class={`mockup-template-panel panel-${t.key} ${idx === 0 ? "active" : ""}`}
+              id={`panel-${t.key}`}
+              data-template-key={t.key}
+              data-mock-url={t.mockUrl}
+              style={`--panel-accent: ${t.accent};`}
+            >
+              <!-- Visual Hero preview inside template -->
+              <div class="mockup-hero-preview">
+                <div class="preview-badge" style={`color: ${t.accent}; background: ${t.accent}15; border-color: ${t.accent}35;`}>
+                  {t.mockBadge}
+                </div>
+                <h3 class="preview-heading">{t.mockHeadline}</h3>
+                <p class="preview-sub">{t.mockSub}</p>
+                <div class="preview-action-row">
+                  <span class="preview-btn-main" style={`background: ${t.accent}; color: #060a14;`}>
+                    {t.btnMain}
+                  </span>
+                  <span class="preview-btn-ghost">
+                    {t.btnGhost}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Visual Features / Modules inside template -->
+              <div class="mockup-features-row">
+                {t.features.map((feat, featIdx) => (
+                  <div class={`preview-card ${featIdx === 1 ? "highlight" : ""}`} style={featIdx === 1 ? `border-color: ${t.accent}50; background: ${t.accent}0a;` : ""}>
+                    <div class="preview-card-top">
+                      <span class="card-icon">{feat.icon}</span>
+                      <span class="card-metric" style={`color: ${t.accent};`}>{feat.metric}</span>
+                    </div>
+                    <strong>{feat.title}</strong>
+                    <p>{feat.desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div class="preview-card highlight">
-              <span class="card-icon">⭐</span>
-              <strong>Promoción Activa</strong>
-              <p>Motor de ofertas con cuenta regresiva integrada.</p>
-            </div>
-            <div class="preview-card">
-              <span class="card-icon">💬</span>
-              <strong>Contacto Inmediato</strong>
-              <p>Redirección directa a tu WhatsApp sin fricción.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
@@ -411,6 +517,14 @@ const faqs = [
             </div>
 
             <div class="template-card-footer">
+              <button
+                type="button"
+                class="btn-preview-switch"
+                data-switch-to={t.key}
+                title={`Ver animación en vivo del diseño ${t.name}`}
+              >
+                <span>👁️ Probar diseño animado &uarr;</span>
+              </button>
               <a href="#contacto" class="btn-template-select">
                 Solicitar este estilo &rarr;
               </a>
@@ -732,23 +846,108 @@ const faqs = [
     });
   }
 
-  // Scroll reveal observer for micro-animations
-  if (typeof window !== "undefined" && "IntersectionObserver" in window) {
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
+  // Interactive Live Mockup Switcher with Auto-Cycle and Manual Controls
+  const tabButtons = document.querySelectorAll<HTMLButtonElement>(".mockup-tab-btn");
+  const panels = document.querySelectorAll<HTMLElement>(".mockup-template-panel");
+  const urlDisplay = document.getElementById("mockup-url-display");
+  const progressBar = document.getElementById("mockup-progress-bar");
+  const mockupStage = document.getElementById("live-mockup-stage");
+  const switchButtons = document.querySelectorAll<HTMLButtonElement>(".btn-preview-switch");
 
-    document.querySelectorAll(".reveal-on-scroll").forEach((el) => {
-      revealObserver.observe(el);
+  if (tabButtons.length > 0 && panels.length > 0) {
+    let currentIdx = 0;
+    const totalTemplates = tabButtons.length;
+    const CYCLE_DURATION = 4500;
+    let cycleTimer: any = null;
+    let isPaused = false;
+
+    function activateTemplate(index: number) {
+      currentIdx = (index + totalTemplates) % totalTemplates;
+
+      tabButtons.forEach((btn, i) => {
+        const isActive = i === currentIdx;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+
+      panels.forEach((panel, i) => {
+        const isActive = i === currentIdx;
+        panel.classList.toggle("active", isActive);
+        if (isActive && urlDisplay) {
+          const mockUrl = panel.getAttribute("data-mock-url");
+          if (mockUrl) urlDisplay.textContent = mockUrl;
+        }
+      });
+
+      restartProgress();
+    }
+
+    function restartProgress() {
+      if (!progressBar) return;
+      progressBar.style.transition = "none";
+      progressBar.style.width = "0%";
+      void progressBar.offsetWidth;
+      if (!isPaused) {
+        progressBar.style.transition = `width ${CYCLE_DURATION}ms linear`;
+        progressBar.style.width = "100%";
+      }
+    }
+
+    function startCycle() {
+      clearInterval(cycleTimer);
+      restartProgress();
+      cycleTimer = setInterval(() => {
+        if (!isPaused) {
+          activateTemplate(currentIdx + 1);
+        }
+      }, CYCLE_DURATION);
+    }
+
+    tabButtons.forEach((btn, i) => {
+      btn.addEventListener("click", () => {
+        activateTemplate(i);
+        startCycle();
+      });
     });
+
+    if (mockupStage) {
+      mockupStage.addEventListener("mouseenter", () => {
+        isPaused = true;
+        if (progressBar) {
+          const computedWidth = window.getComputedStyle(progressBar).width;
+          progressBar.style.transition = "none";
+          progressBar.style.width = computedWidth;
+        }
+      });
+
+      mockupStage.addEventListener("mouseleave", () => {
+        isPaused = false;
+        startCycle();
+      });
+    }
+
+    switchButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetKey = btn.getAttribute("data-switch-to");
+        if (!targetKey) return;
+        const targetIdx = Array.from(tabButtons).findIndex(
+          (b) => b.getAttribute("data-template-target") === targetKey
+        );
+        if (targetIdx !== -1) {
+          activateTemplate(targetIdx);
+          startCycle();
+          if (mockupStage) {
+            mockupStage.scrollIntoView({ behavior: "smooth", block: "center" });
+            mockupStage.classList.add("mockup-highlight-pulse");
+            setTimeout(() => {
+              mockupStage.classList.remove("mockup-highlight-pulse");
+            }, 1200);
+          }
+        }
+      });
+    });
+
+    startCycle();
   }
 </script>
 
@@ -1235,9 +1434,129 @@ const faqs = [
     font-weight: 600;
   }
 
+  /* Mockup Template Tabs Bar */
+  .mockup-template-tabs {
+    background: #070c18;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.85rem 1.25rem 0.65rem;
+  }
+
+  .tabs-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.65rem;
+  }
+
+  .tab-live-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    display: inline-block;
+    animation: pulse 1.8s infinite;
+  }
+
+  .tabs-list {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .mockup-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mockup-tab-btn:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .mockup-tab-btn.active {
+    background: var(--tab-accent, #38bdf8);
+    color: #060a14;
+    border-color: var(--tab-accent, #38bdf8);
+    font-weight: 800;
+    box-shadow: 0 2px 12px var(--tab-accent, rgba(56, 189, 248, 0.4));
+    transform: translateY(-1px);
+  }
+
+  .tab-indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .mockup-tab-btn.active .tab-indicator-dot {
+    background: #060a14 !important;
+    box-shadow: none !important;
+  }
+
+  .tab-progress-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.85rem;
+  }
+
+  .tab-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #38bdf8, #818cf8, #a855f7);
+    border-radius: 2px;
+  }
+
   .mockup-viewport {
     padding: 2.5rem 2rem;
     background: radial-gradient(circle at top right, #13203c 0%, #0d1527 60%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Mockup Stage & Panels */
+  .mockup-template-panel {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .mockup-template-panel.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    animation: panelSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes panelSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .mockup-hero-preview {
@@ -1310,6 +1629,11 @@ const faqs = [
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0.75rem;
     padding: 1.25rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .preview-card:hover {
+    transform: translateY(-3px);
   }
 
   .preview-card.highlight {
@@ -1317,10 +1641,25 @@ const faqs = [
     background: rgba(56, 189, 248, 0.05);
   }
 
+  .preview-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-metric {
+    font-size: 0.72rem;
+    font-weight: 800;
+    font-family: monospace;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+  }
+
   .card-icon {
     font-size: 1.3rem;
     display: block;
-    margin-bottom: 0.5rem;
   }
 
   .preview-card strong {
@@ -1335,6 +1674,99 @@ const faqs = [
     color: #94a3b8;
     margin: 0;
     line-height: 1.4;
+  }
+
+  /* Stage Highlight Pulse when clicked from templates grid */
+  .mockup-highlight-pulse {
+    animation: stagePulse 1.2s ease-out;
+  }
+
+  @keyframes stagePulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.8);
+      border-color: #38bdf8;
+    }
+    50% {
+      box-shadow: 0 0 45px 10px rgba(56, 189, 248, 0.5);
+      border-color: #38bdf8;
+    }
+    100% {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(56, 189, 248, 0.1);
+      border-color: #1e293b;
+    }
+  }
+
+  /* Distinct visual aesthetic per template panel */
+  .panel-friendly-tech .preview-heading {
+    color: #f0fdf4;
+  }
+
+  .panel-tech-diagnostic {
+    background: radial-gradient(circle at top right, #151e3f 0%, #0d1527 70%);
+  }
+  .panel-tech-diagnostic .preview-card {
+    border-left: 2px solid #818cf8;
+  }
+
+  .panel-cyber-performance {
+    background: radial-gradient(circle at top right, #240e3f 0%, #080c1a 70%);
+  }
+  .panel-cyber-performance .preview-heading {
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+  .panel-cyber-performance .preview-card {
+    border-color: rgba(168, 85, 247, 0.25);
+    background: rgba(168, 85, 247, 0.04);
+  }
+
+  .panel-system-monitor {
+    background: radial-gradient(circle at top right, #092823 0%, #05121b 70%);
+  }
+  .panel-system-monitor .preview-heading {
+    font-family: monospace;
+    letter-spacing: -0.02em;
+  }
+
+  .panel-repair-workshop {
+    background: radial-gradient(circle at top right, #2b1d09 0%, #0e121a 70%);
+  }
+  .panel-repair-workshop .preview-card {
+    border-top: 2px solid #f59e0b;
+  }
+
+  .panel-tech-editorial {
+    background: radial-gradient(circle at top right, #2c0f1b 0%, #0b0f19 70%);
+  }
+  .panel-tech-editorial .preview-heading {
+    font-family: serif, system-ui;
+    font-style: italic;
+    font-weight: 700;
+  }
+
+  /* Button inside template cards to trigger live preview */
+  .btn-preview-switch {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    margin-bottom: 0.5rem;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 0.5rem;
+    color: #38bdf8;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-preview-switch:hover {
+    background: #38bdf8;
+    color: #060a14;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
   }
 
   /* Section Headers */
