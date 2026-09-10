@@ -805,7 +805,7 @@ export const server = {
         return { ok: false, error: "Insufficient permissions to verify domains." };
       }
 
-      const env = parseServerEnv({ ...import.meta.env, ...process.env });
+      const env = parseServerEnv(import.meta.env, process.env);
       const cnameTarget = `cname.${env.appHostname}`;
       const domainRepo = new SupabaseDomainRepository(context.locals.supabase);
       const dnsGateway = new NodeDnsGateway();
@@ -949,5 +949,4 @@ export const server = {
     },
   }),
 };
-
 

@@ -5,7 +5,7 @@ import { parseServerEnv } from "../../../infrastructure/config/env";
 import { createRequestClient } from "../../../infrastructure/supabase/server";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const env = parseServerEnv({ ...import.meta.env, ...process.env });
+  const env = parseServerEnv(import.meta.env, process.env);
   const webhookSecret = process.env.BILLING_WEBHOOK_SECRET || "whsec_default_billing_secret_123456";
 
   const rawBody = await request.text();

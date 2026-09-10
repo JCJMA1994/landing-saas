@@ -9,7 +9,7 @@ export const GET: APIRoute = async () => {
   let dbStatus = "unknown";
 
   try {
-    const env = parseServerEnv({ ...import.meta.env, ...process.env });
+    const env = parseServerEnv(import.meta.env, process.env);
     const admin = createAdminClient(env);
     const { error } = await admin.from("tenants").select("id").limit(1);
     dbStatus = error ? "degraded" : "healthy";

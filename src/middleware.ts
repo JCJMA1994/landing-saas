@@ -22,7 +22,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   };
 
   try {
-    const env = parseServerEnv({ ...import.meta.env, ...process.env });
+    const env = parseServerEnv(import.meta.env, process.env);
     const rawHost = context.request.headers.get("host");
 
     context.locals.hostContext = classifyHost(rawHost, env.appHostname);

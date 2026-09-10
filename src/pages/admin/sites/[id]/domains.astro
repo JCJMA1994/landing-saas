@@ -16,7 +16,7 @@ if (!user) {
   return Astro.redirect("/admin/login", 303);
 }
 
-const env = parseServerEnv({ ...import.meta.env, ...process.env });
+const env = parseServerEnv(import.meta.env, process.env);
 
 const { data: siteData, error: siteError } = await Astro.locals.supabase
   .from("sites")

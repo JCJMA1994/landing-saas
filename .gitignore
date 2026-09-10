@@ -11,3 +11,8 @@ supabase/.branches/
 .vercel/
 .wrangler/
 
+
+.vercel
+.env*
+.codegraph/
+scripts/add-env.mjs

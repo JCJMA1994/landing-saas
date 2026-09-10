@@ -6,7 +6,7 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request }) => {
   let appHostname = "landingsaas.com";
   try {
-    const env = parseServerEnv({ ...import.meta.env, ...process.env });
+    const env = parseServerEnv(import.meta.env, process.env);
     appHostname = env.appHostname;
   } catch {}
   const rawHost = request.headers.get("host") || appHostname;
