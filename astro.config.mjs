@@ -1,3 +1,9 @@
 import { defineConfig } from "astro/config";
 import node from "@astrojs/node";
-export default defineConfig({ output: "server", adapter: node({ mode: "standalone" }), security: { checkOrigin: true } });
+import vercel from "@astrojs/vercel";
+
+export default defineConfig({
+  output: "server",
+  adapter: process.env.BUILD_TARGET === "node" ? node({ mode: "standalone" }) : vercel(),
+  security: { checkOrigin: true },
+});

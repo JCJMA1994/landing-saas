@@ -8,4 +8,6 @@ coverage/
 supabase/.temp/
 supabase/.branches/
 .atl/*.cache.json
+.vercel/
+.wrangler/
 

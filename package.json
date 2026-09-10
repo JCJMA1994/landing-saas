@@ -4,8 +4,28 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.19.0",
-  "engines": { "node": ">=24.19.0 <25", "pnpm": "11.19.0" },
-  "scripts": { "dev": "astro dev", "check": "astro check", "test": "vitest run", "build": "astro build", "start": "node --env-file=.env dist/server/entry.mjs" },
-  "dependencies": { "@astrojs/node": "11.1.5", "@supabase/ssr": "0.12.7", "@supabase/supabase-js": "2.116.0", "astro": "7.3.2" },
-  "devDependencies": { "@astrojs/check": "0.9.10", "@types/node": "24.13.3", "typescript": "6.0.3", "vitest": "5.0.0" }
+  "engines": {
+    "node": ">=24.19.0 <25",
+    "pnpm": "11.19.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "check": "astro check",
+    "test": "vitest run",
+    "build": "astro build",
+    "start": "node --env-file=.env dist/server/entry.mjs"
+  },
+  "dependencies": {
+    "@astrojs/node": "11.1.5",
+    "@astrojs/vercel": "^11.0.10",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.116.0",
+    "astro": "7.3.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@types/node": "24.13.3",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0"
+  }
 }
