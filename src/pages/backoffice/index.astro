@@ -2,7 +2,10 @@
 import { actions } from "astro:actions";
 import { getPlatformBackofficeOverviewUseCase } from "../../application/saas/manage-subscription";
 import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/subscription-repository";
+import { createAdminClient } from "../../infrastructure/supabase/server";
+import { parseServerEnv } from "../../infrastructure/config/env";
 import { PLAN_IDS } from "../../domain/saas/plan";
+import { TEMPLATE_KEYS, TEMPLATE_MANIFESTS } from "../../domain/template/manifest";
 import "../../styles/admin.css";
 
 if (!Astro.locals.user) {
@@ -13,7 +16,6 @@ const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
 const isSuperadmin = await subRepo.isPlatformSuperadmin(Astro.locals.user.id);
 
 if (!isSuperadmin) {
-  // Safe authorization guard: unauthorized users are redirected to standard admin
   return Astro.redirect("/admin", 303);
 }
 
@@ -21,140 +23,699 @@ const logoutResult = Astro.getActionResult(actions.logout);
 if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
 
 const changePlanResult = Astro.getActionResult(actions.changePlan);
+const onboardResult = Astro.getActionResult(actions.onboardClient);
 
 let overview: any = null;
 let errorLoading = false;
+let clientsList: any[] = [];
 
 try {
   overview = await getPlatformBackofficeOverviewUseCase(true, subRepo);
+
+  const env = parseServerEnv(import.meta.env, process.env);
+  const adminClient = createAdminClient(env);
+
+  // Fetch all tenants with their sites
+  const { data: tenants } = await adminClient
+    .from("tenants")
+    .select(`
+      id,
+      name,
+      created_at,
+      sites (id, name, slug, template_key)
+    `)
+    .order("created_at", { ascending: false });
+
+  // Fetch owner members to map client email
+  const { data: members } = await adminClient
+    .from("tenant_members")
+    .select("tenant_id, user_id, role")
+    .eq("role", "owner");
+
+  const { data: authUsers } = await adminClient.auth.admin.listUsers();
+  const userEmailMap = new Map<string, string>();
+  if (authUsers?.users) {
+    for (const u of authUsers.users) {
+      if (u.email) userEmailMap.set(u.id, u.email);
+    }
+  }
+
+  const tenantOwnerMap = new Map<string, string>();
+  if (members) {
+    for (const m of members) {
+      const email = userEmailMap.get(m.user_id);
+      if (email && !tenantOwnerMap.has(m.tenant_id)) {
+        tenantOwnerMap.set(m.tenant_id, email);
+      }
+    }
+  }
+
+  // Combine with subscriptions
+  const subMap = new Map<string, any>();
+  if (overview?.allSubscriptions) {
+    for (const s of overview.allSubscriptions) {
+      subMap.set(s.tenantId, s);
+    }
+  }
+
+  if (tenants) {
+    clientsList = tenants.map((t: any) => {
+      const sub = subMap.get(t.id);
+      const ownerEmail = tenantOwnerMap.get(t.id) || "N/A";
+      const site = Array.isArray(t.sites) && t.sites.length > 0 ? t.sites[0] : null;
+      return {
+        tenantId: t.id,
+        tenantName: t.name,
+        createdAt: t.created_at,
+        ownerEmail,
+        site,
+        planId: sub?.planId || "starter",
+        status: sub?.status || "active",
+        periodEndsAt: sub?.currentPeriodEndsAt || null,
+      };
+    });
+  }
 } catch (e) {
   errorLoading = true;
 }
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Platform Backoffice | Landing SaaS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Platform Backoffice | Landing SaaS Superadmin</title>
   </head>
-  <body>
+  <body class="backoffice-body">
     <header class="shell topbar">
-      <div>
-        <strong style="color: #f59e0b;">Landing SaaS [SUPERADMIN]</strong>
+      <div style="display: flex; align-items: center; gap: .75rem;">
+        <span style="background: #f59e0b; color: #000; font-size: .7rem; font-weight: 900; padding: .2rem .5rem; border-radius: 4px;">
+          SUPERADMIN
+        </span>
+        <strong style="color: #f8fafc; font-size: 1.05rem;">Landing SaaS Engine</strong>
       </div>
-      <nav aria-label="Backoffice navigation">
+
+      <nav aria-label="Navegación Backoffice">
         <ul class="nav-links">
-          <li><a href="/admin" class="nav-link">Tenant Workspace</a></li>
-          <li><a href="/backoffice" class="nav-link active">Platform Backoffice</a></li>
+          <li><a href="/admin" class="nav-link">Espacio de Trabajo (/admin)</a></li>
+          <li><a href="/backoffice" class="nav-link active">Panel Superadmin</a></li>
+          <li><a href="/" target="_blank" class="nav-link" style="color: #38bdf8;">Ver Landing Comercial ↗</a></li>
         </ul>
       </nav>
+
       <form method="POST" action={actions.logout}>
-        <button type="submit">Sign out</button>
+        <button type="submit" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 6px; padding: .4rem .8rem; cursor: pointer;">
+          Cerrar Sesión
+        </button>
       </form>
     </header>
 
-    <main class="shell dashboard">
-      <p class="eyebrow" style="color: #f59e0b;">System-Wide Operations & Multi-Tenant Analytics</p>
-      <h1>Platform Backoffice</h1>
+    <main class="shell dashboard" style="max-width: 80rem; margin: 0 auto; padding: 2rem 1.5rem 5rem;">
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #f59e0b; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .8rem; margin: 0 0 .5rem;">
+          Control Maestro & Multi-Tenant
+        </p>
+        <h1 style="font-size: 2.25rem; font-weight: 900; color: #f8fafc; margin: 0 0 .5rem;">
+          Gestión de Clientes & Plataforma
+        </h1>
+        <p style="color: #94a3b8; margin: 0; font-size: 1rem;">
+          Dá de alta a nuevos clientes, asignales su template y configurá sus landings con total autonomía.
+        </p>
+      </div>
+
+      <!-- Action feedback alerts -->
+      {onboardResult?.data?.ok && onboardResult.data.client && (
+        <div class="feedback-banner success" role="status">
+          <div class="banner-icon">🎉</div>
+          <div class="banner-body">
+            <strong>¡Cliente dado de alta con éxito!</strong>
+            <p style="margin: .35rem 0 .75rem; color: #bbf7d0; font-size: .9rem;">
+              Se creó la cuenta para <strong>{onboardResult.data.client.clientEmail}</strong> en el tenant <strong>{onboardResult.data.client.tenantName}</strong> con la landing <strong>"{onboardResult.data.client.siteName}"</strong>.
+            </p>
+            <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
+              <a href={`/admin/sites/${onboardResult.data.client.siteId}/theme`} class="btn-action-highlight">
+                ⚙️ Configurar Landing del Cliente Ahora &rarr;
+              </a>
+              <a href={`/sites/${onboardResult.data.client.siteSlug}`} target="_blank" class="btn-action-ghost">
+                🌐 Ver Landing Pública (/sites/{onboardResult.data.client.siteSlug}) ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {onboardResult?.data && !onboardResult.data.ok && (
+        <div class="feedback-banner error" role="alert">
+          <div class="banner-icon">⚠️</div>
+          <div class="banner-body">
+            <strong>Error al dar de alta al cliente:</strong>
+            <p style="margin: .25rem 0 0; color: #fecaca; font-size: .9rem;">
+              {onboardResult.data.error}
+            </p>
+          </div>
+        </div>
+      )}
 
       {changePlanResult?.data?.ok && changePlanResult.data.subscription && (
-        <p class="success" role="status" style="background: #14532d; color: #bbf7d0; padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
-          Successfully updated tenant plan to {changePlanResult.data.subscription.planId.toUpperCase()}!
-        </p>
+        <div class="feedback-banner success" role="status">
+          <div class="banner-icon">✓</div>
+          <div class="banner-body">
+            Plan actualizado a <strong>{changePlanResult.data.subscription.planId.toUpperCase()}</strong> correctamente.
+          </div>
+        </div>
       )}
 
       {errorLoading || !overview ? (
-        <p class="error" role="alert">Unable to load platform metrics. Ensure superadmin permissions are configured.</p>
+        <p class="error" role="alert">No se pudieron cargar las métricas de la plataforma. Verificá permisos de superadmin.</p>
       ) : (
         <>
           <!-- Global KPI Cards -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Total Tenants</p>
-              <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #f8fafc;">
-                {overview.totalTenants}
-              </p>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-label">Total Clientes / Tenants</span>
+              <strong class="kpi-value">{overview.totalTenants}</strong>
             </div>
 
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Active Subscriptions</p>
-              <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #22c55e;">
-                {overview.activeSubscriptions}
-              </p>
+            <div class="kpi-card">
+              <span class="kpi-label">Suscripciones Activas</span>
+              <strong class="kpi-value" style="color: #22c55e;">{overview.activeSubscriptions}</strong>
             </div>
 
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Active Trials</p>
-              <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #38bdf8;">
-                {overview.trialingSubscriptions}
-              </p>
+            <div class="kpi-card">
+              <span class="kpi-label">Períodos de Prueba</span>
+              <strong class="kpi-value" style="color: #38bdf8;">{overview.trialingSubscriptions}</strong>
             </div>
 
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Estimated MRR</p>
-              <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #f8fafc;">
+            <div class="kpi-card">
+              <span class="kpi-label">MRR Estimado</span>
+              <strong class="kpi-value">
                 ${overview.estimatedMonthlyRecurringRevenueUsd}
-                <span style="font-size: .85rem; color: #94a3b8; font-weight: 400;">/mo</span>
-              </p>
+                <span style="font-size: .85rem; color: #94a3b8; font-weight: 400;">/mes</span>
+              </strong>
             </div>
           </div>
 
-          <!-- All Tenant Subscriptions Table -->
-          <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #f8fafc;">Tenant Subscriptions</h2>
-          {overview.allSubscriptions.length === 0 ? (
-            <p class="empty">No tenant subscriptions recorded yet.</p>
-          ) : (
-            <div style="overflow-x: auto; background: #1e293b; border: 1px solid #334155; border-radius: 8px;">
-              <table style="width: 100%; border-collapse: collapse; text-align: left; color: #cbd5e1; font-size: .9rem;">
-                <thead>
-                  <tr style="border-bottom: 1px solid #334155; background: #0f172a;">
-                    <th style="padding: .85rem 1rem;">Tenant ID</th>
-                    <th style="padding: .85rem 1rem;">Plan</th>
-                    <th style="padding: .85rem 1rem;">Status</th>
-                    <th style="padding: .85rem 1rem;">Period Ends</th>
-                    <th style="padding: .85rem 1rem;">Superadmin Override</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {overview.allSubscriptions.map((sub: any) => (
-                    <tr style="border-bottom: 1px solid #334155;">
-                      <td style="padding: .85rem 1rem; font-family: monospace;">{sub.tenantId}</td>
-                      <td style="padding: .85rem 1rem; font-weight: 600; text-transform: uppercase;">
-                        {sub.planId}
-                      </td>
-                      <td style="padding: .85rem 1rem;">
-                        <span style={`padding: .2rem .5rem; border-radius: 4px; font-size: .75rem; text-transform: uppercase; ${sub.status === "active" ? "background: #166534; color: #bbf7d0;" : "background: #854d0e; color: #fef08a;"}`}>
-                          {sub.status}
-                        </span>
-                      </td>
-                      <td style="padding: .85rem 1rem; color: #94a3b8;">
-                        {new Date(sub.currentPeriodEndsAt).toLocaleDateString()}
-                      </td>
-                      <td style="padding: .85rem 1rem;">
-                        <form method="POST" action={actions.changePlan} style="display: flex; gap: .5rem; align-items: center;">
-                          <input type="hidden" name="tenantId" value={sub.tenantId} />
-                          <select name="planId" style="background: #0f172a; color: #f8fafc; border: 1px solid #475569; border-radius: 4px; padding: .25rem .5rem; font-size: .8rem;">
-                            {PLAN_IDS.map((pId) => (
-                              <option value={pId} selected={pId === sub.planId}>
-                                {pId.toUpperCase()}
-                              </option>
-                            ))}
-                          </select>
-                          <button type="submit" style="background: #d97706; color: #ffffff; border: none; padding: .25rem .6rem; border-radius: 4px; font-size: .8rem; font-weight: 600; cursor: pointer;">
-                            Apply
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <!-- Section: Onboard New Client Form -->
+          <section class="onboard-section">
+            <div class="section-card-header">
+              <div style="display: flex; align-items: center; gap: .6rem;">
+                <span style="font-size: 1.3rem;">🚀</span>
+                <div>
+                  <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: #f8fafc;">
+                    Dar de Alta a un Nuevo Cliente
+                  </h2>
+                  <p style="margin: 0; color: #94a3b8; font-size: .85rem;">
+                    Crea automáticamente el Tenant, el Usuario para que ingrese en <code>/admin/login</code> y su Landing inicial lista para configurar.
+                  </p>
+                </div>
+              </div>
             </div>
-          )}
+
+            <form method="POST" action={actions.onboardClient} class="onboard-form">
+              <div class="form-grid-3">
+                <div class="field-group">
+                  <label for="tenantName">Nombre de Empresa / Cliente *</label>
+                  <input type="text" id="tenantName" name="tenantName" required placeholder="Ej: Consultora Martínez" />
+                  <span class="field-hint">Nombre de la organización o negocio</span>
+                </div>
+
+                <div class="field-group">
+                  <label for="clientEmail">Email de Acceso del Cliente *</label>
+                  <input type="email" id="clientEmail" name="clientEmail" required placeholder="cliente@negocio.com" />
+                  <span class="field-hint">Con este email ingresará al panel</span>
+                </div>
+
+                <div class="field-group">
+                  <label for="clientPassword">Contraseña Inicial *</label>
+                  <input type="text" id="clientPassword" name="clientPassword" required minlength="8" value="Cliente2026!" />
+                  <span class="field-hint">Mínimo 8 caracteres (puede cambiarla luego)</span>
+                </div>
+              </div>
+
+              <div class="form-grid-4">
+                <div class="field-group">
+                  <label for="siteName">Nombre de la Landing *</label>
+                  <input type="text" id="siteName" name="siteName" required placeholder="Ej: Martínez & Asociados" />
+                </div>
+
+                <div class="field-group">
+                  <label for="siteSlug">Identificador / Slug *</label>
+                  <input type="text" id="siteSlug" name="siteSlug" required placeholder="martinez-asociados" />
+                  <span class="field-hint">URL pública: /sites/slug</span>
+                </div>
+
+                <div class="field-group">
+                  <label for="templateKey">Dirección Visual / Template *</label>
+                  <select id="templateKey" name="templateKey" required>
+                    {TEMPLATE_KEYS.map((tKey) => (
+                      <option value={tKey} selected={tKey === "friendly-tech"}>
+                        {TEMPLATE_MANIFESTS[tKey].name} ({tKey})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="planId">Plan SaaS Asignado *</label>
+                  <select id="planId" name="planId" required>
+                    {PLAN_IDS.map((pId) => (
+                      <option value={pId} selected={pId === "pro"}>
+                        Plan {pId.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-footer">
+                <button type="submit" class="btn-submit-onboard">
+                  <span>➕ Dar de Alta Cliente y Crear Landing</span>
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- Section: Clients & Sites Directory Table -->
+          <section style="margin-top: 3.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+              <div>
+                <h2 style="font-size: 1.25rem; font-weight: 800; color: #f8fafc; margin: 0 0 .25rem;">
+                  Clientes y Landings en la Plataforma
+                </h2>
+                <p style="color: #94a3b8; font-size: .85rem; margin: 0;">
+                  Accedé a configurar la landing de cualquier cliente o cambiá su plan en tiempo real.
+                </p>
+              </div>
+              <span style="font-size: .85rem; color: #f59e0b; font-weight: 700;">
+                {clientsList.length} {clientsList.length === 1 ? "cliente registrado" : "clientes registrados"}
+              </span>
+            </div>
+
+            {clientsList.length === 0 ? (
+              <div class="empty-box">
+                <p>Aún no hay clientes registrados en la plataforma.</p>
+                <p style="font-size: .85rem; color: #64748b;">Utilizá el formulario de arriba para dar de alta al primero.</p>
+              </div>
+            ) : (
+              <div class="table-container">
+                <table class="superadmin-table">
+                  <thead>
+                    <tr>
+                      <th>Cliente / Empresa</th>
+                      <th>Email de Acceso</th>
+                      <th>Landing / Slug</th>
+                      <th>Template</th>
+                      <th>Plan SaaS</th>
+                      <th>Acciones de Superadmin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clientsList.map((client) => (
+                      <tr>
+                        <td>
+                          <strong style="color: #f8fafc; font-size: .95rem; display: block;">
+                            {client.tenantName}
+                          </strong>
+                          <span style="font-size: .75rem; color: #64748b; font-family: monospace;">
+                            ID: {client.tenantId.substring(0, 8)}...
+                          </span>
+                        </td>
+
+                        <td>
+                          <span style="color: #cbd5e1; font-size: .85rem; font-family: monospace;">
+                            {client.ownerEmail}
+                          </span>
+                        </td>
+
+                        <td>
+                          {client.site ? (
+                            <div>
+                              <strong style="color: #e2e8f0; font-size: .9rem;">{client.site.name}</strong>
+                              <div style="display: flex; gap: .5rem; align-items: center; margin-top: .2rem;">
+                                <span style="font-size: .75rem; color: #38bdf8; font-family: monospace;">
+                                  /{client.site.slug}
+                                </span>
+                                <a href={`/sites/${client.site.slug}`} target="_blank" class="link-preview">
+                                  Ver ↗
+                                </a>
+                              </div>
+                            </div>
+                          ) : (
+                            <span style="color: #64748b; font-size: .85rem;">Sin landing creada</span>
+                          )}
+                        </td>
+
+                        <td>
+                          {client.site ? (
+                            <span class="template-chip">
+                              {client.site.template_key || "friendly-tech"}
+                            </span>
+                          ) : (
+                            <span>-</span>
+                          )}
+                        </td>
+
+                        <td>
+                          <form method="POST" action={actions.changePlan} class="plan-change-form">
+                            <input type="hidden" name="tenantId" value={client.tenantId} />
+                            <select name="planId" class="plan-select">
+                              {PLAN_IDS.map((pId) => (
+                                <option value={pId} selected={pId === client.planId}>
+                                  {pId.toUpperCase()}
+                                </option>
+                              ))}
+                            </select>
+                            <button type="submit" class="btn-plan-apply" title="Aplicar cambio de plan">
+                              ✓
+                            </button>
+                          </form>
+                        </td>
+
+                        <td>
+                          <div style="display: flex; gap: .5rem; flex-wrap: wrap;">
+                            {client.site && (
+                              <a href={`/admin/sites/${client.site.id}/theme`} class="btn-config-site">
+                                ⚙️ Configurar Landing
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         </>
       )}
     </main>
+
+    <style>
+      .backoffice-body {
+        background-color: #060a14;
+        color: #f1f5f9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      /* KPI Cards */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .kpi-card {
+        background: #0d1527;
+        border: 1px solid #1e293b;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+
+      .kpi-label {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+      }
+
+      .kpi-value {
+        font-size: 1.85rem;
+        font-weight: 900;
+        color: #f8fafc;
+        letter-spacing: -0.02em;
+      }
+
+      /* Feedback Banners */
+      .feedback-banner {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+      }
+
+      .feedback-banner.success {
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        color: #f1f5f9;
+      }
+
+      .feedback-banner.error {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #f1f5f9;
+      }
+
+      .banner-icon {
+        font-size: 1.5rem;
+      }
+
+      .banner-body strong {
+        font-size: 1.05rem;
+        color: #fff;
+      }
+
+      .btn-action-highlight {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: #f59e0b;
+        color: #060a14;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border-radius: 0.4rem;
+        text-decoration: none;
+      }
+
+      .btn-action-ghost {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #f8fafc;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0.4rem;
+        text-decoration: none;
+      }
+
+      /* Onboard Form Section */
+      .onboard-section {
+        background: #0d1527;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      }
+
+      .section-card-header {
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .onboard-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .form-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .form-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .field-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .field-group label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin-bottom: 0.4rem;
+      }
+
+      .field-group input,
+      .field-group select {
+        background: #070c17;
+        border: 1px solid #243555;
+        border-radius: 0.5rem;
+        padding: 0.65rem 0.85rem;
+        color: #f8fafc;
+        font-size: 0.9rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .field-group input:focus,
+      .field-group select:focus {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+      }
+
+      .field-hint {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.35rem;
+      }
+
+      .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        border-top: 1px solid #1e293b;
+        padding-top: 1.25rem;
+      }
+
+      .btn-submit-onboard {
+        padding: 0.8rem 1.75rem;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #060a14;
+        font-weight: 800;
+        font-size: 0.95rem;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        transition: transform 0.15s ease;
+      }
+
+      .btn-submit-onboard:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
+      }
+
+      /* Directory Table */
+      .table-container {
+        background: #0d1527;
+        border: 1px solid #1e293b;
+        border-radius: 0.75rem;
+        overflow-x: auto;
+      }
+
+      .superadmin-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        color: #cbd5e1;
+        font-size: 0.875rem;
+      }
+
+      .superadmin-table th {
+        background: #080d19;
+        padding: 0.85rem 1rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #94a3b8;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      .superadmin-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #15223a;
+        vertical-align: middle;
+      }
+
+      .template-chip {
+        font-size: 0.75rem;
+        background: rgba(56, 189, 248, 0.1);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 0.2rem 0.55rem;
+        border-radius: 9999px;
+      }
+
+      .link-preview {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        text-decoration: none;
+      }
+
+      .link-preview:hover {
+        color: #38bdf8;
+        text-decoration: underline;
+      }
+
+      .plan-change-form {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+      }
+
+      .plan-select {
+        background: #080d19;
+        border: 1px solid #243555;
+        color: #f8fafc;
+        border-radius: 4px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .btn-plan-apply {
+        background: #243555;
+        color: #38bdf8;
+        border: none;
+        padding: 0.25rem 0.55rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .btn-plan-apply:hover {
+        background: #38bdf8;
+        color: #060a14;
+      }
+
+      .btn-config-site {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.45rem 0.85rem;
+        background: rgba(245, 158, 11, 0.15);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        color: #fbbf24;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border-radius: 0.4rem;
+        text-decoration: none;
+        transition: all 0.15s ease;
+      }
+
+      .btn-config-site:hover {
+        background: #f59e0b;
+        color: #060a14;
+      }
+
+      .empty-box {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        background: #0d1527;
+        border: 1px dashed #1e293b;
+        border-radius: 0.75rem;
+        color: #94a3b8;
+      }
+    </style>
   </body>
 </html>

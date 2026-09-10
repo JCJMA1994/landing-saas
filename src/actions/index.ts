@@ -78,6 +78,7 @@ import {
 import { SupabaseDomainRepository } from "../infrastructure/supabase/domain-repository";
 import { NodeDnsGateway } from "../infrastructure/dns/node-dns-gateway";
 import { parseServerEnv } from "../infrastructure/config/env";
+import { createAdminClient } from "../infrastructure/supabase/server";
 import {
   changeTenantPlanUseCase,
   enforceTenantQuotaUseCase,
@@ -85,6 +86,13 @@ import {
   SubscriptionAuthorizationError,
   InvalidPlanError,
 } from "../application/saas/manage-subscription";
+import {
+  onboardClientUseCase,
+  OnboardingValidationError,
+  SlugAlreadyTakenError,
+} from "../application/saas/onboard-client";
+import { SupabaseClientOnboardingGateway } from "../infrastructure/supabase/supabase-client-onboarding-gateway";
+import { PLAN_IDS } from "../domain/saas/plan";
 import { SupabaseSubscriptionRepository } from "../infrastructure/supabase/subscription-repository";
 import { MockBillingGateway } from "../infrastructure/billing/mock-billing-gateway";
 import { QuotaExceededError } from "../domain/saas/quota";
@@ -946,6 +954,47 @@ export const server = {
       const billingGateway = new MockBillingGateway();
       const session = await billingGateway.createCustomerPortalSession(tenantId, returnUrl);
       return { ok: true, portalUrl: session.portalUrl };
+    },
+  }),
+
+  onboardClient: defineAction({
+    accept: "form",
+    input: z.object({
+      tenantName: z.string().trim().min(2).max(120),
+      clientEmail: z.string().email().trim().max(254),
+      clientPassword: z.string().min(8).max(128),
+      siteName: z.string().trim().min(2).max(120),
+      siteSlug: z.string().trim().min(2).max(63),
+      templateKey: z.enum(TEMPLATE_KEYS),
+      planId: z.enum(PLAN_IDS),
+    }),
+    handler: async (input, context) => {
+      if (!context.locals.user) return { ok: false, error: "Authentication required." };
+      const subRepo = new SupabaseSubscriptionRepository(context.locals.supabase);
+      const isSuperadmin = await subRepo.isPlatformSuperadmin(context.locals.user.id);
+      if (!isSuperadmin) return { ok: false, error: "Forbidden: Superadmin access required." };
+
+      try {
+        const env = parseServerEnv(import.meta.env, process.env);
+        const adminClient = createAdminClient(env);
+        const gateway = new SupabaseClientOnboardingGateway(adminClient);
+
+        const result = await onboardClientUseCase(
+          {
+            ...input,
+            superadminUserId: context.locals.user.id,
+          },
+          gateway,
+          true
+        );
+
+        return { ok: true, client: result };
+      } catch (error: any) {
+        if (error instanceof OnboardingValidationError || error instanceof SlugAlreadyTakenError) {
+          return { ok: false, error: error.message };
+        }
+        return { ok: false, error: error?.message || "Failed to onboard client." };
+      }
     },
   }),
 };
