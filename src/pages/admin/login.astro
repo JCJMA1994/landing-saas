@@ -1,29 +1,13 @@
 ---
 import { actions } from "astro:actions";
-import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/subscription-repository";
 import "../../styles/admin.css";
 
-const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
-const rawRedirect = Astro.url.searchParams.get("redirect");
+const redirectParam = Astro.url.searchParams.get("redirect") || "/admin";
+const target = redirectParam.startsWith("/") && !redirectParam.startsWith("//") ? redirectParam : "/admin";
 
-async function resolveDestination(userId: string): Promise<string> {
-  if (rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) {
-    return rawRedirect;
-  }
-  const isSuperadmin = await subRepo.isPlatformSuperadmin(userId);
-  return isSuperadmin ? "/backoffice" : "/admin";
-}
-
-if (Astro.locals.user) {
-  const dest = await resolveDestination(Astro.locals.user.id);
-  return Astro.redirect(dest, 303);
-}
-
+if (Astro.locals.user) return Astro.redirect(target, 303);
 const result = Astro.getActionResult(actions.login);
-if (result?.data?.ok && Astro.locals.user) {
-  const dest = await resolveDestination(Astro.locals.user.id);
-  return Astro.redirect(dest, 303);
-}
+if (result?.data?.ok) return Astro.redirect(target, 303);
 const showError = Boolean(result && (!result.data || !result.data.ok));
 ---
 <!doctype html>
@@ -41,6 +25,7 @@ const showError = Boolean(result && (!result.data || !result.data.ok));
         <p class="muted">Use the account provisioned by your workspace administrator.</p>
         {showError && <p class="error" role="alert">Invalid email or password.</p>}
         <form method="POST" action={actions.login}>
+          <input type="hidden" name="redirect" value={target} />
           <div class="field">
             <label for="email">Email</label>
             <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" />

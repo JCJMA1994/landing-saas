@@ -961,7 +961,7 @@ export const server = {
     accept: "form",
     input: z.object({
       tenantName: z.string().trim().min(2).max(120),
-      clientEmail: z.string().email().trim().max(254),
+      clientEmail: z.email().trim().max(254),
       clientPassword: z.string().min(8).max(128),
       siteName: z.string().trim().min(2).max(120),
       siteSlug: z.string().trim().min(2).max(63),

@@ -5,7 +5,7 @@ import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/su
 import { createAdminClient } from "../../infrastructure/supabase/server";
 import { parseServerEnv } from "../../infrastructure/config/env";
 import { PLAN_IDS } from "../../domain/saas/plan";
-import { TEMPLATE_KEYS, TEMPLATE_MANIFESTS } from "../../domain/template/manifest";
+import { TEMPLATE_KEYS, TEMPLATE_MANIFESTS, type TemplateKey } from "../../domain/template/manifest";
 import "../../styles/admin.css";
 
 if (!Astro.locals.user) {
@@ -109,12 +109,17 @@ try {
       const sub = subMap.get(t.id);
       const ownerInfo = tenantOwnerMap.get(t.id);
       const site = Array.isArray(t.sites) && t.sites.length > 0 ? t.sites[0] : null;
+      const rawTemplateKey = site?.template_key as TemplateKey | undefined;
+      const templateKey: TemplateKey = rawTemplateKey && rawTemplateKey in TEMPLATE_MANIFESTS ? rawTemplateKey : "friendly-tech";
+      const templateName = TEMPLATE_MANIFESTS[templateKey]?.name || (rawTemplateKey ?? "friendly-tech");
       return {
         tenantId: t.id,
         tenantName: t.name,
         createdAt: t.created_at,
         ownerEmail: ownerInfo?.email || "Sin email asignado",
         site,
+        templateKey,
+        templateName,
         planId: sub?.planId || "pro",
         status: sub?.status || "active",
         periodEndsAt: sub?.currentPeriodEndsAt || null,
@@ -441,8 +446,8 @@ try {
 
                         <td class="col-template">
                           {client.site ? (
-                            <span class={`template-tag template-${client.site.template_key || "friendly-tech"}`}>
-                              {TEMPLATE_MANIFESTS[client.site.template_key]?.name || client.site.template_key}
+                            <span class={`template-tag template-${client.templateKey}`}>
+                              {client.templateName}
                             </span>
                           ) : (
                             <span>-</span>
