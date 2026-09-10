@@ -27,6 +27,7 @@ const userRole = memberData?.role;
 const isOwner = userRole === "owner";
 
 const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
+const isSuperadmin = Astro.locals.user ? await subRepo.isPlatformSuperadmin(Astro.locals.user.id) : false;
 let usageOverview: any = null;
 let trialDaysRemaining = 0;
 
@@ -55,6 +56,13 @@ if (tenantId) {
           <li><a href="/admin" class="nav-link">Sites</a></li>
           <li><a href="/admin/members" class="nav-link">Members</a></li>
           <li><a href="/admin/billing" class="nav-link active">Billing</a></li>
+          {isSuperadmin && (
+            <li>
+              <a href="/backoffice" class="nav-link" style="color: #f59e0b; font-weight: 700;">
+                🛡️ Platform Backoffice
+              </a>
+            </li>
+          )}
         </ul>
       </nav>
       <form method="POST" action={actions.logout}>

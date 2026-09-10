@@ -3,10 +3,14 @@ import { actions } from "astro:actions";
 import { listAccessibleSites } from "../../application/sites/list-accessible-sites";
 import { SiteRepositoryError, type AccessibleSite } from "../../application/sites/site-repository";
 import { SupabaseSiteRepository } from "../../infrastructure/supabase/site-repository";
+import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/subscription-repository";
 import "../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
 if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
+const isSuperadmin = Astro.locals.user ? await subRepo.isPlatformSuperadmin(Astro.locals.user.id) : false;
 
 const repository = new SupabaseSiteRepository(async () => {
   const result = await Astro.locals.supabase.from("sites").select("id, name, slug").order("name");
@@ -37,6 +41,13 @@ try {
           <li><a href="/admin" class="nav-link active">Sites</a></li>
           <li><a href="/admin/members" class="nav-link">Members</a></li>
           <li><a href="/admin/billing" class="nav-link">Billing</a></li>
+          {isSuperadmin && (
+            <li>
+              <a href="/backoffice" class="nav-link" style="color: #f59e0b; font-weight: 700;">
+                🛡️ Platform Backoffice
+              </a>
+            </li>
+          )}
         </ul>
       </nav>
       <form method="POST" action={actions.logout}>

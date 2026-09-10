@@ -6,7 +6,7 @@ import { PLAN_IDS } from "../../domain/saas/plan";
 import "../../styles/admin.css";
 
 if (!Astro.locals.user) {
-  return Astro.redirect("/admin/login", 303);
+  return Astro.redirect("/admin/login?redirect=/backoffice", 303);
 }
 
 const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);

@@ -2,9 +2,12 @@
 import { actions } from "astro:actions";
 import "../../styles/admin.css";
 
-if (Astro.locals.user) return Astro.redirect("/admin", 303);
+const rawRedirect = Astro.url.searchParams.get("redirect") || "/admin";
+const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/admin";
+
+if (Astro.locals.user) return Astro.redirect(redirectTo, 303);
 const result = Astro.getActionResult(actions.login);
-if (result?.data?.ok) return Astro.redirect("/admin", 303);
+if (result?.data?.ok) return Astro.redirect(redirectTo, 303);
 const showError = Boolean(result && (!result.data || !result.data.ok));
 ---
 <!doctype html>

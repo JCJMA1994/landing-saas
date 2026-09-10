@@ -9,10 +9,14 @@ import {
 import type { TenantMember } from "../../application/members/member-repository";
 import type { AuditLogEntry } from "../../application/audit/audit-gateway";
 import { canManageMembers, type TenantRole } from "../../domain/tenant/roles";
+import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/subscription-repository";
 import "../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
 if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+const subRepo = new SupabaseSubscriptionRepository(Astro.locals.supabase);
+const isSuperadmin = Astro.locals.user ? await subRepo.isPlatformSuperadmin(Astro.locals.user.id) : false;
 
 const assignResult = Astro.getActionResult(actions.assignMember);
 const removeResult = Astro.getActionResult(actions.removeMember);
@@ -61,6 +65,13 @@ if (tenantId && Astro.locals.user) {
           <li><a href="/admin" class="nav-link">Sites</a></li>
           <li><a href="/admin/members" class="nav-link active">Members</a></li>
           <li><a href="/admin/billing" class="nav-link">Billing</a></li>
+          {isSuperadmin && (
+            <li>
+              <a href="/backoffice" class="nav-link" style="color: #f59e0b; font-weight: 700;">
+                🛡️ Platform Backoffice
+              </a>
+            </li>
+          )}
         </ul>
       </nav>
       <form method="POST" action={actions.logout}>
