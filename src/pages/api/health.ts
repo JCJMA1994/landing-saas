@@ -1,13 +1,17 @@
 import type { APIRoute } from "astro";
+import { parseServerEnv } from "../../infrastructure/config/env";
+import { createAdminClient } from "../../infrastructure/supabase/server";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async () => {
   const start = performance.now();
   let dbStatus = "unknown";
 
   try {
-    const { error } = await locals.supabase.from("tenants").select("id").limit(1);
+    const env = parseServerEnv({ ...import.meta.env, ...process.env });
+    const admin = createAdminClient(env);
+    const { error } = await admin.from("tenants").select("id").limit(1);
     dbStatus = error ? "degraded" : "healthy";
   } catch {
     dbStatus = "unreachable";
