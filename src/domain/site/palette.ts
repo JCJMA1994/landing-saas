@@ -1,14 +1,14 @@
 export interface PlatformPalette {
   id: string;
   name: string;
-  description?: string;
+  description?: string | undefined;
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
   backgroundColor: string;
   textColor: string;
-  isSystem?: boolean;
-  createdAt?: string;
+  isSystem?: boolean | undefined;
+  createdAt?: string | undefined;
 }
 
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;

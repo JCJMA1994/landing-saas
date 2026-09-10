@@ -1027,7 +1027,7 @@ export const server = {
   deletePlatformPalette: defineAction({
     accept: "form",
     input: z.object({
-      paletteId: z.string().uuid(),
+      paletteId: z.string().trim().min(1),
     }),
     handler: async (input, context) => {
       if (!context.locals.user) return { ok: false, error: "Authentication required." };
