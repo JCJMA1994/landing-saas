@@ -50,111 +50,188 @@ if (tenantId && Astro.locals.user) {
     }
   } catch (err: unknown) {
     const error = err as MemberAuthorizationError;
-    loadError = error.message || "Failed to load tenant members.";
+    loadError = error.message || "No se pudieron cargar los miembros del workspace.";
   }
 }
+
+const ROLE_LABELS: Record<string, string> = {
+  owner: "PROPIETARIO",
+  admin: "ADMINISTRADOR",
+  editor: "EDITOR",
+  viewer: "LECTOR",
+};
 ---
+
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Members & Permissions | Landing SaaS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Equipo & Permisos | LaunchPulse Studio</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body>
-    <header class="shell topbar">
-      <strong>Landing SaaS</strong>
-      <nav aria-label="Admin navigation">
-        <ul class="nav-links">
-          <li><a href="/admin" class="nav-link">Sites</a></li>
-          <li><a href="/admin/members" class="nav-link active">Members</a></li>
-          <li><a href="/admin/billing" class="nav-link">Billing</a></li>
-          {isSuperadmin && (
-            <li>
-              <a href="/backoffice" class="nav-link" style="color: #f59e0b; font-weight: 700;">
+  <body class="client-workspace-body">
+    <!-- Header with LaunchPulse Branding -->
+    <header class="client-header">
+      <div class="shell header-inner">
+        <div class="header-left">
+          <a href="/admin" class="brand-badge" aria-label="LaunchPulse Inicio">
+            <div class="brand-icon-tile">
+              <svg viewBox="0 0 32 32" fill="none" width="22" height="22">
+                <path d="M6 22 L16 5 L26 22 L20 20 L16 12 L12 20 Z" fill="url(#lp-members-chevron)" />
+                <path d="M10 25 L13 25 L14.5 21 L16 27 L17.5 24 L19 25 L22 25" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="16" cy="14" r="2" fill="#ffffff" />
+                <defs>
+                  <linearGradient id="lp-members-chevron" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff" />
+                    <stop offset="65%" stop-color="#38bdf8" />
+                    <stop offset="100%" stop-color="#6366f1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="brand-text-group">
+              <span class="brand-title">Launch<span class="brand-accent">Pulse</span></span>
+              <span class="brand-subtitle">STUDIO & ENGINE</span>
+            </div>
+          </a>
+
+          <nav class="client-nav" aria-label="Navegación principal">
+            <a href="/admin" class="nav-item">Sitios & Landings</a>
+            <a href="/admin/members" class="nav-item active">Equipo</a>
+            <a href="/admin/billing" class="nav-item">Suscripción</a>
+            {isSuperadmin && (
+              <a href="/backoffice" class="nav-item" style="color: #f59e0b; font-weight: 700;">
                 🛡️ Platform Backoffice
               </a>
-            </li>
-          )}
-        </ul>
-      </nav>
-      <form method="POST" action={actions.logout}>
-        <button type="submit">Sign out</button>
-      </form>
+            )}
+          </nav>
+        </div>
+
+        <div class="header-right">
+          <div class="user-pill">
+            <span class="user-status-dot"></span>
+            <span class="user-email" title={Astro.locals.user?.email}>{Astro.locals.user?.email}</span>
+            <span class="user-role-tag">{ROLE_LABELS[userRole || ""] || userRole}</span>
+          </div>
+
+          <form method="POST" action={actions.logout}>
+            <button type="submit" class="btn-logout" title="Cerrar sesión">
+              Salir
+            </button>
+          </form>
+        </div>
+      </div>
     </header>
 
-    <main class="shell dashboard">
-      <p class="eyebrow">Access Control</p>
-      <h1>Workspace Members</h1>
-      <p class="muted">Manage roles, permissions, and inspect immutable security audit logs.</p>
+    <main class="shell dashboard-container">
+      <div class="header-titles">
+        <p class="eyebrow-tag">CONTROL DE ACCESO & SEGURIDAD</p>
+        <h1 class="main-title">Miembros del Workspace</h1>
+        <p class="main-subtitle">Gestioná los roles, permisos de colaboradores y auditá los registros de seguridad del equipo.</p>
+      </div>
 
       {assignResult && !assignResult.data?.ok && (
-        <p class="error" role="alert">{assignResult.data?.error ?? "Failed to update member."}</p>
+        <div class="alert-box error" role="alert">
+          {assignResult.data?.error ?? "No se pudo actualizar el miembro."}
+        </div>
       )}
       {removeResult && !removeResult.data?.ok && (
-        <p class="error" role="alert">{removeResult.data?.error ?? "Failed to remove member."}</p>
+        <div class="alert-box error" role="alert">
+          {removeResult.data?.error ?? "No se pudo remover al miembro."}
+        </div>
       )}
       {loadError && (
-        <p class="error" role="alert">{loadError}</p>
+        <div class="alert-box error" role="alert">{loadError}</div>
       )}
 
       {!tenantId ? (
-        <p class="empty">No tenant associated with your account.</p>
+        <div class="empty-box">No hay una empresa o tenant asociado a tu cuenta.</div>
       ) : (
-        <>
-          <section aria-labelledby="members-list-title">
-            <h2 id="members-list-title">Current Members</h2>
+        <div class="workspace-content-grid">
+          <!-- Members List Table -->
+          <section class="content-panel" aria-labelledby="members-list-title">
+            <div class="panel-header-row">
+              <h2 id="members-list-title" class="panel-heading">Colaboradores Actuales</h2>
+              <span class="member-count-badge">{members.length} {members.length === 1 ? "usuario" : "usuarios"}</span>
+            </div>
+
             {members.length === 0 ? (
-              <p class="empty">No members found.</p>
+              <p class="empty-box">No se encontraron miembros en este workspace.</p>
             ) : (
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>User ID</th>
-                    <th>Role</th>
-                    <th>Joined</th>
-                    {isManager && <th>Actions</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.map((m) => (
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
                     <tr>
-                      <td>
-                        <code>{m.userId}</code>
-                        {m.userId === Astro.locals.user?.id && <span class="badge">You</span>}
-                      </td>
-                      <td>
-                        <span class={`badge badge-${m.role}`}>{m.role}</span>
-                      </td>
-                      <td>{new Date(m.createdAt).toLocaleDateString()}</td>
-                      {isManager && (
-                        <td>
-                          {m.userId !== Astro.locals.user?.id && (
-                            <form method="POST" action={actions.removeMember} class="inline-form">
-                              <input type="hidden" name="tenantId" value={tenantId} />
-                              <input type="hidden" name="userId" value={m.userId} />
-                              <button type="submit" class="button-danger" onclick="return confirm('Remove member?');">
-                                Remove
-                              </button>
-                            </form>
-                          )}
-                        </td>
-                      )}
+                      <th>Usuario / Identificador</th>
+                      <th>Rol Asignado</th>
+                      <th>Fecha de Ingreso</th>
+                      {isManager && <th class="text-right">Acciones</th>}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {members.map((m) => (
+                      <tr>
+                        <td>
+                          <div class="user-cell">
+                            <code class="uuid-badge">{m.userId}</code>
+                            {m.userId === Astro.locals.user?.id && (
+                              <span class="badge-you">TÚ</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <span class={`badge-role badge-${m.role}`}>
+                            {ROLE_LABELS[m.role] || m.role}
+                          </span>
+                        </td>
+                        <td class="date-cell">
+                          {new Date(m.createdAt).toLocaleDateString("es-ES", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </td>
+                        {isManager && (
+                          <td class="text-right">
+                            {m.userId !== Astro.locals.user?.id ? (
+                              <form method="POST" action={actions.removeMember} class="inline-form">
+                                <input type="hidden" name="tenantId" value={tenantId} />
+                                <input type="hidden" name="userId" value={m.userId} />
+                                <button
+                                  type="submit"
+                                  class="btn-remove"
+                                  onclick="return confirm('¿Estás seguro de que deseas revocar el acceso a este usuario?');"
+                                >
+                                  Eliminar
+                                </button>
+                              </form>
+                            ) : (
+                              <span class="muted-action">—</span>
+                            )}
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
 
+          <!-- Add / Update Member Form -->
           {isManager && (
-            <section class="panel" style="margin-top: 2.5rem;" aria-labelledby="add-member-title">
-              <h2 id="add-member-title" style="margin-top: 0;">Add or Update Member</h2>
-              <p class="muted">Enter a preprovisioned User UUID and select their assigned privilege level.</p>
-              <form method="POST" action={actions.assignMember}>
+            <section class="content-panel form-panel" aria-labelledby="add-member-title">
+              <h2 id="add-member-title" class="panel-heading">Agregar o Modificar Miembro</h2>
+              <p class="panel-desc">
+                Ingresá el UUID del usuario registrado en el sistema y asignale su nivel de permisos dentro de este workspace.
+              </p>
+
+              <form method="POST" action={actions.assignMember} class="member-form">
                 <input type="hidden" name="tenantId" value={tenantId} />
-                <div class="field">
-                  <label for="userId">User ID (UUID)</label>
+
+                <div class="field-group">
+                  <label for="userId">Identificador de Usuario (UUID)</label>
                   <input
                     id="userId"
                     name="userId"
@@ -162,49 +239,559 @@ if (tenantId && Astro.locals.user) {
                     required
                     pattern="^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                     placeholder="00000000-0000-0000-0000-000000000000"
+                    class="form-input"
                   />
+                  <small class="field-hint">El UUID se obtiene del registro en Supabase Auth.</small>
                 </div>
-                <div class="field">
-                  <label for="role">Role</label>
-                  <select id="role" name="role" required>
-                    {userRole === "owner" && <option value="owner">Owner (Full admin & ownership)</option>}
-                    <option value="admin">Admin (Member & site management)</option>
-                    <option value="editor" selected>Editor (Content & themes)</option>
-                    <option value="viewer">Viewer (Read-only)</option>
+
+                <div class="field-group">
+                  <label for="role">Rol / Nivel de Permisos</label>
+                  <select id="role" name="role" required class="form-select">
+                    {userRole === "owner" && (
+                      <option value="owner">Propietario (Control total y titularidad)</option>
+                    )}
+                    <option value="admin">Administrador (Gestión de miembros y sitios)</option>
+                    <option value="editor" selected>Editor (Diseño, contenidos y temas)</option>
+                    <option value="viewer">Lector (Solo visualización de métricas)</option>
                   </select>
                 </div>
-                <button type="submit">Save Member</button>
+
+                <button type="submit" class="btn-save-member">
+                  Guardar Permisos del Miembro
+                </button>
               </form>
             </section>
           )}
 
+          <!-- Security Audit Log -->
           {isManager && recentAuditLogs.length > 0 && (
-            <section style="margin-top: 3rem;" aria-labelledby="audit-log-title">
-              <h2 id="audit-log-title">Security Audit Log (Recent Activity)</h2>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Timestamp</th>
-                    <th>Actor ID</th>
-                    <th>Action</th>
-                    <th>Resource</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentAuditLogs.map((log) => (
+            <section class="content-panel audit-panel" aria-labelledby="audit-log-title">
+              <div class="panel-header-row">
+                <h2 id="audit-log-title" class="panel-heading">Registro de Auditoría de Seguridad</h2>
+                <span class="audit-note">Historial Inmutable</span>
+              </div>
+              <p class="panel-desc">Registro criptográfico de eventos de acceso, modificaciones de permisos y cambios de membresía.</p>
+
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
                     <tr>
-                      <td>{log.createdAt ? new Date(log.createdAt).toLocaleString() : "Just now"}</td>
-                      <td><code>{log.actorUserId}</code></td>
-                      <td><span class="badge">{log.action}</span></td>
-                      <td><code>{log.resourceType}:{log.resourceId}</code></td>
+                      <th>Fecha / Hora</th>
+                      <th>Actor Responsable</th>
+                      <th>Acción Ejecutada</th>
+                      <th>Recurso Afectado</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recentAuditLogs.map((log) => (
+                      <tr>
+                        <td class="date-cell">
+                          {log.createdAt
+                            ? new Date(log.createdAt).toLocaleString("es-ES", {
+                                dateStyle: "short",
+                                timeStyle: "medium",
+                              })
+                            : "Reciente"}
+                        </td>
+                        <td><code class="uuid-badge">{log.actorUserId}</code></td>
+                        <td><span class="badge-action">{log.action}</span></td>
+                        <td><code class="resource-badge">{log.resourceType}:{log.resourceId}</code></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </section>
           )}
-        </>
+        </div>
       )}
     </main>
+
+    <style>
+      .client-workspace-body {
+        background: radial-gradient(circle at 50% 0%, #101c38 0%, #060a14 100%);
+        min-height: 100vh;
+        color: #f8fafc;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      }
+
+      /* Header */
+      .client-header {
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 0;
+        gap: 1.5rem;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+      }
+
+      .brand-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease;
+      }
+
+      .brand-badge:hover {
+        transform: translateY(-1px);
+      }
+
+      .brand-icon-tile {
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.65rem;
+        background: radial-gradient(circle at 35% 25%, #18274d 0%, #080d1a 100%);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+      }
+
+      .brand-text-group {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand-title {
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: #f8fafc;
+      }
+
+      .brand-accent {
+        color: #38bdf8;
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .brand-subtitle {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: #94a3b8;
+      }
+
+      .client-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-item {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 0.45rem 0.85rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+      }
+
+      .nav-item:hover {
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .nav-item.active {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.1);
+        font-weight: 700;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(17, 26, 46, 0.8);
+        border: 1px solid rgba(56, 189, 248, 0.18);
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.82rem;
+      }
+
+      .user-status-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 8px #22c55e;
+      }
+
+      .user-email {
+        color: #cbd5e1;
+        font-weight: 500;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-role-tag {
+        background: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.35rem;
+      }
+
+      .btn-logout {
+        background: rgba(239, 68, 68, 0.12);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 0.4rem 0.85rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-logout:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #ffffff;
+      }
+
+      /* Dashboard */
+      .dashboard-container {
+        padding: 2.5rem 0 5rem;
+      }
+
+      .header-titles {
+        margin-bottom: 2rem;
+      }
+
+      .eyebrow-tag {
+        color: #38bdf8;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+      }
+
+      .main-title {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        margin: 0 0 0.4rem;
+        color: #ffffff;
+      }
+
+      .main-subtitle {
+        color: #94a3b8;
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* Grid of Panels */
+      .workspace-content-grid {
+        display: grid;
+        gap: 2rem;
+      }
+
+      .content-panel {
+        background: #0d1527;
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        border-radius: 1.25rem;
+        padding: 1.75rem 2rem;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+      }
+
+      .panel-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+
+      .panel-heading {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin: 0;
+      }
+
+      .panel-desc {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem;
+      }
+
+      .member-count-badge {
+        background: rgba(56, 189, 248, 0.12);
+        color: #38bdf8;
+        font-size: 0.76rem;
+        font-weight: 750;
+        padding: 0.25rem 0.65rem;
+        border-radius: 9999px;
+      }
+
+      .audit-note {
+        background: rgba(168, 85, 247, 0.15);
+        color: #c084fc;
+        font-size: 0.76rem;
+        font-weight: 750;
+        padding: 0.25rem 0.65rem;
+        border-radius: 9999px;
+      }
+
+      /* Data Table */
+      .table-responsive {
+        overflow-x: auto;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+      }
+
+      .data-table th {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+        font-weight: 800;
+      }
+
+      .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        vertical-align: middle;
+      }
+
+      .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .uuid-badge {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        color: #93c5fd;
+        font-size: 0.82rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 0.4rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      .badge-you {
+        background: #1e3a8a;
+        color: #bfdbfe;
+        font-size: 0.68rem;
+        font-weight: 900;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.35rem;
+        letter-spacing: 0.06em;
+      }
+
+      .badge-role {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.4rem;
+        display: inline-block;
+      }
+
+      .badge-owner {
+        background: rgba(234, 179, 8, 0.15);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.35);
+      }
+
+      .badge-admin {
+        background: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+      }
+
+      .badge-editor {
+        background: rgba(168, 85, 247, 0.15);
+        color: #c084fc;
+        border: 1px solid rgba(168, 85, 247, 0.35);
+      }
+
+      .badge-viewer {
+        background: rgba(100, 116, 139, 0.2);
+        color: #94a3b8;
+        border: 1px solid rgba(100, 116, 139, 0.35);
+      }
+
+      .date-cell {
+        color: #94a3b8;
+        font-size: 0.85rem;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .btn-remove {
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        padding: 0.4rem 0.85rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-remove:hover {
+        background: rgba(239, 68, 68, 0.3);
+        color: #ffffff;
+      }
+
+      .muted-action {
+        color: #475569;
+        font-weight: bold;
+      }
+
+      /* Form Panel */
+      .form-panel {
+        background: #0d162a;
+      }
+
+      .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .field-group label {
+        font-size: 0.88rem;
+        font-weight: 750;
+        color: #e2e8f0;
+      }
+
+      .form-input, .form-select {
+        background: #090f1f;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        color: #ffffff;
+        padding: 0.75rem 0.95rem;
+        border-radius: 0.65rem;
+        font-size: 0.9rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .form-input:focus, .form-select:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+      }
+
+      .field-hint {
+        color: #64748b;
+        font-size: 0.76rem;
+      }
+
+      .btn-save-member {
+        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+        color: #ffffff;
+        border: none;
+        padding: 0.75rem 1.4rem;
+        border-radius: 0.65rem;
+        font-size: 0.9rem;
+        font-weight: 750;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        transition: all 0.2s ease;
+      }
+
+      .btn-save-member:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+      }
+
+      .badge-action {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        font-size: 0.74rem;
+        font-weight: 750;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.35rem;
+      }
+
+      .resource-badge {
+        font-size: 0.78rem;
+        color: #cbd5e1;
+      }
+
+      /* Alert & Empty */
+      .alert-box.error {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #fca5a5;
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-box {
+        padding: 3rem;
+        text-align: center;
+        color: #94a3b8;
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .header-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .header-left {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
+          width: 100%;
+        }
+
+        .header-right {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+    </style>
   </body>
 </html>

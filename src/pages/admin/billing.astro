@@ -47,176 +47,767 @@ if (tenantId) {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Billing & Quotas | Landing SaaS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suscripción & Facturación | LaunchPulse Studio</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body>
-    <header class="shell topbar">
-      <strong>Landing SaaS</strong>
-      <nav aria-label="Admin navigation">
-        <ul class="nav-links">
-          <li><a href="/admin" class="nav-link">Sites</a></li>
-          <li><a href="/admin/members" class="nav-link">Members</a></li>
-          <li><a href="/admin/billing" class="nav-link active">Billing</a></li>
-          {isSuperadmin && (
-            <li>
-              <a href="/backoffice" class="nav-link" style="color: #f59e0b; font-weight: 700;">
+  <body class="client-workspace-body">
+    <!-- Header with LaunchPulse Branding -->
+    <header class="client-header">
+      <div class="shell header-inner">
+        <div class="header-left">
+          <a href="/admin" class="brand-badge" aria-label="LaunchPulse Inicio">
+            <div class="brand-icon-tile">
+              <svg viewBox="0 0 32 32" fill="none" width="22" height="22">
+                <path d="M6 22 L16 5 L26 22 L20 20 L16 12 L12 20 Z" fill="url(#lp-bill-chevron)" />
+                <path d="M10 25 L13 25 L14.5 21 L16 27 L17.5 24 L19 25 L22 25" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="16" cy="14" r="2" fill="#ffffff" />
+                <defs>
+                  <linearGradient id="lp-bill-chevron" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff" />
+                    <stop offset="65%" stop-color="#38bdf8" />
+                    <stop offset="100%" stop-color="#6366f1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="brand-text-group">
+              <span class="brand-title">Launch<span class="brand-accent">Pulse</span></span>
+              <span class="brand-subtitle">STUDIO & ENGINE</span>
+            </div>
+          </a>
+
+          <nav class="client-nav" aria-label="Navegación principal">
+            <a href="/admin" class="nav-item">Sitios & Landings</a>
+            <a href="/admin/members" class="nav-item">Equipo</a>
+            <a href="/admin/billing" class="nav-item active">Suscripción</a>
+            {isSuperadmin && (
+              <a href="/backoffice" class="nav-item" style="color: #f59e0b; font-weight: 700;">
                 🛡️ Platform Backoffice
               </a>
-            </li>
-          )}
-        </ul>
-      </nav>
-      <form method="POST" action={actions.logout}>
-        <button type="submit">Sign out</button>
-      </form>
+            )}
+          </nav>
+        </div>
+
+        <div class="header-right">
+          <div class="user-pill">
+            <span class="user-status-dot"></span>
+            <span class="user-email" title={Astro.locals.user?.email}>{Astro.locals.user?.email}</span>
+            <span class="user-role-tag">{userRole}</span>
+          </div>
+
+          <form method="POST" action={actions.logout}>
+            <button type="submit" class="btn-logout" title="Cerrar sesión">
+              Salir
+            </button>
+          </form>
+        </div>
+      </div>
     </header>
 
-    <main class="shell dashboard">
-      <p class="eyebrow">Subscription & Resource Quotas</p>
-      <h1>Billing & Usage</h1>
+    <main class="shell dashboard-container">
+      <div class="header-titles">
+        <p class="eyebrow-tag">PLAN & CUOTAS DE CONSUMO</p>
+        <h1 class="main-title">Suscripción & Facturación</h1>
+        <p class="main-subtitle">Controlá el uso de recursos de tu plan, límites de publicación y escalabilidad de tu workspace.</p>
+      </div>
 
       {changePlanResult?.error && (
-        <p class="error" role="alert">{changePlanResult.error.message}</p>
+        <div class="alert-box error" role="alert">{changePlanResult.error.message}</div>
       )}
       {changePlanResult?.data?.ok && changePlanResult.data.subscription && (
-        <p class="success" role="status" style="background: #14532d; color: #bbf7d0; padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
-          Plan successfully updated to {changePlanResult.data.subscription.planId.toUpperCase()}!
-        </p>
+        <div class="alert-box success" role="status">
+          ¡Plan actualizado con éxito a {changePlanResult.data.subscription.planId.toUpperCase()}!
+        </div>
       )}
 
       {!usageOverview ? (
-        <p class="muted">Loading subscription details...</p>
+        <div class="empty-box">Cargando detalles de suscripción...</div>
       ) : (
-        <>
-          <!-- Current Plan & Trial Banner -->
-          <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <div>
-              <div style="display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem;">
-                <h2 style="margin: 0; font-size: 1.5rem; color: #f8fafc;">Plan: {usageOverview.plan.name}</h2>
-                <span style={`font-size: .75rem; font-weight: 600; padding: .2rem .6rem; border-radius: 9999px; text-transform: uppercase; ${usageOverview.subscription.status === "active" ? "background: #166534; color: #bbf7d0;" : "background: #854d0e; color: #fef08a;"}`}>
-                  {usageOverview.subscription.status}
+        <div class="workspace-content-grid">
+          <!-- Current Plan & Status Banner -->
+          <section class="content-panel plan-hero-panel">
+            <div class="plan-hero-left">
+              <div class="plan-hero-badge-row">
+                <h2 class="plan-title">Plan Activo: {usageOverview.plan.name}</h2>
+                <span class={`badge-status ${usageOverview.subscription.status === "active" ? "active" : "trial"}`}>
+                  {usageOverview.subscription.status === "active" ? "🟢 Activo" : "⏳ En Prueba"}
                 </span>
               </div>
-              <p style="margin: 0; color: #94a3b8; font-size: .95rem;">{usageOverview.plan.tagline}</p>
+              <p class="plan-tagline">{usageOverview.plan.tagline}</p>
               {usageOverview.subscription.status === "trialing" && (
-                <p style="margin: .5rem 0 0; color: #38bdf8; font-size: .9rem;">
-                  ⏳ <strong>{trialDaysRemaining} days remaining</strong> on your free Pro trial.
+                <p class="trial-counter">
+                  ⏳ <strong>Te quedan {trialDaysRemaining} días</strong> de tu período de prueba Pro.
                 </p>
               )}
             </div>
-            <div>
-              <span style="font-size: 2rem; font-weight: 700; color: #f8fafc;">
-                ${usageOverview.plan.priceMonthlyUsd}
-              </span>
-              <span style="color: #94a3b8; font-size: .9rem;">/month</span>
-            </div>
-          </div>
 
-          <!-- Quota Meters -->
-          <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #f8fafc;">Resource Usage & Quotas</h2>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Published Sites</p>
-              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
-                {usageOverview.quotas.sites.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.sites.limit}</span>
-              </p>
-              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
-                <div style={`background: ${usageOverview.quotas.sites.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.sites.usagePercentage}%;`}></div>
+            <div class="plan-hero-price">
+              <span class="price-val">${usageOverview.plan.priceMonthlyUsd}</span>
+              <span class="price-period">/ mes</span>
+            </div>
+          </section>
+
+          <!-- Quota Meters Grid -->
+          <section class="content-panel">
+            <h2 class="panel-heading">Consumo de Recursos & Cuotas</h2>
+            <p class="panel-desc">Monitoreo de límites disponibles para tu empresa en el ciclo actual.</p>
+
+            <div class="quotas-grid">
+              <!-- Sites -->
+              <div class="quota-card">
+                <div class="quota-top">
+                  <span class="quota-label">Sitios Publicados</span>
+                  <span class="quota-numbers">
+                    <strong>{usageOverview.quotas.sites.current}</strong> / {usageOverview.quotas.sites.limit}
+                  </span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div
+                    class="progress-bar-fill"
+                    style={`width: ${usageOverview.quotas.sites.usagePercentage}%; background: ${usageOverview.quotas.sites.usagePercentage > 90 ? "#ef4444" : "#38bdf8"};`}
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Domains -->
+              <div class="quota-card">
+                <div class="quota-top">
+                  <span class="quota-label">Dominios Propios</span>
+                  <span class="quota-numbers">
+                    <strong>{usageOverview.quotas.custom_domains.current}</strong> / {usageOverview.quotas.custom_domains.limit}
+                  </span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div
+                    class="progress-bar-fill"
+                    style={`width: ${usageOverview.quotas.custom_domains.usagePercentage}%; background: ${usageOverview.quotas.custom_domains.usagePercentage > 90 ? "#ef4444" : "#38bdf8"};`}
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Campaigns -->
+              <div class="quota-card">
+                <div class="quota-top">
+                  <span class="quota-label">Campañas Activas</span>
+                  <span class="quota-numbers">
+                    <strong>{usageOverview.quotas.campaigns.current}</strong> / {usageOverview.quotas.campaigns.limit}
+                  </span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div
+                    class="progress-bar-fill"
+                    style={`width: ${usageOverview.quotas.campaigns.usagePercentage}%; background: ${usageOverview.quotas.campaigns.usagePercentage > 90 ? "#ef4444" : "#38bdf8"};`}
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Media -->
+              <div class="quota-card">
+                <div class="quota-top">
+                  <span class="quota-label">Archivos Multimedia</span>
+                  <span class="quota-numbers">
+                    <strong>{usageOverview.quotas.media_assets.current}</strong> / {usageOverview.quotas.media_assets.limit}
+                  </span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div
+                    class="progress-bar-fill"
+                    style={`width: ${usageOverview.quotas.media_assets.usagePercentage}%; background: ${usageOverview.quotas.media_assets.usagePercentage > 90 ? "#ef4444" : "#38bdf8"};`}
+                  ></div>
+                </div>
               </div>
             </div>
+          </section>
 
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Custom Domains</p>
-              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
-                {usageOverview.quotas.custom_domains.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.custom_domains.limit}</span>
-              </p>
-              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
-                <div style={`background: ${usageOverview.quotas.custom_domains.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.custom_domains.usagePercentage}%;`}></div>
-              </div>
-            </div>
+          <!-- Plan Matrix -->
+          <section class="content-panel">
+            <h2 class="panel-heading">Planes de la Plataforma</h2>
+            <p class="panel-desc">Elegí la capacidad ideal para acompañar el ritmo de crecimiento de tu negocio.</p>
 
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Active Campaigns</p>
-              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
-                {usageOverview.quotas.campaigns.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.campaigns.limit}</span>
-              </p>
-              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
-                <div style={`background: ${usageOverview.quotas.campaigns.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.campaigns.usagePercentage}%;`}></div>
-              </div>
-            </div>
+            <div class="plans-grid">
+              {PLAN_IDS.map((pId) => {
+                const p = PLANS[pId];
+                const isCurrent = usageOverview.subscription.planId === pId;
 
-            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem;">
-              <p style="margin: 0 0 .5rem; color: #94a3b8; font-size: .85rem; text-transform: uppercase;">Media Assets</p>
-              <p style="margin: 0 0 .75rem; font-size: 1.5rem; font-weight: 700; color: #f8fafc;">
-                {usageOverview.quotas.media_assets.current} <span style="font-size: .9rem; color: #64748b;">/ {usageOverview.quotas.media_assets.limit}</span>
-              </p>
-              <div style="background: #334155; border-radius: 9999px; height: 8px; overflow: hidden;">
-                <div style={`background: ${usageOverview.quotas.media_assets.usagePercentage > 90 ? "#ef4444" : "#3b82f6"}; height: 100%; width: ${usageOverview.quotas.media_assets.usagePercentage}%;`}></div>
-              </div>
-            </div>
-          </div>
+                return (
+                  <div class={`pricing-card ${isCurrent ? "current-plan" : ""}`}>
+                    <div class="pricing-card-top">
+                      <div class="pricing-title-row">
+                        <h3 class="pricing-name">{p.name}</h3>
+                        {isCurrent && <span class="badge-current-plan">ACTIVO</span>}
+                      </div>
+                      <p class="pricing-tagline">{p.tagline}</p>
+                      <div class="pricing-price-row">
+                        <span class="pricing-amount">${p.priceMonthlyUsd}</span>
+                        <span class="pricing-currency">/ mes</span>
+                      </div>
 
-          <!-- Plan Comparison & Upgrade Matrix -->
-          <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #f8fafc;">Available Plans</h2>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-            {PLAN_IDS.map((pId) => {
-              const p = PLANS[pId];
-              const isCurrent = usageOverview.subscription.planId === pId;
+                      <ul class="pricing-features">
+                        <li>✓ Hasta {p.limits.maxSites} {p.limits.maxSites === 1 ? "Sitio Publicado" : "Sitios Publicados"}</li>
+                        <li>{p.features.customDomains ? "✓" : "✗"} {p.limits.maxCustomDomains} Dominios Propios</li>
+                        <li>{p.features.campaigns ? "✓" : "✗"} Hasta {p.limits.maxActiveCampaigns} Campañas Activas</li>
+                        <li>{p.features.advancedAnalytics ? "✓ Analíticas Avanzadas de Embudo" : "✗ Analíticas Básicas"}</li>
+                        <li>{p.features.removeBranding ? "✓ Sin Marca LaunchPulse" : "✗ Marca de Plataforma Incluida"}</li>
+                        <li>{p.features.prioritySupport ? "✓ Soporte Prioritario 24/7 SLA" : "✗ Soporte Estándar por Email"}</li>
+                      </ul>
+                    </div>
 
-              return (
-                <div style={`background: #1e293b; border: 2px solid ${isCurrent ? "#3b82f6" : "#334155"}; border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;`}>
-                  <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem;">
-                      <h3 style="margin: 0; font-size: 1.35rem; color: #f8fafc;">{p.name}</h3>
-                      {isCurrent && (
-                        <span style="background: #1d4ed8; color: #eff6ff; font-size: .75rem; font-weight: 600; padding: .2rem .5rem; border-radius: 4px;">
-                          CURRENT
-                        </span>
+                    <div class="pricing-card-footer">
+                      {isOwner ? (
+                        isCurrent ? (
+                          <button type="button" disabled class="btn-plan-current">
+                            ✓ Plan en Uso
+                          </button>
+                        ) : (
+                          <form method="POST" action={actions.changePlan}>
+                            <input type="hidden" name="tenantId" value={tenantId} />
+                            <input type="hidden" name="planId" value={pId} />
+                            <button type="submit" class="btn-plan-action">
+                              {p.priceMonthlyUsd > usageOverview.plan.priceMonthlyUsd
+                                ? `Mejorar a ${p.name}`
+                                : `Cambiar a ${p.name}`}
+                            </button>
+                          </form>
+                        )
+                      ) : (
+                        <p class="non-owner-notice">Solo el propietario de la cuenta puede cambiar de plan.</p>
                       )}
                     </div>
-                    <p style="margin: 0 0 1rem; color: #94a3b8; font-size: .9rem;">{p.tagline}</p>
-                    <div style="margin-bottom: 1.5rem;">
-                      <span style="font-size: 2.25rem; font-weight: 800; color: #f8fafc;">${p.priceMonthlyUsd}</span>
-                      <span style="color: #64748b; font-size: .9rem;"> / month</span>
-                    </div>
-
-                    <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem; color: #cbd5e1; font-size: .9rem; display: flex; flex-direction: column; gap: .5rem;">
-                      <li>✓ Up to {p.limits.maxSites} Published Sites</li>
-                      <li>{p.features.customDomains ? "✓" : "✗"} {p.limits.maxCustomDomains} Custom Domains</li>
-                      <li>{p.features.campaigns ? "✓" : "✗"} Up to {p.limits.maxActiveCampaigns} Active Campaigns</li>
-                      <li>{p.features.advancedAnalytics ? "✓ Advanced Analytics" : "✗ Basic Analytics"}</li>
-                      <li>{p.features.removeBranding ? "✓ Remove Platform Branding" : "✗ Platform Branding Included"}</li>
-                      <li>{p.features.prioritySupport ? "✓ Priority 24/7 SLA" : "✗ Standard Support"}</li>
-                    </ul>
                   </div>
-
-                  {isOwner ? (
-                    isCurrent ? (
-                      <button type="button" disabled style="background: #334155; color: #94a3b8; border: none; padding: .6rem; border-radius: 6px; font-weight: 600; cursor: not-allowed; width: 100%;">
-                        Active Plan
-                      </button>
-                    ) : (
-                      <form method="POST" action={actions.changePlan}>
-                        <input type="hidden" name="tenantId" value={tenantId} />
-                        <input type="hidden" name="planId" value={pId} />
-                        <button type="submit" style="background: #2563eb; color: #ffffff; border: none; padding: .6rem; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%;">
-                          {p.priceMonthlyUsd > usageOverview.plan.priceMonthlyUsd ? "Upgrade to " + p.name : "Switch to " + p.name}
-                        </button>
-                      </form>
-                    )
-                  ) : (
-                    <p style="font-size: .8rem; color: #64748b; margin: 0; text-align: center;">Contact organization owner to change plans.</p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </>
+                );
+              })}
+            </div>
+          </section>
+        </div>
       )}
     </main>
+
+    <style>
+      .client-workspace-body {
+        background: radial-gradient(circle at 50% 0%, #101c38 0%, #060a14 100%);
+        min-height: 100vh;
+        color: #f8fafc;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      }
+
+      /* Header */
+      .client-header {
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 0;
+        gap: 1.5rem;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+      }
+
+      .brand-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease;
+      }
+
+      .brand-badge:hover {
+        transform: translateY(-1px);
+      }
+
+      .brand-icon-tile {
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.65rem;
+        background: radial-gradient(circle at 35% 25%, #18274d 0%, #080d1a 100%);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+      }
+
+      .brand-text-group {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand-title {
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: #f8fafc;
+      }
+
+      .brand-accent {
+        color: #38bdf8;
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .brand-subtitle {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: #94a3b8;
+      }
+
+      .client-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-item {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 0.45rem 0.85rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+      }
+
+      .nav-item:hover {
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .nav-item.active {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.1);
+        font-weight: 700;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(17, 26, 46, 0.8);
+        border: 1px solid rgba(56, 189, 248, 0.18);
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.82rem;
+      }
+
+      .user-status-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 8px #22c55e;
+      }
+
+      .user-email {
+        color: #cbd5e1;
+        font-weight: 500;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-role-tag {
+        background: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.35rem;
+      }
+
+      .btn-logout {
+        background: rgba(239, 68, 68, 0.12);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 0.4rem 0.85rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-logout:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #ffffff;
+      }
+
+      /* Dashboard */
+      .dashboard-container {
+        padding: 2.5rem 0 5rem;
+      }
+
+      .header-titles {
+        margin-bottom: 2rem;
+      }
+
+      .eyebrow-tag {
+        color: #38bdf8;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+      }
+
+      .main-title {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        margin: 0 0 0.4rem;
+        color: #ffffff;
+      }
+
+      .main-subtitle {
+        color: #94a3b8;
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* Grid of Panels */
+      .workspace-content-grid {
+        display: grid;
+        gap: 2rem;
+      }
+
+      .content-panel {
+        background: #0d1527;
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        border-radius: 1.25rem;
+        padding: 1.75rem 2rem;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+      }
+
+      .panel-heading {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.35rem;
+      }
+
+      .panel-desc {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem;
+      }
+
+      /* Plan Hero */
+      .plan-hero-panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        background: linear-gradient(180deg, rgba(20, 32, 60, 0.8) 0%, rgba(13, 21, 39, 0.95) 100%);
+      }
+
+      .plan-hero-badge-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .plan-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0;
+      }
+
+      .badge-status {
+        font-size: 0.76rem;
+        font-weight: 750;
+        padding: 0.25rem 0.65rem;
+        border-radius: 9999px;
+      }
+
+      .badge-status.active {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.35);
+      }
+
+      .badge-status.trial {
+        background: rgba(234, 179, 8, 0.15);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.35);
+      }
+
+      .plan-tagline {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        margin: 0;
+      }
+
+      .trial-counter {
+        margin: 0.6rem 0 0;
+        color: #38bdf8;
+        font-size: 0.88rem;
+      }
+
+      .plan-hero-price {
+        text-align: right;
+      }
+
+      .price-val {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #ffffff;
+      }
+
+      .price-period {
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+
+      /* Quotas Grid */
+      .quotas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .quota-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.9rem;
+        padding: 1.25rem;
+      }
+
+      .quota-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.85rem;
+      }
+
+      .quota-label {
+        font-size: 0.82rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-weight: 750;
+        letter-spacing: 0.05em;
+      }
+
+      .quota-numbers {
+        font-size: 1.25rem;
+        color: #cbd5e1;
+      }
+
+      .quota-numbers strong {
+        color: #ffffff;
+        font-weight: 800;
+      }
+
+      .progress-bar-bg {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 9999px;
+        height: 7px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 0.3s ease;
+      }
+
+      /* Plans Grid */
+      .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .pricing-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.25s ease;
+      }
+
+      .pricing-card.current-plan {
+        border-color: #38bdf8;
+        background: rgba(14, 28, 54, 0.8);
+        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15);
+      }
+
+      .pricing-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.4rem;
+      }
+
+      .pricing-name {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0;
+      }
+
+      .badge-current-plan {
+        background: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 0.2rem 0.55rem;
+        border-radius: 0.35rem;
+        letter-spacing: 0.06em;
+      }
+
+      .pricing-tagline {
+        color: #94a3b8;
+        font-size: 0.88rem;
+        margin: 0 0 1.25rem;
+        line-height: 1.4;
+      }
+
+      .pricing-price-row {
+        margin-bottom: 1.5rem;
+      }
+
+      .pricing-amount {
+        font-size: 2.3rem;
+        font-weight: 900;
+        color: #ffffff;
+      }
+
+      .pricing-currency {
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+
+      .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: #cbd5e1;
+      }
+
+      .pricing-features li {
+        line-height: 1.4;
+      }
+
+      .btn-plan-current {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        color: #94a3b8;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 0.65rem;
+        font-weight: 700;
+        cursor: not-allowed;
+      }
+
+      .btn-plan-action {
+        width: 100%;
+        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+        color: #ffffff;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 0.65rem;
+        font-weight: 750;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        transition: all 0.2s ease;
+      }
+
+      .btn-plan-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+      }
+
+      .non-owner-notice {
+        font-size: 0.78rem;
+        color: #64748b;
+        text-align: center;
+        margin: 0;
+      }
+
+      /* Alerts & Empty */
+      .alert-box.error {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #fca5a5;
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .alert-box.success {
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        color: #86efac;
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-box {
+        padding: 3rem;
+        text-align: center;
+        color: #94a3b8;
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .header-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .header-left {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
+          width: 100%;
+        }
+
+        .header-right {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+    </style>
   </body>
 </html>
