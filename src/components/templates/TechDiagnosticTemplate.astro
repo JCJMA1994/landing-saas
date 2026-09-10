@@ -31,14 +31,14 @@ const activePromotions = promotions.filter((p) => p.isActive);
     <div class="diag-container diag-header-content">
       <div class="diag-telemetry-badge">
         <span class="diag-pulse-dot" aria-hidden="true"></span>
-        <span class="diag-code">SYSTEM STATUS // NOMINAL</span>
+        <span class="diag-code">ESTADO DEL SISTEMA // NOMINAL</span>
       </div>
       <div class="diag-brand">
         <Icon name="cpu" size={18} />
         <span class="diag-brand-title">{siteName}</span>
       </div>
       <div class="diag-metrics-pill">
-        <span>PRECISION DIAGNOSTICS</span>
+        <span>DIAGNÓSTICO DE PRECISIÓN</span>
       </div>
     </div>
   </header>
@@ -47,13 +47,13 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {activePromotions.length > 0 && (
     <aside class="diag-advisory-banner" aria-label="Aviso promocional activo">
       <div class="diag-container diag-advisory-flex">
-        <Badge variant="accent" size="sm">ADVISORY // ACTIVE</Badge>
+        <Badge variant="accent" size="sm">AVISO // ACTIVO</Badge>
         <span class="diag-advisory-title">{activePromotions[0]?.title}</span>
         {activePromotions[0]?.discountLabel && (
           <span class="diag-advisory-discount">[{activePromotions[0]?.discountLabel}]</span>
         )}
         {activePromotions[0]?.couponCode && (
-          <code class="diag-advisory-code">CODE: {activePromotions[0]?.couponCode}</code>
+          <code class="diag-advisory-code">CÓDIGO: {activePromotions[0]?.couponCode}</code>
         )}
       </div>
     </aside>
@@ -66,7 +66,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
         <div class="diag-hero-copy">
           <div class="diag-section-tag">
             <span class="diag-tag-num">[01]</span>
-            <span class="diag-tag-name">{hero.badgeText || "SPECIFICATION & OVERVIEW"}</span>
+            <span class="diag-tag-name">{hero.badgeText || "ESPECIFICACIÓN Y RESUMEN"}</span>
           </div>
           <h1 class="diag-hero-title">{hero.headline}</h1>
           {hero.subheadline && <p class="diag-hero-subtitle">{hero.subheadline}</p>}
@@ -88,12 +88,12 @@ const activePromotions = promotions.filter((p) => p.isActive);
             <div class="diag-hud-schematic" aria-hidden="true">
               <div class="diag-hud-reticle"></div>
               <div class="diag-hud-data-row">
-                <span>SENSOR_01: ACTIVE</span>
-                <span>VOLT: 3.3V</span>
+                <span>SENSOR_01: ACTIVO</span>
+                <span>VOLTAJE: 3.3V</span>
               </div>
               <div class="diag-hud-data-row">
-                <span>SIGNAL: 99.4%</span>
-                <span>CH_FREQ: 2.4GHz</span>
+                <span>SEÑAL: 99.4%</span>
+                <span>FREC_CH: 2.4GHz</span>
               </div>
             </div>
             <div class="diag-hud-overlay" aria-hidden="true">
@@ -101,7 +101,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
               <span class="diag-hud-corner tr"></span>
               <span class="diag-hud-corner bl"></span>
               <span class="diag-hud-corner br"></span>
-              <span class="diag-hud-scan">CALIBRATED // 100%</span>
+              <span class="diag-hud-scan">CALIBRADO // 100%</span>
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
         <div class="diag-section-header">
           <div class="diag-section-tag">
             <span class="diag-tag-num">[02]</span>
-            <span class="diag-tag-name">DIAGNOSTIC MATRIX & CAPABILITIES</span>
+            <span class="diag-tag-name">MATRIZ DE DIAGNÓSTICO Y CAPACIDADES</span>
           </div>
           <h2 class="diag-section-heading">Diagnósticos y Soluciones Técnicas</h2>
         </div>
@@ -125,7 +125,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
           {cards.map((card, idx) => (
             <Card variant={theme.cardVariant} class="diag-card-item">
               <div class="diag-card-header">
-                <span class="diag-card-idx">MODULE #{String(idx + 1).padStart(2, "0")}</span>
+                <span class="diag-card-idx">MÓDULO #{String(idx + 1).padStart(2, "0")}</span>
                 <Icon name={(card.iconKey as any) || "wrench"} size={22} class="diag-card-icon" />
               </div>
               <h3 class="diag-card-title">{card.title}</h3>
@@ -158,7 +158,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
           <div class="diag-contact-info">
             <div class="diag-section-tag">
               <span class="diag-tag-num">[03]</span>
-              <span class="diag-tag-name">COMMUNICATION DISPATCH</span>
+              <span class="diag-tag-name">DESPACHO DE COMUNICACIONES</span>
             </div>
             <h2 class="diag-contact-heading">Canales de Enlace Directo</h2>
             <p class="diag-contact-desc">
@@ -175,7 +175,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
               {contacts.email && (
                 <div class="diag-channel-row">
                   <Icon name="email" size={16} />
-                  <span>EMAIL: {contacts.email}</span>
+                  <span>CORREO: {contacts.email}</span>
                 </div>
               )}
               {contacts.instagramHandle && (
@@ -213,8 +213,8 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Technical Footer */}
   <footer class="diag-footer">
     <div class="diag-container diag-footer-content">
-      <span class="diag-footer-copy">© {new Date().getFullYear()} {siteName} // DIAGNOSTIC ARCHITECTURE</span>
-      <span class="diag-footer-version">TELEMETRY v1.0.4 - ISO/IEC STANDARDS</span>
+      <span class="diag-footer-copy">© {new Date().getFullYear()} {siteName} // ARQUITECTURA DE DIAGNÓSTICO</span>
+      <span class="diag-footer-version">TELEMETRÍA v1.0.4 - NORMAS ISO/IEC</span>
     </div>
   </footer>
 </div>

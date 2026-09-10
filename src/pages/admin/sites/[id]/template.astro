@@ -67,46 +67,58 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Template Selection & Preview | {siteData.name}</title>
+    <title>Plantillas & Dirección Visual | {siteData.name}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
-    <header class="admin-header">
-      <div class="header-left">
-        <a href="/admin" class="back-link">← Regresar a Sitios</a>
-        <h1>Visual Direction: {siteData.name}</h1>
-      </div>
-      <div class="header-right">
-        <span class="user-email">{Astro.locals.user.email}</span>
-        <form method="POST" action={actions.logout}>
-          <button type="submit" class="logout-button">Cerrar Sesión</button>
-        </form>
-      </div>
+    <header class="shell topbar">
+      <a href="/admin" style="text-decoration: none; color: #ffffff; display: flex; align-items: center; gap: .5rem; font-weight: 800; font-size: 1.1rem;">
+        <span style="color: #ffffff;">Launch<span style="color: #38bdf8;">Pulse</span></span>
+      </a>
+      <nav aria-label="Admin navigation">
+        <ul class="nav-links">
+          <li><a href="/admin" class="nav-link active">Sitios</a></li>
+          <li><a href="/admin/members" class="nav-link">Equipo</a></li>
+          <li><a href="/admin/billing" class="nav-link">Suscripción</a></li>
+        </ul>
+      </nav>
+      <form method="POST" action={actions.logout}>
+        <button type="submit">Salir</button>
+      </form>
     </header>
 
-    <main class="admin-container">
-      <div class="site-tabs">
-        <a href={`/admin/sites/${siteId}/template`} class="tab-link active">Template</a>
-        <a href={`/admin/sites/${siteId}/theme`} class="tab-link">Theme</a>
-        <a href={`/admin/sites/${siteId}/hero`} class="tab-link">Hero</a>
-        <a href={`/admin/sites/${siteId}/cards`} class="tab-link">Cards</a>
-        <a href={`/admin/sites/${siteId}/promotions`} class="tab-link">Promotions</a>
-        <a href={`/admin/sites/${siteId}/contacts`} class="tab-link">Contacts</a>
-        <a href={`/admin/sites/${siteId}/media`} class="tab-link">Media</a>
-        <a href={`/admin/sites/${siteId}/campaigns`} class="tab-link">Campaigns</a>
-        <a href={`/admin/sites/${siteId}/publish`} class="tab-link">Publish & History</a>
-        <a href={`/admin/sites/${siteId}/domains`} class="tab-link">Domains</a>
-        <a href={`/admin/sites/${siteId}/analytics`} class="tab-link">Analytics</a>
-        <a href={`/preview/${siteId}`} target="_blank" class="tab-link" style="color: #ffd57a;">Preview ↗</a>
-      </div>
+    <main class="shell dashboard">
+      <p class="eyebrow">Dirección Visual &bull; <span class="badge" style="background: #38bdf8; color: #0284c7;">Personalización</span></p>
+      <h1>{siteData.name} &mdash; Plantilla Visual</h1>
+      <p class="muted">
+        Selecciona la dirección estética y estructura para esta landing page.
+      </p>
 
-      <div class="draft-indicator-banner">
-        <span class="draft-badge">DRAFT (Borrador)</span>
+      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
+        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link active">Plantilla</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
+          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
+          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
+          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
+        </ul>
+      </nav>
+
+      <div class="draft-indicator-banner" style="margin-bottom: 2rem;">
+        <span class="draft-badge">BORRADOR</span>
         <span class="draft-desc">
-          La dirección visual elegida se aplicará a los datos de borrador del sitio. En la Fase 3 se publicará al dominio en vivo.
+          La dirección visual elegida se aplicará a los datos de borrador del sitio antes de su publicación.
         </span>
       </div>
 
@@ -167,7 +179,7 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
                     <span class="detail-val">{manifest.compositionRhythm}</span>
                   </div>
                   <div class="manifest-detail-item">
-                    <span class="detail-label">Campaign Slots:</span>
+                    <span class="detail-label">Ranuras de Campaña:</span>
                     <span class="detail-val">{manifest.supportedCampaignSlots.join(", ")}</span>
                   </div>
                 </div>

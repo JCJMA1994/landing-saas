@@ -111,13 +111,13 @@ const serializedStyle = serializeCssVariables(cssVariables);
 ---
 
 <!doctype html>
-<html lang="en" style={serializedStyle}>
+<html lang="es" style={serializedStyle}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
     <title>
-      [PREVIEW] {snapshot.siteName} &mdash; {isHistorical ? `v${historicalVersion}` : "Borrador"}
+      [VISTA PREVIA] {snapshot.siteName} &mdash; {isHistorical ? `v${historicalVersion}` : "Borrador"}
       {isSimulated ? " (Simulado)" : ""}
     </title>
   </head>
@@ -125,7 +125,7 @@ const serializedStyle = serializeCssVariables(cssVariables);
     <!-- Preview Sticky Banner -->
     <aside
       role="region"
-      aria-label="Preview Mode Notice"
+      aria-label="Aviso de Modo Vista Previa"
       style="
         position: sticky;
         top: 0;
@@ -185,7 +185,7 @@ const serializedStyle = serializeCssVariables(cssVariables);
               border: 1px solid #735722;
             "
           >
-            BORRADOR (DRAFT)
+            BORRADOR (EN EDICIÓN)
           </span>
         )}
 

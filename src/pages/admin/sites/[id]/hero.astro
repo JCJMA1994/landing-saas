@@ -1,14 +1,13 @@
 ---
 import { actions } from "astro:actions";
 import { SupabaseHeroRepository } from "../../../../infrastructure/supabase/hero-repository";
-import {
-  DEFAULT_SITE_HERO,
-  type SiteHero,
-} from "../../../../domain/site/hero";
+import { DEFAULT_SITE_HERO } from "../../../../domain/site/hero";
 import "../../../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
 if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
+
+if (!Astro.locals.user) return Astro.redirect("/admin/login", 303);
 
 const { id: siteId } = Astro.params;
 if (!siteId) return Astro.redirect("/admin", 303);
@@ -26,99 +25,102 @@ if (siteError || !siteData) {
 
 const heroRepo = new SupabaseHeroRepository(Astro.locals.supabase);
 const existingHero = await heroRepo.getHero(siteId);
-
-const hero: SiteHero = existingHero ?? {
-  siteId,
-  ...DEFAULT_SITE_HERO,
-};
+const hero = existingHero ?? { siteId, ...DEFAULT_SITE_HERO };
 
 const saveResult = Astro.getActionResult(actions.saveSiteHero);
-const isSuccess = Boolean(saveResult?.data?.ok);
+const isSuccess = Boolean(saveResult?.data && saveResult.data.ok);
 const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error : null;
 ---
+
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Hero Content (Draft) | {siteData.name}</title>
+    <title>Hero Principal (Borrador) | {siteData.name}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
     <header class="shell topbar">
-      <strong>Landing SaaS</strong>
+      <a href="/admin" style="text-decoration: none; color: #ffffff; display: flex; align-items: center; gap: .5rem; font-weight: 800; font-size: 1.1rem;">
+        <span style="color: #ffffff;">Launch<span style="color: #38bdf8;">Pulse</span></span>
+      </a>
       <nav aria-label="Admin navigation">
         <ul class="nav-links">
-          <li><a href="/admin" class="nav-link active">Sites</a></li>
-          <li><a href="/admin/members" class="nav-link">Members</a></li>
+          <li><a href="/admin" class="nav-link active">Sitios</a></li>
+          <li><a href="/admin/members" class="nav-link">Equipo</a></li>
+          <li><a href="/admin/billing" class="nav-link">Suscripción</a></li>
         </ul>
       </nav>
       <form method="POST" action={actions.logout}>
-        <button type="submit">Sign out</button>
+        <button type="submit">Salir</button>
       </form>
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Site Content &bull; <span class="badge" style="background: #e5a93c; color: #1c1103;">Draft Mode</span></p>
-      <h1>{siteData.name} &mdash; Hero Section</h1>
-      <p class="muted">Craft the primary headline, message, and call to action. Saved as draft until publication.</p>
+      <p class="eyebrow">Contenido del Sitio &bull; <span class="badge" style="background: #e5a93c; color: #1c1103;">Modo Borrador</span></p>
+      <h1>{siteData.name} &mdash; Sección Hero Principal</h1>
+      <p class="muted">Diseñá el titular de impacto, mensaje clave y botón de llamada a la acción. Los cambios se guardan en borrador hasta su publicación.</p>
 
-      <nav aria-label="Site sections" style="margin-bottom: 2rem;">
+      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
         <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Template</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Theme</a></li>
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
           <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link active">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Cards</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promotions</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacts</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Media</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campaigns</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publish & History</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Preview ↗</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
+          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
+          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
         </ul>
       </nav>
 
-      {isSuccess && <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">Hero draft saved successfully.</p>}
+      {isSuccess && <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">Borrador del Hero guardado con éxito.</p>}
       {errorMessage && <p class="error" role="alert">{errorMessage}</p>}
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 2rem; align-items: start;">
         <section class="panel" style="width: 100%;" aria-labelledby="hero-form-title">
-          <h2 id="hero-form-title" style="margin-top: 0;">Hero Copy & Action</h2>
+          <h2 id="hero-form-title" style="margin-top: 0;">Textos y Acción del Hero</h2>
           <form method="POST" action={actions.saveSiteHero}>
             <input type="hidden" name="siteId" value={siteId} />
             <input type="hidden" name="tenantId" value={siteData.tenant_id} />
 
             <div class="field">
-              <label for="headline">Headline (Max 160 chars)</label>
+              <label for="headline">Titular Principal (Máx. 160 caracteres)</label>
               <input id="headline" name="headline" type="text" required maxlength="160" value={hero.headline} />
             </div>
 
             <div class="field">
-              <label for="subheadline">Subheadline (Max 320 chars)</label>
+              <label for="subheadline">Subtítulo Descriptivo (Máx. 320 caracteres)</label>
               <input id="subheadline" name="subheadline" type="text" required maxlength="320" value={hero.subheadline} />
             </div>
 
             <div class="field">
-              <label for="badgeText">Badge / Eyebrow (Optional)</label>
+              <label for="badgeText">Insignia / Etiqueta Superior (Opcional, máx. 60 caracteres)</label>
               <input id="badgeText" name="badgeText" type="text" maxlength="60" value={hero.badgeText ?? ""} />
             </div>
 
             <div class="field">
-              <label for="ctaText">CTA Button Text (Max 40 chars)</label>
+              <label for="ctaText">Texto del Botón CTA (Máx. 40 caracteres)</label>
               <input id="ctaText" name="ctaText" type="text" required maxlength="40" value={hero.ctaText} />
             </div>
 
             <div class="field">
-              <label for="ctaLink">CTA Button Link</label>
-              <input id="ctaLink" name="ctaLink" type="text" required maxlength="256" placeholder="https://... or /contact or #plans" value={hero.ctaLink} />
+              <label for="ctaLink">Enlace del Botón CTA (ej. #contacto o enlace web)</label>
+              <input id="ctaLink" name="ctaLink" type="text" required maxlength="256" placeholder="#contacto o https://..." value={hero.ctaLink} />
             </div>
 
-            <button type="submit" style="margin-top: 1rem;">Save Hero (Draft)</button>
+            <button type="submit" style="margin-top: 1rem;">Guardar Borrador del Hero</button>
           </form>
         </section>
 
-        <aside class="panel" style="width: 100%;" aria-label="Hero Component Preview">
-          <h2 style="margin-top: 0;">Component Preview</h2>
-          <p class="muted">Live demonstration of how the hero appears.</p>
+        <aside class="panel" style="width: 100%;" aria-label="Vista Previa del Componente Hero">
+          <h2 style="margin-top: 0;">Vista Previa del Componente</h2>
+          <p class="muted">Demostración en vivo de cómo se verá el hero en tu landing.</p>
           <div style="padding: 2rem; border: 1px dashed #536483; border-radius: 1rem; margin-top: 1.5rem; background: #0c1426;">
             {hero.badgeText && <span class="eyebrow" style="display: block; margin-bottom: .5rem;">{hero.badgeText}</span>}
             <h3 style="font-size: 1.75rem; margin: .5rem 0 1rem; line-height: 1.2;">{hero.headline}</h3>
@@ -126,7 +128,7 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
             <a href={hero.ctaLink} class="button" style="text-decoration: none; display: inline-block;">{hero.ctaText}</a>
           </div>
           <div style="margin-top: 2rem;">
-            <a href="/admin" class="nav-link">&larr; Back to Sites</a>
+            <a href="/admin" class="nav-link">&larr; Volver al Panel</a>
           </div>
         </aside>
       </div>

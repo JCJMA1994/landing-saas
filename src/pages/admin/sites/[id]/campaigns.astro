@@ -46,47 +46,51 @@ const defaultEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOStr
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Campaign Engine | {siteData.name}</title>
+    <title>Motor de Campañas | {siteData.name}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
     <header class="shell topbar">
-      <strong>Landing SaaS</strong>
+      <a href="/admin" style="text-decoration: none; color: #ffffff; display: flex; align-items: center; gap: .5rem; font-weight: 800; font-size: 1.1rem;">
+        <span style="color: #ffffff;">Launch<span style="color: #38bdf8;">Pulse</span></span>
+      </a>
       <nav aria-label="Admin navigation">
         <ul class="nav-links">
-          <li><a href="/admin" class="nav-link active">Sites</a></li>
-          <li><a href="/admin/members" class="nav-link">Members</a></li>
+          <li><a href="/admin" class="nav-link active">Sitios</a></li>
+          <li><a href="/admin/members" class="nav-link">Equipo</a></li>
+          <li><a href="/admin/billing" class="nav-link">Suscripción</a></li>
         </ul>
       </nav>
       <form method="POST" action={actions.logout}>
-        <button type="submit">Sign out</button>
+        <button type="submit">Salir</button>
       </form>
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Campaign Engine &bull; <span class="badge" style="background: #91b7ff; color: #071225;">Phase 4</span></p>
-      <h1>{siteData.name} &mdash; Campañas & Seasonal Themes</h1>
+      <p class="eyebrow">Motor de Campañas &bull; <span class="badge" style="background: #91b7ff; color: #071225;">Marketing</span></p>
+      <h1>{siteData.name} &mdash; Campañas & Modos Estacionales</h1>
       <p class="muted">
-        Configura promociones y temas temporales con resolución determinista por fecha y prioridad. Los overrides aplican exclusivamente a slots permitidos sin duplicar la landing.
+        Configurá promociones y temas temporales con resolución determinista por fecha y prioridad. Los overlays aplican sin duplicar la landing.
       </p>
 
-      <nav aria-label="Site sections" style="margin-bottom: 2rem;">
+      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
         <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Template</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Theme</a></li>
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
           <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Cards</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promotions</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacts</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Media</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link active">Campaigns</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publish & History</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Domains</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analytics</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Preview ↗</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link active">Campañas</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
+          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
+          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
         </ul>
       </nav>
 

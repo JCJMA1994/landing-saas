@@ -143,7 +143,8 @@ try {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Platform Master Dashboard | Landing SaaS</title>
+    <title>Panel de Control Maestro | LaunchPulse</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
@@ -157,17 +158,17 @@ try {
             <span class="pulse-ring"></span>
             <span class="badge-core">SUPERADMIN</span>
           </div>
-          <strong class="platform-title">Landing SaaS <span class="accent-text">Control Center</span></strong>
+          <strong class="platform-title">LaunchPulse <span class="accent-text">Centro de Control</span></strong>
         </div>
 
         <nav class="superadmin-nav" aria-label="Navegación Superadmin">
           <a href="/backoffice" class="nav-item active">
             <span class="nav-icon">📊</span>
-            Dashboard & Clientes
+            Panel & Clientes
           </a>
           <a href="/" target="_blank" class="nav-item">
             <span class="nav-icon">🌐</span>
-            Ver Landing de Ventas ↗
+            Ver Landing Principal ↗
           </a>
         </nav>
 
@@ -293,7 +294,7 @@ try {
             <div class="kpi-card highlight-green">
               <div class="kpi-header">
                 <span class="kpi-title">Suscripciones Activas</span>
-                <span class="kpi-badge green">Live</span>
+                <span class="kpi-badge green">En Vivo</span>
               </div>
               <strong class="kpi-number text-green">{overview.activeSubscriptions}</strong>
               <span class="kpi-trend">Plataforma operando al 100%</span>
@@ -302,7 +303,7 @@ try {
             <div class="kpi-card highlight-cyan">
               <div class="kpi-header">
                 <span class="kpi-title">En Período de Prueba</span>
-                <span class="kpi-badge cyan">Trial</span>
+                <span class="kpi-badge cyan">Prueba</span>
               </div>
               <strong class="kpi-number text-cyan">{overview.trialingSubscriptions}</strong>
               <span class="kpi-trend">Oportunidades de conversión</span>
@@ -315,7 +316,7 @@ try {
               </div>
               <strong class="kpi-number text-gold">
                 ${overview.estimatedMonthlyRecurringRevenueUsd}
-                <span class="kpi-unit">USD/mo</span>
+                <span class="kpi-unit">USD/mes</span>
               </strong>
               <span class="kpi-trend">Ingresos recurrentes calculados</span>
             </div>

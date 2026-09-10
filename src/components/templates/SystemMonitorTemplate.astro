@@ -31,11 +31,11 @@ const activePromotions = promotions.filter((p) => p.isActive);
     <div class="mon-container mon-header-wrap">
       <div class="mon-prompt">
         <span class="mon-cursor">&gt;</span>
-        <span class="mon-cmd">monitor --cluster="{siteName}" --status=active</span>
+        <span class="mon-cmd">monitor --cluster="{siteName}" --estado=activo</span>
       </div>
       <div class="mon-uptime">
         <span class="mon-ping-dot" aria-hidden="true"></span>
-        <span>LATENCY: 18ms // UPTIME: 99.98%</span>
+        <span>LATENCIA: 18ms // DISPONIBILIDAD: 99.98%</span>
       </div>
     </div>
   </header>
@@ -44,7 +44,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {activePromotions.length > 0 && (
     <div class="mon-broadcast-bar">
       <div class="mon-container mon-broadcast-content">
-        <Badge variant="success" size="sm">EVENT // ACTIVE</Badge>
+        <Badge variant="success" size="sm">EVENTO // ACTIVO</Badge>
         <span class="mon-broadcast-title">{activePromotions[0]?.title}</span>
         {activePromotions[0]?.discountLabel && (
           <span class="mon-broadcast-discount">[{activePromotions[0]?.discountLabel}]</span>
@@ -67,14 +67,14 @@ const activePromotions = promotions.filter((p) => p.isActive);
               <span class="mon-dot mon-dot-yellow"></span>
               <span class="mon-dot mon-dot-green"></span>
             </div>
-            <span class="mon-window-title">observability://dashboard/overview</span>
+            <span class="mon-window-title">observabilidad://panel/resumen</span>
           </div>
 
           <div class="mon-terminal-body">
             <div class="mon-hero-grid">
               <div class="mon-hero-copy">
                 <div class="mon-status-line">
-                  <span class="mon-badge-live">{hero.badgeText || "HEALTH CHECK: OPTIMAL"}</span>
+                  <span class="mon-badge-live">{hero.badgeText || "ESTADO DEL SISTEMA: ÓPTIMO"}</span>
                 </div>
                 <h1 class="mon-hero-title">{hero.headline}</h1>
                 {hero.subheadline && <p class="mon-hero-subtitle">{hero.subheadline}</p>}
@@ -94,10 +94,10 @@ const activePromotions = promotions.filter((p) => p.isActive);
               <div class="mon-hero-media">
                 <div class="mon-screen-frame">
                   <div class="mon-terminal-stream">
-                    <p class="mon-stream-line">&gt; init telemetry engine... [OK]</p>
-                    <p class="mon-stream-line">&gt; probing latency vectors... 18ms avg</p>
-                    <p class="mon-stream-line">&gt; service mesh sync: 100% compliant</p>
-                    <p class="mon-stream-line active-stream">&gt; cluster state: HEALTHY_READY</p>
+                    <p class="mon-stream-line">&gt; inicializando telemetría... [OK]</p>
+                    <p class="mon-stream-line">&gt; verificando latencia... 18ms prom</p>
+                    <p class="mon-stream-line">&gt; sincronización de malla: 100% conforme</p>
+                    <p class="mon-stream-line active-stream">&gt; estado del clúster: OPERATIVO_LISTO</p>
                   </div>
                   <div class="mon-scanline" aria-hidden="true"></div>
                 </div>
@@ -114,7 +114,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
     <section class="mon-metrics-section">
       <div class="mon-container">
         <div class="mon-section-heading">
-          <span class="mon-section-sub">MONITORED LANES & SERVICES</span>
+          <span class="mon-section-sub">LÍNEAS Y SERVICIOS MONITORIZADOS</span>
           <h2 class="mon-section-title">Infraestructura y Soluciones Activas</h2>
         </div>
 
@@ -124,7 +124,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
               <div class="mon-node-header">
                 <div class="mon-node-ident">
                   <span class="mon-node-status"></span>
-                  <span class="mon-node-id">NODE_0{idx + 1}</span>
+                  <span class="mon-node-id">NODO_0{idx + 1}</span>
                 </div>
                 <Icon name={(card.iconKey as any) || "bolt"} size={20} />
               </div>
@@ -156,7 +156,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
       <div class="mon-container">
         <div class="mon-escalation-panel">
           <div class="mon-escalation-info">
-            <span class="mon-section-sub">INCIDENT ESCALATION & DISPATCH</span>
+            <span class="mon-section-sub">ESCALAMIENTO Y DESPACHO DE INCIDENCIAS</span>
             <h2 class="mon-escalation-title">Atención Continua y Soporte</h2>
             <p class="mon-escalation-desc">Contacte a nuestro equipo de guardia técnica para soporte, contingencias y consultas inmediatas.</p>
 
@@ -208,8 +208,8 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Footer */}
   <footer class="mon-footer">
     <div class="mon-container mon-footer-flex">
-      <span>© {new Date().getFullYear()} {siteName} // NOC MONITORING STACK</span>
-      <span>ISO 27001 COMPLIANT TELEMETRY</span>
+      <span>© {new Date().getFullYear()} {siteName} // PLATAFORMA DE MONITORIZACIÓN NOC</span>
+      <span>TELEMETRÍA CERTIFICADA ISO 27001</span>
     </div>
   </footer>
 </div>

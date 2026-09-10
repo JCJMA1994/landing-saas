@@ -31,13 +31,13 @@ const activePromotions = promotions.filter((p) => p.isActive);
     <div class="cyber-container cyber-header-content">
       <div class="cyber-badge-boost">
         <span class="cyber-neon-flash">⚡</span>
-        <span>OVERCLOCK: ACTIVE // 5.8 GHz PROFILED</span>
+        <span>OVERCLOCK: ACTIVO // 5.8 GHz PERFILADO</span>
       </div>
       <div class="cyber-brand">
         <span>{siteName}</span>
       </div>
       <div class="cyber-thermal">
-        <span>THERMAL: 42°C // VOLTAGE: 1.25V</span>
+        <span>TÉRMICO: 42°C // VOLTAJE: 1.25V</span>
       </div>
     </div>
   </header>
@@ -52,7 +52,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
           <span class="cyber-boost-discount">[{activePromotions[0]?.discountLabel}]</span>
         )}
         {activePromotions[0]?.couponCode && (
-          <code class="cyber-boost-code">KEY: {activePromotions[0]?.couponCode}</code>
+          <code class="cyber-boost-code">CÓDIGO: {activePromotions[0]?.couponCode}</code>
         )}
       </div>
     </div>
@@ -65,7 +65,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
         <div class="cyber-hero-copy">
           <div class="cyber-lane-tag">
             <span class="cyber-slash">//</span>
-            <span>{hero.badgeText || "HIGH-OCTANE COMPUTING"}</span>
+            <span>{hero.badgeText || "COMPUTACIÓN DE ALTO RENDIMIENTO"}</span>
           </div>
           <h1 class="cyber-hero-title">{hero.headline}</h1>
           {hero.subheadline && <p class="cyber-hero-subtitle">{hero.subheadline}</p>}
@@ -85,14 +85,14 @@ const activePromotions = promotions.filter((p) => p.isActive);
         <div class="cyber-hero-media">
           <div class="cyber-media-bevel">
             <div class="cyber-overclock-hud">
-              <span class="cyber-hud-chip">CORE SPEED: MAX</span>
+              <span class="cyber-hud-chip">VELOCIDAD DE NÚCLEO: MÁX</span>
               <div class="cyber-core-bars">
                 <span class="cyber-bar bar-1"></span>
                 <span class="cyber-bar bar-2"></span>
                 <span class="cyber-bar bar-3"></span>
                 <span class="cyber-bar bar-4"></span>
               </div>
-              <span class="cyber-status-text">STABLE OVERCLOCK APPLIED</span>
+              <span class="cyber-status-text">OVERCLOCK ESTABLE APLICADO</span>
             </div>
             <div class="cyber-glow-edge" aria-hidden="true"></div>
           </div>
@@ -106,7 +106,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
     <section class="cyber-cards-section">
       <div class="cyber-container">
         <div class="cyber-section-header">
-          <span class="cyber-lane-tag">// PERFORMANCE MODULES</span>
+          <span class="cyber-lane-tag">// MÓDULOS DE RENDIMIENTO</span>
           <h2 class="cyber-section-title">Aceleración y Arquitectura de Poder</h2>
         </div>
 
@@ -114,7 +114,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
           {cards.map((card, idx) => (
             <Card variant="glass" class="cyber-card-module">
               <div class="cyber-card-top">
-                <span class="cyber-core-id">CORE_{String(idx + 1).padStart(2, "0")}</span>
+                <span class="cyber-core-id">NÚCLEO_{String(idx + 1).padStart(2, "0")}</span>
                 <Icon name={(card.iconKey as any) || "bolt"} size={22} />
               </div>
               <h3 class="cyber-card-title">{card.title}</h3>
@@ -145,7 +145,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
       <div class="cyber-container">
         <div class="cyber-contact-box">
           <div class="cyber-contact-info">
-            <span class="cyber-lane-tag">// DIRECT UPLINK</span>
+            <span class="cyber-lane-tag">// ENLACE DIRECTO</span>
             <h2 class="cyber-contact-title">Conexión de Baja Latencia</h2>
             <p class="cyber-contact-desc">Soporte directo para hardware extremo, configuraciones personalizadas y proyectos de alto calibre.</p>
 
@@ -194,8 +194,8 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Footer */}
   <footer class="cyber-footer">
     <div class="cyber-container cyber-footer-row">
-      <span>© {new Date().getFullYear()} {siteName} // CYBER KINETIC ARCHITECTURE</span>
-      <span>MAXIMUM PERFORMANCE LEVEL</span>
+      <span>© {new Date().getFullYear()} {siteName} // ARQUITECTURA CIBERNÉTICA CINÉTICA</span>
+      <span>MÁXIMO NIVEL DE RENDIMIENTO</span>
     </div>
   </footer>
 </div>

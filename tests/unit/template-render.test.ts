@@ -26,7 +26,7 @@ describe("Phase 2 Visual Direction Templates", () => {
       // Verify specific distinct design identity elements in each template
       if (key === "tech-diagnostic") {
         expect(content).toContain("template-diagnostic");
-        expect(content).toContain("SYSTEM STATUS // NOMINAL");
+        expect(content).toContain("ESTADO DEL SISTEMA // NOMINAL");
         expect(content).toContain("diag-hud-overlay");
       } else if (key === "repair-workshop") {
         expect(content).toContain("template-workshop");
@@ -34,7 +34,7 @@ describe("Phase 2 Visual Direction Templates", () => {
         expect(content).toContain("work-card-stamp");
       } else if (key === "system-monitor") {
         expect(content).toContain("template-monitor");
-        expect(content).toContain("UPTIME: 99.98%");
+        expect(content).toContain("DISPONIBILIDAD: 99.98%");
         expect(content).toContain("mon-terminal-window");
       } else if (key === "tech-editorial") {
         expect(content).toContain("template-editorial");
@@ -61,7 +61,7 @@ describe("Phase 2 Visual Direction Templates", () => {
     expect(templatePage).toContain("actions.saveSiteTemplate");
     expect(templatePage).toContain("TemplateRenderer");
     expect(templatePage).toContain("Direcciones Visuales Disponibles");
-    expect(templatePage).toContain("DRAFT (Borrador)");
+    expect(templatePage).toContain("BORRADOR");
     expect(templatePage).not.toContain("client:");
   });
 

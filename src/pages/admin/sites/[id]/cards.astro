@@ -1,15 +1,18 @@
 ---
 import { actions } from "astro:actions";
 import { SupabaseCardRepository } from "../../../../infrastructure/supabase/card-repository";
-import { ALLOWED_CARD_ICONS, type SiteCard } from "../../../../domain/site/card";
+import { ALLOWED_CARD_ICONS } from "../../../../domain/site/card";
 import "../../../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
 if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
 
+if (!Astro.locals.user) return Astro.redirect("/admin/login", 303);
+
 const { id: siteId } = Astro.params;
 if (!siteId) return Astro.redirect("/admin", 303);
 
+// Fetch site details and verify tenant membership
 const { data: siteData, error: siteError } = await Astro.locals.supabase
   .from("sites")
   .select("id, name, slug, tenant_id")
@@ -21,79 +24,88 @@ if (siteError || !siteData) {
 }
 
 const cardRepo = new SupabaseCardRepository(Astro.locals.supabase);
-const cards: SiteCard[] = await cardRepo.listCards(siteId);
+const cards = await cardRepo.listCards(siteId);
 
 const saveResult = Astro.getActionResult(actions.saveSiteCard);
 const deleteResult = Astro.getActionResult(actions.deleteSiteCard);
 
-const errorMessage =
-  (saveResult && !saveResult.data?.ok ? saveResult.data?.error : null) ??
-  (deleteResult && !deleteResult.data?.ok ? deleteResult.data?.error : null);
-const isSuccess = Boolean(saveResult?.data?.ok || deleteResult?.data?.ok);
+const isSuccess = Boolean((saveResult?.data && saveResult.data.ok) || (deleteResult?.data && deleteResult.data.ok));
+const errorMessage = saveResult && !saveResult.data?.ok 
+  ? saveResult.data?.error 
+  : deleteResult && !deleteResult.data?.ok 
+  ? deleteResult.data?.error 
+  : null;
 ---
+
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Cards & Services (Draft) | {siteData.name}</title>
+    <title>Tarjetas & Servicios (Borrador) | {siteData.name}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
     <header class="shell topbar">
-      <strong>Landing SaaS</strong>
+      <a href="/admin" style="text-decoration: none; color: #ffffff; display: flex; align-items: center; gap: .5rem; font-weight: 800; font-size: 1.1rem;">
+        <span style="color: #ffffff;">Launch<span style="color: #38bdf8;">Pulse</span></span>
+      </a>
       <nav aria-label="Admin navigation">
         <ul class="nav-links">
-          <li><a href="/admin" class="nav-link active">Sites</a></li>
-          <li><a href="/admin/members" class="nav-link">Members</a></li>
+          <li><a href="/admin" class="nav-link active">Sitios</a></li>
+          <li><a href="/admin/members" class="nav-link">Equipo</a></li>
+          <li><a href="/admin/billing" class="nav-link">Suscripción</a></li>
         </ul>
       </nav>
       <form method="POST" action={actions.logout}>
-        <button type="submit">Sign out</button>
+        <button type="submit">Salir</button>
       </form>
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Site Modules &bull; <span class="badge" style="background: #e5a93c; color: #1c1103;">Draft Mode</span></p>
-      <h1>{siteData.name} &mdash; Feature Cards</h1>
-      <p class="muted">Add modular cards highlighting features, diagnostic tools or service benefits.</p>
+      <p class="eyebrow">Módulos del Sitio &bull; <span class="badge" style="background: #e5a93c; color: #1c1103;">Modo Borrador</span></p>
+      <h1>{siteData.name} &mdash; Tarjetas de Servicios</h1>
+      <p class="muted">Agregá tarjetas modulares para destacar servicios, características clave y propuestas de valor.</p>
 
-      <nav aria-label="Site sections" style="margin-bottom: 2rem;">
+      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
         <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Template</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Theme</a></li>
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
           <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link active">Cards</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promotions</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacts</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Media</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campaigns</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publish & History</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Preview ↗</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link active">Tarjetas</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
+          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
+          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
         </ul>
       </nav>
 
-      {isSuccess && <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">Card saved or removed successfully.</p>}
+      {isSuccess && <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">Tarjeta guardada o eliminada con éxito.</p>}
       {errorMessage && <p class="error" role="alert">{errorMessage}</p>}
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 2rem; align-items: start;">
         <section class="panel" style="width: 100%;" aria-labelledby="add-card-title">
-          <h2 id="add-card-title" style="margin-top: 0;">Add Feature Card</h2>
+          <h2 id="add-card-title" style="margin-top: 0;">Agregar Nueva Tarjeta</h2>
           <form method="POST" action={actions.saveSiteCard}>
             <input type="hidden" name="siteId" value={siteId} />
             <input type="hidden" name="tenantId" value={siteData.tenant_id} />
 
             <div class="field">
-              <label for="title">Title (Max 80 chars)</label>
-              <input id="title" name="title" type="text" required maxlength="80" placeholder="e.g. Diagnostic Engine" />
+              <label for="title">Título del Servicio / Característica (Máx. 80 caracteres)</label>
+              <input id="title" name="title" type="text" required maxlength="80" placeholder="ej. Diagnóstico Computarizado" />
             </div>
 
             <div class="field">
-              <label for="description">Description (Max 300 chars)</label>
-              <input id="description" name="description" type="text" required maxlength="300" placeholder="Detailed service description..." />
+              <label for="description">Descripción Detallada (Máx. 300 caracteres)</label>
+              <input id="description" name="description" type="text" required maxlength="300" placeholder="Explicá en qué consiste este servicio o beneficio..." />
             </div>
 
             <div class="field">
-              <label for="iconKey">Icon</label>
+              <label for="iconKey">Ícono</label>
               <select id="iconKey" name="iconKey" required>
                 {ALLOWED_CARD_ICONS.map((icon) => (
                   <option value={icon}>{icon}</option>
@@ -102,28 +114,28 @@ const isSuccess = Boolean(saveResult?.data?.ok || deleteResult?.data?.ok);
             </div>
 
             <div class="field">
-              <label for="badge">Badge Label (Optional)</label>
-              <input id="badge" name="badge" type="text" maxlength="40" placeholder="e.g. Popular" />
+              <label for="badge">Etiqueta / Badge (Opcional)</label>
+              <input id="badge" name="badge" type="text" maxlength="40" placeholder="ej. Más Popular, Nuevo" />
             </div>
 
             <div class="field">
-              <label for="linkUrl">Link URL (Optional)</label>
-              <input id="linkUrl" name="linkUrl" type="text" maxlength="256" placeholder="e.g. #details or /services" />
+              <label for="linkUrl">Enlace de Destino (Opcional)</label>
+              <input id="linkUrl" name="linkUrl" type="text" maxlength="256" placeholder="ej. #contacto o enlace" />
             </div>
 
             <div class="field">
-              <label for="sortOrder">Sort Order (0, 1, 2...)</label>
+              <label for="sortOrder">Orden de Visualización (0, 1, 2...)</label>
               <input id="sortOrder" name="sortOrder" type="number" min="0" value={cards.length} required />
             </div>
 
-            <button type="submit" style="margin-top: 1rem;">Add Card (Draft)</button>
+            <button type="submit" style="margin-top: 1rem;">Guardar Tarjeta (Borrador)</button>
           </form>
         </section>
 
         <section aria-labelledby="cards-list-title">
-          <h2 id="cards-list-title" style="margin-top: 0;">Current Cards ({cards.length})</h2>
+          <h2 id="cards-list-title" style="margin-top: 0;">Tarjetas Registradas ({cards.length})</h2>
           {cards.length === 0 ? (
-            <p class="empty">No cards created yet for this site.</p>
+            <p class="empty">No hay tarjetas registradas todavía para este sitio.</p>
           ) : (
             <ul style="list-style: none; padding: 0; display: grid; gap: 1rem;">
               {cards.map((card) => (
@@ -133,14 +145,14 @@ const isSuccess = Boolean(saveResult?.data?.ok || deleteResult?.data?.ok);
                       {card.badge && <span class="badge" style="margin-bottom: .5rem;">{card.badge}</span>}
                       <h3 style="margin: .25rem 0 .5rem;">[{card.iconKey}] {card.title}</h3>
                       <p class="muted" style="margin-bottom: .75rem;">{card.description}</p>
-                      {card.linkUrl && <p style="font-size: .85rem;">Link: <code>{card.linkUrl}</code></p>}
+                      {card.linkUrl && <p style="font-size: .85rem;">Enlace: <code>{card.linkUrl}</code></p>}
                     </div>
                     {card.id && (
                       <form method="POST" action={actions.deleteSiteCard}>
                         <input type="hidden" name="siteId" value={siteId} />
                         <input type="hidden" name="tenantId" value={siteData.tenant_id} />
                         <input type="hidden" name="cardId" value={card.id} />
-                        <button type="submit" class="button-danger" style="padding: .4rem .75rem; font-size: .85rem;" onclick="return confirm('Delete this card?');">Delete</button>
+                        <button type="submit" class="button-danger" style="padding: .4rem .75rem; font-size: .85rem;" onclick="return confirm('¿Eliminar esta tarjeta?');">Eliminar</button>
                       </form>
                     )}
                   </div>
@@ -149,7 +161,7 @@ const isSuccess = Boolean(saveResult?.data?.ok || deleteResult?.data?.ok);
             </ul>
           )}
           <div style="margin-top: 2rem;">
-            <a href="/admin" class="nav-link">&larr; Back to Sites</a>
+            <a href="/admin" class="nav-link">&larr; Volver al Panel</a>
           </div>
         </section>
       </div>

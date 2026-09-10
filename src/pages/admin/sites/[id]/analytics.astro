@@ -169,43 +169,46 @@ const summary = await getSiteAnalyticsSummaryUseCase(siteId, role, analyticsRepo
   </head>
   <body>
     <header class="shell topbar">
-      <strong>Landing SaaS</strong>
+      <a href="/admin" style="text-decoration: none; color: #ffffff; display: flex; align-items: center; gap: .5rem; font-weight: 800; font-size: 1.1rem;">
+        <span style="color: #ffffff;">Launch<span style="color: #38bdf8;">Pulse</span></span>
+      </a>
       <nav aria-label="Admin navigation">
         <ul class="nav-links">
-          <li><a href="/admin" class="nav-link active">Sites</a></li>
-          <li><a href="/admin/members" class="nav-link">Members</a></li>
+          <li><a href="/admin" class="nav-link active">Sitios</a></li>
+          <li><a href="/admin/members" class="nav-link">Equipo</a></li>
+          <li><a href="/admin/billing" class="nav-link">Suscripción</a></li>
         </ul>
       </nav>
       <form method="POST" action={actions.logout}>
         <button type="submit" style="background: transparent; border: 1px solid var(--color-border); color: var(--color-text); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer;">
-          Sign out
+          Salir
         </button>
       </form>
     </header>
 
     <main class="shell dashboard">
       <p style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 0.5rem;">
-        Analytics & Conversiones &bull; <span class="badge badge-info">Fase 7</span>
+        Analíticas & Métricas &bull; <span class="badge badge-info">Tiempo Real</span>
       </p>
       <h1 style="margin: 0 0 0.5rem 0;">{siteData.name} &mdash; Métricas de Rendimiento</h1>
       <p style="color: var(--color-text-muted); margin-bottom: 2rem;">
         Telemetría respetuosa de la privacidad (cookieless) que mide impresiones, interacciones en botones de llamada a la acción y contactos por WhatsApp de los últimos 30 días.
       </p>
 
-      <nav aria-label="Site sections" style="margin-bottom: 2rem;">
+      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
         <ul class="nav-links" style="border-bottom: 1px solid var(--color-border); padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Template</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Theme</a></li>
+          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
+          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
           <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Cards</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promotions</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacts</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Media</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campaigns</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publish & History</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Domains</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link active">Analytics</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Preview ↗</a></li>
+          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
+          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
+          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
+          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
+          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
+          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
+          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
+          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link active">Analíticas</a></li>
+          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
         </ul>
       </nav>
 
