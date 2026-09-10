@@ -1,0 +1,2054 @@
+---
+interface PublishedSite {
+  id: string;
+  name: string;
+  slug: string;
+  version: number;
+  publishedAt: string;
+  templateKey: string;
+}
+
+interface Props {
+  publishedSites?: PublishedSite[];
+}
+
+const { publishedSites = [] } = Astro.props;
+
+const templateShowcase = [
+  {
+    key: "FriendlyTechTemplate",
+    name: "SaaS & App Friendly",
+    category: "Software & Startups",
+    description: "Diseño limpio, amigable y dinámico con micro-interacciones. Pensado para retener usuarios y maximizar registros.",
+    accent: "#38bdf8",
+    badge: "Alta Conversión",
+    tags: ["Prueba Gratuita", "SaaS B2B", "Apps Móviles"]
+  },
+  {
+    key: "TechDiagnosticTemplate",
+    name: "Diagnóstico & Sistemas",
+    category: "Servicios IT & Consultoría",
+    description: "Estilo técnico de precisión con tarjetas de diagnóstico y métricas de confiabilidad para empresas tecnológicas.",
+    accent: "#818cf8",
+    badge: "Corporativo Tech",
+    tags: ["Auditoría IT", "Ciberseguridad", "Cloud"]
+  },
+  {
+    key: "CyberPerformanceTemplate",
+    name: "Cyber Performance",
+    category: "High-Tech & Gaming",
+    description: "Paleta oscura de alto contraste con acentos neón y estética futurista orientada a servicios de alto impacto.",
+    accent: "#a855f7",
+    badge: "Máximo Impacto",
+    tags: ["Hardware", "DevOps", "Servicios Pro"]
+  },
+  {
+    key: "SystemMonitorTemplate",
+    name: "Monitor & Cloud Infra",
+    category: "Infraestructura & Datos",
+    description: "Estructura modular con indicadores de estado en tiempo real, tablas comparativas y dashboards visuales.",
+    accent: "#34d399",
+    badge: "Métricas en Vivo",
+    tags: ["Monitoreo", "APIs", "Data Analytics"]
+  },
+  {
+    key: "RepairWorkshopTemplate",
+    name: "Taller & Ingeniería",
+    category: "Servicios Técnicos & Oficios",
+    description: "Diseño robusto, confiable y directo con llamadas a la acción inmediatas vía WhatsApp y cotizaciones rápidas.",
+    accent: "#f59e0b",
+    badge: "Cotización Rápida",
+    tags: ["Mantenimiento", "Talleres", "Ingeniería"]
+  },
+  {
+    key: "TechEditorialTemplate",
+    name: "Tech Editorial",
+    category: "Agencias & Firmas Boutique",
+    description: "Tipografía refinada, espacios generosos y narrativa profunda para consultoras de alto valor y marcas premium.",
+    accent: "#f43f5e",
+    badge: "Diseño Editorial",
+    tags: ["Agencias", "Venture Capital", "Estudios"]
+  },
+];
+
+const features = [
+  {
+    icon: "⚡",
+    title: "Carga Ultrarrápida en el Edge",
+    description: "Construidas con arquitectura moderna sin WordPress ni plugins pesados. Puntaje 98+ en Google Lighthouse para posicionar primero."
+  },
+  {
+    icon: "🎨",
+    title: "Diseños Auténticos No Genéricos",
+    description: "6 direcciones visuales diseñadas desde cero. Tu negocio no va a parecer una plantilla clonada de internet."
+  },
+  {
+    icon: "🔑",
+    title: "Panel Privado para Clientes",
+    description: "Te damos tu usuario y contraseña para que actualices tarjetas, ofertas, textos y fotos cuando quieras, sin depender de nadie."
+  },
+  {
+    icon: "🌐",
+    title: "Dominio Propio + SSL Gratis",
+    description: "Conectamos tu propio dominio (tunegocio.com) o te damos un subdominio veloz. Certificado SSL automático renovado de por vida."
+  },
+  {
+    icon: "⏱️",
+    title: "Motor de Campañas Estacionales",
+    description: "Activá promociones por tiempo limitado (CyberMonday, Black Friday o lanzamientos) con banners y cuentas regresivas programadas."
+  },
+  {
+    icon: "📈",
+    title: "SEO Técnico & Conversión Lista",
+    description: "Etiquetas OpenGraph, Schema.org estructurado para Google y botones directos a WhatsApp para no perder ningún lead."
+  },
+];
+
+const steps = [
+  {
+    number: "01",
+    title: "Contacto y Diagnóstico",
+    description: "Nos contás sobre tu negocio, tu propuesta y qué querés vender. Elegimos la arquitectura visual ideal para tu rubro."
+  },
+  {
+    number: "02",
+    title: "Alta y Configuración",
+    description: "Damos de alta tu espacio en nuestra plataforma, configuramos tu dominio, cargamos tus contenidos base y creamos tu usuario."
+  },
+  {
+    number: "03",
+    title: "Lanzamiento y Autonomía",
+    description: "Tu landing queda publicada en minutos. Podés recibir clientes de inmediato y autogestionar tus cambios desde tu panel privado."
+  },
+];
+
+const plans = [
+  {
+    name: "Lanzamiento",
+    price: "$39",
+    period: "/mes",
+    description: "Ideal para profesionales y emprendimientos que necesitan presencia seria y rápida.",
+    highlight: false,
+    cta: "Elegir Lanzamiento",
+    items: [
+      "Landing Page de Alta Conversión",
+      "Subdominio de alta velocidad incluido",
+      "Panel de Cliente para editar contenidos",
+      "1 Campaña estacional programable",
+      "Optimización SEO básica y OpenGraph",
+      "Botón de contacto directo a WhatsApp"
+    ]
+  },
+  {
+    name: "Crecimiento Pro",
+    price: "$79",
+    period: "/mes",
+    description: "Para negocios consolidados que buscan máxima conversión y dominio propio.",
+    highlight: true,
+    badge: "Más Elegido",
+    cta: "Empezar con Pro",
+    items: [
+      "Todo lo del plan Lanzamiento",
+      "Conexión a Dominio Propio (ej. tuempresa.com)",
+      "SSL Automático y CDN global en el Edge",
+      "Campañas y promociones ilimitadas",
+      "Métricas de visitas y analíticas en tiempo real",
+      "Soporte prioritario y asesoría de copy"
+    ]
+  },
+  {
+    name: "Agencia / Escala",
+    price: "$149",
+    period: "/mes",
+    description: "Para empresas y marcas con múltiples servicios o campañas publicitarias intensivas.",
+    highlight: false,
+    cta: "Consultar por Escala",
+    items: [
+      "Múltiples landings para campañas de pauta",
+      "A/B testing y personalización de módulos",
+      "Multi-usuarios y roles de equipo en panel",
+      "Integración con webhooks y CRM externo",
+      "SLA de disponibilidad garantizado 99.9%",
+      "Soporte VIP directo por WhatsApp"
+    ]
+  },
+];
+
+const faqs = [
+  {
+    q: "¿Puedo usar mi propio dominio?",
+    a: "¡Sí, totalmente! En el plan Pro y Escala conectamos tu dominio personalizado (por ejemplo, www.tunegocio.com) con verificación DNS automática y certificado SSL gratuito."
+  },
+  {
+    q: "¿Cómo hago si quiero cambiar un precio, texto o foto?",
+    a: "Una vez que te damos de alta, recibís tus credenciales para acceder a tu Panel de Control exclusivo (/admin/login). Ahí podés editar títulos, tarjetas de servicios, fotos y promociones en cualquier momento y publicar los cambios con un solo clic."
+  },
+  {
+    q: "¿Ustedes también pueden gestionar los cambios por mí?",
+    a: "Exacto. Si no tenés tiempo o preferís delegarlo, nuestro equipo puede encargarse de actualizar tus campañas y contenidos cuando lo necesites directamente desde nuestro panel administrativo."
+  },
+  {
+    q: "¿Cuánto demora tener mi landing online?",
+    a: "Una vez que nos compartís la información básica de tu negocio, el alta y configuración en la plataforma demora entre 24 y 48 horas hábiles."
+  },
+  {
+    q: "¿Por qué es mejor que una plantilla típica de WordPress?",
+    a: "Nuestras landings no usan servidores lentos ni plugins que se desactualizan o son hackeables. Están programadas con arquitectura moderna alojada en el Edge, lo que garantiza tiempos de carga instantáneos (<0.8 segundos) y una tasa de conversión hasta 3 veces mayor."
+  }
+];
+---
+
+<div class="seller-wrapper">
+  <!-- Top Announcement Bar -->
+  <div class="top-announcement">
+    <div class="announcement-content">
+      <span class="pulse-dot"></span>
+      <span><strong>Servicio Activo:</strong> Tomando nuevos clientes para lanzamientos este mes</span>
+      <a href="#contacto" class="announcement-link">Consultar disponibilidad &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="main-nav">
+    <div class="nav-container">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">
+          <span>LS</span>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Landing SaaS</span>
+          <span class="brand-tag">Studio & Engine</span>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#beneficios">Beneficios</a>
+        <a href="#plantillas">Diseños</a>
+        <a href="#proceso">Cómo funciona</a>
+        <a href="#precios">Planes</a>
+        <a href="#faq">Preguntas</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="/admin/login" class="btn-client-login" title="Acceso para clientes dados de alta">
+          <span class="icon-lock">🔒</span>
+          Acceso Clientes
+        </a>
+        <a href="#contacto" class="btn-cta-nav">
+          Quiero mi Landing
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-glow"></div>
+    <div class="hero-container">
+      <div class="hero-badge">
+        <span class="badge-tag">Plataforma & Agencia</span>
+        <span class="badge-divider">•</span>
+        <span class="badge-desc">Landings de Alta Conversión con Dominios Propios</span>
+      </div>
+
+      <h1 class="hero-title">
+        Creamos la landing que <span class="gradient-text">convierte tus visitas</span> en clientes reales
+      </h1>
+
+      <p class="hero-subtitle">
+        Diseños prémium a medida, velocidad instantánea en el Edge, dominios propios y un <strong>panel privado exclusivo</strong> para que actualices tus contenidos y ofertas cuando quieras, sin depender de programadores.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#contacto" class="btn-primary-glow">
+          <span>Pedir mi Landing Ahora</span>
+          <span class="btn-arrow">&rarr;</span>
+        </a>
+        <a href="#plantillas" class="btn-secondary-outline">
+          <span>Ver Diseños Disponibles</span>
+        </a>
+      </div>
+
+      <!-- Trust Metrics -->
+      <div class="trust-grid">
+        <div class="trust-item">
+          <strong class="trust-value">&lt; 0.8s</strong>
+          <span class="trust-label">Carga en el Edge</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <strong class="trust-value">100%</strong>
+          <span class="trust-label">Autogestionable</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <strong class="trust-value">99.9%</strong>
+          <span class="trust-label">Uptime & SSL</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <strong class="trust-value">48hs</strong>
+          <span class="trust-label">Tiempo de Entrega</span>
+        </div>
+      </div>
+
+      <!-- Interactive Mockup Preview -->
+      <div class="mockup-frame">
+        <div class="mockup-header">
+          <div class="mockup-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="mockup-url-bar">
+            <span class="url-lock">🔒</span>
+            <span class="url-text">tunegocio.com</span>
+            <span class="url-badge">EN VIVO</span>
+          </div>
+          <div class="mockup-admin-link">
+            <span class="admin-pill">Panel de Control: Activo</span>
+          </div>
+        </div>
+
+        <div class="mockup-viewport">
+          <!-- Visual preview cards inside mockup -->
+          <div class="mockup-hero-preview">
+            <div class="preview-badge">Tu Negocio Online</div>
+            <div class="preview-heading">Aumentá tus ventas con una experiencia digital superior</div>
+            <div class="preview-sub">Atraé a tus clientes ideales con un diseño profesional y contacto directo.</div>
+            <div class="preview-action-row">
+              <span class="preview-btn-main">Contactar por WhatsApp</span>
+              <span class="preview-btn-ghost">Ver Servicios</span>
+            </div>
+          </div>
+
+          <div class="mockup-features-row">
+            <div class="preview-card">
+              <span class="card-icon">🚀</span>
+              <strong>Servicio Principal</strong>
+              <p>Descripción clara y vendedora de tu propuesta.</p>
+            </div>
+            <div class="preview-card highlight">
+              <span class="card-icon">⭐</span>
+              <strong>Promoción Activa</strong>
+              <p>Motor de ofertas con cuenta regresiva integrada.</p>
+            </div>
+            <div class="preview-card">
+              <span class="card-icon">💬</span>
+              <strong>Contacto Inmediato</strong>
+              <p>Redirección directa a tu WhatsApp sin fricción.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value Propositions / Benefits -->
+  <section id="beneficios" class="section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Por qué trabajar con nosotros</span>
+        <h2 class="section-title">Tecnología de élite pensada para vender</h2>
+        <p class="section-desc">
+          No te entregamos un sitio genérico ni un WordPress vulnerable. Te entregamos un activo digital de alto rendimiento configurado y listo para generar ingresos.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        {features.map((feat) => (
+          <div class="feature-card">
+            <div class="feature-icon">{feat.icon}</div>
+            <h3 class="feature-title">{feat.title}</h3>
+            <p class="feature-description">{feat.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase of Design Architectures -->
+  <section id="plantillas" class="section-padding bg-alt">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Direcciones Visuales</span>
+        <h2 class="section-title">Diseños con personalidad propia</h2>
+        <p class="section-desc">
+          Cada industria tiene su propio ritmo y lenguaje. Nuestras arquitecturas visuales están estudiadas para generar empatía y autoridad según tu rubro.
+        </p>
+      </div>
+
+      <div class="templates-grid">
+        {templateShowcase.map((t) => (
+          <article class="template-card">
+            <div class="template-card-header" style={`border-top: 3px solid ${t.accent};`}>
+              <div class="template-meta">
+                <span class="template-category">{t.category}</span>
+                <span class="template-badge" style={`color: ${t.accent}; background: ${t.accent}15; border: 1px solid ${t.accent}30;`}>
+                  {t.badge}
+                </span>
+              </div>
+              <h3 class="template-name">{t.name}</h3>
+              <p class="template-desc">{t.description}</p>
+            </div>
+
+            <div class="template-tags">
+              {t.tags.map((tag) => (
+                <span class="template-tag">#{tag}</span>
+              ))}
+            </div>
+
+            <div class="template-card-footer">
+              <a href="#contacto" class="btn-template-select">
+                Solicitar este estilo &rarr;
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <!-- Real Published Sites (if any exist) -->
+      {publishedSites.length > 0 && (
+        <div class="live-sites-block">
+          <div class="live-sites-header">
+            <h3>Sitios Activos en la Plataforma</h3>
+            <p>Proyectos en producción creados con nuestra arquitectura.</p>
+          </div>
+          <div class="live-sites-grid">
+            {publishedSites.map((site) => (
+              <div class="live-site-card">
+                <div class="live-site-info">
+                  <strong>{site.name}</strong>
+                  <span class="site-slug">/{site.slug}</span>
+                </div>
+                <div class="live-site-meta">
+                  <span class="badge-version">v{site.version} activa</span>
+                  <a href={`/sites/${site.slug}`} class="live-site-link">Ver sitio &nearr;</a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- 3-Step Process -->
+  <section id="proceso" class="section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Flujo de Trabajo</span>
+        <h2 class="section-title">Del concepto a tu landing online en 3 pasos</h2>
+        <p class="section-desc">
+          Un proceso ágil, sin reuniones eternas ni presupuestos inflados. Vos te enfocás en tu negocio, nosotros nos encargamos de la infraestructura.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        {steps.map((step) => (
+          <div class="step-card">
+            <div class="step-num">{step.number}</div>
+            <h3 class="step-title">{step.title}</h3>
+            <p class="step-desc">{step.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Plans -->
+  <section id="precios" class="section-padding bg-alt">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Inversión Clara</span>
+        <h2 class="section-title">Planes diseñados para cada etapa</h2>
+        <p class="section-desc">
+          Sin costos ocultos de servidores, certificados ni mantenimiento. Todo incluido en una suscripción simple.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        {plans.map((p) => (
+          <div class={`pricing-card ${p.highlight ? "featured" : ""}`}>
+            {p.highlight && <div class="featured-badge">{p.badge}</div>}
+            <h3 class="plan-name">{p.name}</h3>
+            <div class="plan-price-row">
+              <span class="plan-price">{p.price}</span>
+              <span class="plan-period">{p.period}</span>
+            </div>
+            <p class="plan-description">{p.description}</p>
+
+            <ul class="plan-features">
+              {p.items.map((item) => (
+                <li>
+                  <span class="check-icon">✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <a href="#contacto" class={`btn-plan ${p.highlight ? "btn-plan-featured" : ""}`}>
+              {p.cta}
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact & Lead Capture Section -->
+  <section id="contacto" class="section-padding">
+    <div class="container">
+      <div class="contact-card-wrapper">
+        <div class="contact-info-column">
+          <span class="section-eyebrow">Empecemos hoy</span>
+          <h2 class="contact-headline">¿Listo para tener la landing que tu negocio merece?</h2>
+          <p class="contact-subtext">
+            Completá el formulario con tus datos y te respondemos en menos de 2 horas con una propuesta a medida. Si preferís atención inmediata, podés escribirnos directo por WhatsApp.
+          </p>
+
+          <div class="contact-direct-box">
+            <div class="direct-item">
+              <span class="direct-icon">💬</span>
+              <div>
+                <strong>WhatsApp Directo</strong>
+                <p>Respuesta inmediata de nuestro equipo comercial.</p>
+                <a href="https://wa.me/?text=Hola%2C%20quiero%20cotizar%20una%20landing%20page%20para%20mi%20negocio" target="_blank" rel="noopener noreferrer" class="whatsapp-link">
+                  Chatear por WhatsApp &rarr;
+                </a>
+              </div>
+            </div>
+
+            <div class="direct-item">
+              <span class="direct-icon">🛡️</span>
+              <div>
+                <strong>Garantía de Satisfacción</strong>
+                <p>Si el diseño inicial no te convence, lo ajustamos hasta que quede perfecto.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Lead Form -->
+        <div class="contact-form-column">
+          <form id="lead-contact-form" class="lead-form">
+            <div class="form-title-row">
+              <h3>Solicitar Cotización / Alta</h3>
+              <p>Sin compromiso. Te contactamos a la brevedad.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="lead-name">Nombre y Apellido *</label>
+              <input type="text" id="lead-name" name="name" required placeholder="Ej: Juan Pérez" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="lead-email">Email de Contacto *</label>
+                <input type="email" id="lead-email" name="email" required placeholder="juan@empresa.com" />
+              </div>
+              <div class="form-group">
+                <label for="lead-phone">WhatsApp / Teléfono</label>
+                <input type="tel" id="lead-phone" name="phone" placeholder="+54 9 11 ..." />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="lead-business">Nombre de tu Negocio o Rubro</label>
+              <input type="text" id="lead-business" name="business" placeholder="Ej: Consultora Tech, Taller Mecánico, SaaS..." />
+            </div>
+
+            <div class="form-group">
+              <label for="lead-plan">Plan de Interés</label>
+              <select id="lead-plan" name="plan">
+                <option value="pro">Plan Crecimiento Pro (Recomendado - Dominio Propio)</option>
+                <option value="starter">Plan Lanzamiento (Subdominio rápido)</option>
+                <option value="enterprise">Plan Agencia / Escala (Múltiples sitios)</option>
+                <option value="custom">No estoy seguro, necesito asesoramiento</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="lead-message">¿Qué te gustaría que tenga tu landing?</label>
+              <textarea id="lead-message" name="message" rows="3" placeholder="Contanos brevemente qué ofrecés o qué enlaces te gustaría incluir..."></textarea>
+            </div>
+
+            <button type="submit" id="btn-submit-lead" class="btn-submit-lead">
+              <span>Enviar Solicitud</span>
+              <span class="btn-arrow">&rarr;</span>
+            </button>
+
+            <div id="form-success-message" class="form-success-box" style="display: none;">
+              <div class="success-icon">🎉</div>
+              <h4>¡Solicitud enviada con éxito!</h4>
+              <p>Muchas gracias por contactarnos. Te responderemos a tu email a la brevedad.</p>
+              <a id="success-whatsapp-btn" href="#" target="_blank" rel="noopener noreferrer" class="whatsapp-action-btn">
+                O escribinos directo por WhatsApp ahora &rarr;
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="section-padding bg-alt">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Dudas Comunes</span>
+        <h2 class="section-title">Preguntas Frecuentes</h2>
+      </div>
+
+      <div class="faq-grid">
+        {faqs.map((faq) => (
+          <div class="faq-card">
+            <h3 class="faq-question">{faq.q}</h3>
+            <p class="faq-answer">{faq.a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Client Access Banner -->
+  <section class="client-access-banner">
+    <div class="container">
+      <div class="client-banner-box">
+        <div class="client-banner-text">
+          <span class="pill-badge">Zona de Clientes</span>
+          <h2>¿Ya sos cliente de la plataforma?</h2>
+          <p>Ingresá con tu cuenta para gestionar tus publicaciones, cambiar fotos, editar ofertas o ver analíticas de tu sitio.</p>
+        </div>
+        <div class="client-banner-action">
+          <a href="/admin/login" class="btn-primary-glow">
+            <span>Iniciar Sesión en el Admin</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <div class="brand-logo">
+          <div class="brand-icon">LS</div>
+          <span class="brand-title">Landing SaaS</span>
+        </div>
+        <p class="footer-tagline">
+          Infraestructura de alta conversión y estudio de landings para profesionales y empresas que no se conforman con lo genérico.
+        </p>
+      </div>
+
+      <div class="footer-nav-col">
+        <strong>Plataforma</strong>
+        <a href="#beneficios">Beneficios</a>
+        <a href="#plantillas">Diseños</a>
+        <a href="#proceso">Cómo funciona</a>
+        <a href="#precios">Precios</a>
+      </div>
+
+      <div class="footer-nav-col">
+        <strong>Clientes & Acceso</strong>
+        <a href="/admin/login">Login de Clientes</a>
+        <a href="#contacto">Solicitar Alta</a>
+        <a href="/api/health" target="_blank">Estado del Sistema</a>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; {new Date().getFullYear()} Landing SaaS Platform. Todos los derechos reservados.</p>
+      <div class="footer-bottom-links">
+        <a href="/admin">Panel de Administración</a>
+        <span>•</span>
+        <a href="/admin/login?redirect=/backoffice">Superadmin Backoffice</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Interactive lead form handler
+  const form = document.getElementById("lead-contact-form") as HTMLFormElement | null;
+  const successBox = document.getElementById("form-success-message");
+  const submitBtn = document.getElementById("btn-submit-lead");
+  const whatsappBtn = document.getElementById("success-whatsapp-btn") as HTMLAnchorElement | null;
+
+  if (form && successBox && submitBtn) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const nameInput = (document.getElementById("lead-name") as HTMLInputElement)?.value || "";
+      const emailInput = (document.getElementById("lead-email") as HTMLInputElement)?.value || "";
+      const phoneInput = (document.getElementById("lead-phone") as HTMLInputElement)?.value || "";
+      const businessInput = (document.getElementById("lead-business") as HTMLInputElement)?.value || "";
+      const planInput = (document.getElementById("lead-plan") as HTMLSelectElement)?.value || "";
+      const messageInput = (document.getElementById("lead-message") as HTMLTextAreaElement)?.value || "";
+
+      // Construct customized WhatsApp link
+      const text = encodeURIComponent(
+        `Hola! Me gustaría cotizar una landing page para mi negocio.\n\n` +
+        `• Nombre: ${nameInput}\n` +
+        `• Email: ${emailInput}\n` +
+        `• Tel/WhatsApp: ${phoneInput}\n` +
+        `• Negocio: ${businessInput}\n` +
+        `• Plan de interés: ${planInput}\n` +
+        (messageInput ? `• Detalle: ${messageInput}` : "")
+      );
+
+      if (whatsappBtn) {
+        whatsappBtn.href = `https://wa.me/?text=${text}`;
+      }
+
+      // Smooth feedback
+      submitBtn.setAttribute("disabled", "true");
+      submitBtn.innerHTML = "<span>Enviando...</span>";
+
+      setTimeout(() => {
+        submitBtn.style.display = "none";
+        successBox.style.display = "block";
+        successBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 500);
+    });
+  }
+</script>
+
+<style>
+  /* Base Reset & Fonts */
+  .seller-wrapper {
+    background-color: #060a14;
+    color: #f1f5f9;
+    font-family: var(--ds-font-inter, "Inter", system-ui, -apple-system, sans-serif);
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .section-padding {
+    padding: 6rem 0;
+  }
+
+  .bg-alt {
+    background: radial-gradient(circle at 50% 0%, rgba(20, 35, 71, 0.35) 0%, rgba(6, 10, 20, 0.95) 75%);
+    border-top: 1px solid rgba(41, 57, 88, 0.4);
+    border-bottom: 1px solid rgba(41, 57, 88, 0.4);
+  }
+
+  /* Top Announcement Bar */
+  .top-announcement {
+    background: linear-gradient(90deg, #1e1b4b 0%, #0f172a 50%, #1e1b4b 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    text-align: center;
+    color: #cbd5e1;
+  }
+
+  .announcement-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+  }
+
+  .announcement-link {
+    color: #38bdf8;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .announcement-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Main Navigation Header */
+  .main-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(6, 10, 20, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .nav-container {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .brand-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 0.95rem;
+    color: #060a14;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brand-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+  }
+
+  .brand-tag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .nav-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    color: #f8fafc;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .btn-client-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-client-login:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+
+  .btn-cta-nav {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 1.1rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    color: #060a14;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-cta-nav:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
+  }
+
+  /* Hero Section */
+  .hero-section {
+    position: relative;
+    padding: 5rem 1.5rem 6rem;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60rem;
+    height: 35rem;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.1) 40%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-container {
+    max-width: 58rem;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    font-size: 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .badge-tag {
+    font-weight: 700;
+    color: #38bdf8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-divider {
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+  .badge-desc {
+    color: #cbd5e1;
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    margin: 0 0 1.5rem;
+    color: #f8fafc;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #38bdf8 10%, #818cf8 60%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    color: #94a3b8;
+    line-height: 1.65;
+    max-width: 48rem;
+    margin: 0 auto 2.5rem;
+  }
+
+  .hero-subtitle strong {
+    color: #e2e8f0;
+  }
+
+  .hero-ctas {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 3.5rem;
+  }
+
+  .btn-primary-glow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.95rem 2rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    color: #060a14;
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.35);
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(56, 189, 248, 0.5);
+  }
+
+  .btn-arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .btn-primary-glow:hover .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  .btn-secondary-outline {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.95rem 1.8rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #f1f5f9;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary-outline:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Trust Metrics */
+  .trust-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: 1.5rem 2rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    margin-bottom: 4rem;
+  }
+
+  .trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .trust-value {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #38bdf8;
+    letter-spacing: -0.02em;
+  }
+
+  .trust-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .trust-divider {
+    width: 1px;
+    height: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Mockup Frame */
+  .mockup-frame {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 1.25rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(56, 189, 248, 0.1);
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .mockup-header {
+    background: #090e1a;
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e293b;
+    gap: 1rem;
+  }
+
+  .mockup-dots {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .dot.red { background: #ef4444; }
+  .dot.yellow { background: #f59e0b; }
+  .dot.green { background: #10b981; }
+
+  .mockup-url-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #111b2f;
+    padding: 0.35rem 1rem;
+    border-radius: 0.4rem;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-family: monospace;
+  }
+
+  .url-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+  }
+
+  .admin-pill {
+    font-size: 0.75rem;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    font-weight: 600;
+  }
+
+  .mockup-viewport {
+    padding: 2.5rem 2rem;
+    background: radial-gradient(circle at top right, #13203c 0%, #0d1527 60%);
+  }
+
+  .mockup-hero-preview {
+    text-align: center;
+    max-width: 36rem;
+    margin: 0 auto 2.5rem;
+  }
+
+  .preview-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+  }
+
+  .preview-heading {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #f8fafc;
+    margin-bottom: 0.75rem;
+  }
+
+  .preview-sub {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+  }
+
+  .preview-action-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .preview-btn-main {
+    padding: 0.6rem 1.25rem;
+    background: #10b981;
+    color: #060a14;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .preview-btn-ghost {
+    padding: 0.6rem 1.25rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .mockup-features-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .preview-card {
+    background: rgba(17, 27, 47, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+  }
+
+  .preview-card.highlight {
+    border-color: rgba(56, 189, 248, 0.4);
+    background: rgba(56, 189, 248, 0.05);
+  }
+
+  .card-icon {
+    font-size: 1.3rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .preview-card strong {
+    display: block;
+    font-size: 0.95rem;
+    color: #f1f5f9;
+    margin-bottom: 0.25rem;
+  }
+
+  .preview-card p {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Section Headers */
+  .section-header {
+    text-align: center;
+    max-width: 44rem;
+    margin: 0 auto 4rem;
+  }
+
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #38bdf8;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+    color: #f8fafc;
+  }
+
+  .section-desc {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Features Grid */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: all 0.25s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 0.75rem;
+  }
+
+  .feature-description {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Templates Showcase */
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.75rem;
+    margin-bottom: 3rem;
+  }
+
+  .template-card {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .template-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .template-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .template-category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+
+  .template-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+  }
+
+  .template-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 0.75rem;
+  }
+
+  .template-desc {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    line-height: 1.55;
+    margin: 0 0 1.5rem;
+  }
+
+  .template-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .template-tag {
+    font-size: 0.75rem;
+    color: #64748b;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.3rem;
+  }
+
+  .btn-template-select {
+    display: block;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.5rem;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-template-select:hover {
+    background: #38bdf8;
+    color: #060a14;
+    border-color: #38bdf8;
+  }
+
+  /* Live Sites Block */
+  .live-sites-block {
+    margin-top: 4rem;
+    padding: 2.5rem;
+    background: #090e1a;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+  }
+
+  .live-sites-header h3 {
+    font-size: 1.25rem;
+    margin: 0 0 0.25rem;
+    color: #f8fafc;
+  }
+
+  .live-sites-header p {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin: 0 0 1.5rem;
+  }
+
+  .live-sites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .live-site-card {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 0.6rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .live-site-info strong {
+    display: block;
+    font-size: 0.95rem;
+    color: #f8fafc;
+  }
+
+  .site-slug {
+    font-size: 0.75rem;
+    color: #38bdf8;
+    font-family: monospace;
+  }
+
+  .live-site-meta {
+    text-align: right;
+  }
+
+  .badge-version {
+    display: block;
+    font-size: 0.7rem;
+    color: #10b981;
+    margin-bottom: 0.25rem;
+  }
+
+  .live-site-link {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .live-site-link:hover {
+    color: #38bdf8;
+  }
+
+  /* 3-Step Process */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .step-card {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    position: relative;
+  }
+
+  .step-num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #38bdf8;
+    opacity: 0.7;
+    letter-spacing: -0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .step-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 0.75rem;
+  }
+
+  .step-desc {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Pricing Grid */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 2rem;
+    align-items: stretch;
+  }
+
+  .pricing-card {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 1.25rem;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.25s ease;
+  }
+
+  .pricing-card.featured {
+    border-color: #38bdf8;
+    background: linear-gradient(180deg, #101c37 0%, #0d1527 100%);
+    box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.3);
+    transform: scale(1.02);
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    color: #060a14;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.3rem 0.9rem;
+    border-radius: 9999px;
+  }
+
+  .plan-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 0.5rem;
+  }
+
+  .plan-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .plan-price {
+    font-size: 2.75rem;
+    font-weight: 900;
+    color: #f8fafc;
+    letter-spacing: -0.03em;
+  }
+
+  .plan-period {
+    font-size: 0.95rem;
+    color: #94a3b8;
+  }
+
+  .plan-description {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0 0 2rem;
+    min-height: 2.7rem;
+  }
+
+  .plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    line-height: 1.45;
+  }
+
+  .check-icon {
+    color: #38bdf8;
+    font-weight: 800;
+  }
+
+  .btn-plan {
+    display: block;
+    text-align: center;
+    padding: 0.85rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.6rem;
+    color: #f8fafc;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-plan:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-plan-featured {
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    color: #060a14;
+    border: none;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+  }
+
+  .btn-plan-featured:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+    color: #060a14;
+  }
+
+  /* Contact & Lead Capture Section */
+  .contact-card-wrapper {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 1.5rem;
+    padding: 3.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  }
+
+  .contact-headline {
+    font-size: 2.25rem;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    color: #f8fafc;
+    margin: 0 0 1rem;
+  }
+
+  .contact-subtext {
+    font-size: 1.05rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0 0 2.5rem;
+  }
+
+  .contact-direct-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .direct-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .direct-icon {
+    font-size: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.6rem;
+    border-radius: 0.6rem;
+  }
+
+  .direct-item strong {
+    display: block;
+    color: #f8fafc;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .direct-item p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0 0 0.5rem;
+    line-height: 1.4;
+  }
+
+  .whatsapp-link {
+    color: #10b981;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  .whatsapp-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Lead Form */
+  .lead-form {
+    background: #080d19;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 2.5rem;
+  }
+
+  .form-title-row h3 {
+    font-size: 1.25rem;
+    color: #f8fafc;
+    margin: 0 0 0.25rem;
+  }
+
+  .form-title-row p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0 0 1.75rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 0.4rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .lead-form input,
+  .lead-form select,
+  .lead-form textarea {
+    width: 100%;
+    background: #0d1527;
+    border: 1px solid #243555;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+  }
+
+  .lead-form input:focus,
+  .lead-form select:focus,
+  .lead-form textarea:focus {
+    outline: none;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  }
+
+  .btn-submit-lead {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    color: #060a14;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+  }
+
+  .btn-submit-lead:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
+  }
+
+  .form-success-box {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .success-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-success-box h4 {
+    font-size: 1.15rem;
+    color: #34d399;
+    margin: 0 0 0.5rem;
+  }
+
+  .form-success-box p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0 0 1.25rem;
+  }
+
+  .whatsapp-action-btn {
+    display: inline-block;
+    padding: 0.7rem 1.25rem;
+    background: #10b981;
+    color: #060a14;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  /* FAQ Grid */
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .faq-card {
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 2rem;
+  }
+
+  .faq-question {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 0.75rem;
+  }
+
+  .faq-answer {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Client Access Banner */
+  .client-access-banner {
+    padding: 4rem 0;
+  }
+
+  .client-banner-box {
+    background: linear-gradient(135deg, #111b33 0%, #0d1527 100%);
+    border: 1px solid #243555;
+    border-radius: 1.5rem;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .pill-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+
+  .client-banner-text h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 0.5rem;
+  }
+
+  .client-banner-text p {
+    font-size: 1rem;
+    color: #94a3b8;
+    margin: 0;
+    max-width: 38rem;
+  }
+
+  /* Footer */
+  .main-footer {
+    border-top: 1px solid #1e293b;
+    background: #04070e;
+    padding: 4rem 0 2rem;
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer-tagline {
+    font-size: 0.9rem;
+    color: #64748b;
+    max-width: 24rem;
+    margin-top: 1rem;
+    line-height: 1.6;
+  }
+
+  .footer-nav-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-nav-col strong {
+    color: #f8fafc;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-nav-col a {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .footer-nav-col a:hover {
+    color: #38bdf8;
+  }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 2rem;
+    font-size: 0.85rem;
+    color: #64748b;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-bottom p {
+    margin: 0;
+  }
+
+  .footer-bottom-links {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .footer-bottom-links a {
+    color: #64748b;
+    text-decoration: none;
+  }
+
+  .footer-bottom-links a:hover {
+    color: #94a3b8;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 900px) {
+    .nav-links {
+      display: none;
+    }
+
+    .contact-card-wrapper {
+      grid-template-columns: 1fr;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .client-banner-box {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 2rem;
+    }
+
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .trust-divider {
+      display: none;
+    }
+
+    .hero-ctas {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .btn-primary-glow,
+    .btn-secondary-outline {
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+  }
+</style>
