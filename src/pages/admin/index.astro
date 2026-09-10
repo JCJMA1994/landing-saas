@@ -29,58 +29,987 @@ try {
   loadError = error instanceof SiteRepositoryError;
   if (!loadError) throw error;
 }
+
+const siteIds = sites.map((s) => s.id);
+
+// Fetch additional metadata for sites, tenant, and active publications
+const [sitesMetaResult, pubsResult, membershipResult, subResult] = await Promise.all([
+  siteIds.length > 0
+    ? Astro.locals.supabase.from("sites").select("id, template_key, created_at").in("id", siteIds)
+    : Promise.resolve({ data: [] }),
+  siteIds.length > 0
+    ? Astro.locals.supabase.from("site_publications").select("site_id, version, published_at").in("site_id", siteIds).eq("is_active", true)
+    : Promise.resolve({ data: [] }),
+  Astro.locals.supabase.from("tenant_members").select("role, tenants(name)").limit(1),
+  Astro.locals.supabase.from("tenant_subscriptions").select("plan_id, status").limit(1),
+]);
+
+const metaMap = new Map((sitesMetaResult.data ?? []).map((m: any) => [m.id, m]));
+const pubMap = new Map((pubsResult.data ?? []).map((p: any) => [p.site_id, p]));
+const tenantName = (membershipResult.data?.[0]?.tenants as any)?.name || "Tu Empresa";
+const userRole = membershipResult.data?.[0]?.role || "owner";
+const subscriptionPlan = subResult.data?.[0]?.plan_id ? String(subResult.data[0].plan_id).toUpperCase() : "PRO";
+
+const TEMPLATE_LABELS: Record<string, string> = {
+  "tech-diagnostic": "Tech Diagnostic & Precision",
+  "repair-workshop": "Workshop & Taller Especializado",
+  "system-monitor": "Monitor & Telemetría",
+  "tech-editorial": "Editorial Tecnológico",
+  "cyber-performance": "Cyber Performance & Velocidad",
+  "friendly-tech": "Friendly Tech & Cercano",
+};
 ---
+
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Sites | Landing SaaS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Control | LaunchPulse Studio</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body>
-    <header class="shell topbar">
-      <strong>Landing SaaS</strong>
-      <nav aria-label="Admin navigation">
-        <ul class="nav-links">
-          <li><a href="/admin" class="nav-link active">Sites</a></li>
-          <li><a href="/admin/members" class="nav-link">Members</a></li>
-          <li><a href="/admin/billing" class="nav-link">Billing</a></li>
-          {isSuperadmin && (
-            <li>
-              <a href="/backoffice" class="nav-link" style="color: #f59e0b; font-weight: 700;">
-                🛡️ Platform Backoffice
-              </a>
-            </li>
-          )}
-        </ul>
-      </nav>
-      <form method="POST" action={actions.logout}>
-        <button type="submit">Sign out</button>
-      </form>
+  <body class="client-workspace-body">
+    <!-- Premium Top Navigation Bar -->
+    <header class="client-header">
+      <div class="shell header-inner">
+        <div class="header-left">
+          <a href="/admin" class="brand-badge" aria-label="LaunchPulse Inicio">
+            <div class="brand-icon-tile">
+              <svg viewBox="0 0 32 32" fill="none" width="22" height="22">
+                <path d="M6 22 L16 5 L26 22 L20 20 L16 12 L12 20 Z" fill="url(#lp-dash-chevron)" />
+                <path d="M10 25 L13 25 L14.5 21 L16 27 L17.5 24 L19 25 L22 25" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="16" cy="14" r="2" fill="#ffffff" />
+                <defs>
+                  <linearGradient id="lp-dash-chevron" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff" />
+                    <stop offset="65%" stop-color="#38bdf8" />
+                    <stop offset="100%" stop-color="#6366f1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="brand-text-group">
+              <span class="brand-title">Launch<span class="brand-accent">Pulse</span></span>
+              <span class="brand-subtitle">STUDIO & ENGINE</span>
+            </div>
+          </a>
+
+          <nav class="client-nav" aria-label="Navegación principal">
+            <a href="/admin" class="nav-item active">Sitios & Landings</a>
+            <a href="/admin/members" class="nav-item">Equipo</a>
+            <a href="/admin/billing" class="nav-item">Suscripción</a>
+          </nav>
+        </div>
+
+        <div class="header-right">
+          <div class="user-pill">
+            <span class="user-status-dot"></span>
+            <span class="user-email" title={Astro.locals.user?.email}>{Astro.locals.user?.email}</span>
+            <span class="user-role-tag">{userRole}</span>
+          </div>
+
+          <form method="POST" action={actions.logout}>
+            <button type="submit" class="btn-logout" title="Cerrar sesión">
+              Salir
+            </button>
+          </form>
+        </div>
+      </div>
     </header>
-    <main class="shell dashboard">
-      <p class="eyebrow">Admin workspace</p>
-      <h1>Your sites</h1>
-      <p class="muted">Only sites available to your authenticated account are shown.</p>
-      {logoutResult?.data && !logoutResult.data.ok && <p class="error" role="alert">Unable to sign out. Please try again.</p>}
+
+    <main class="shell workspace-main">
+      <!-- Welcome Hero Banner -->
+      <section class="welcome-section">
+        <div class="welcome-meta">
+          <span class="badge-tenant">🏢 {tenantName}</span>
+          <span class="badge-plan">Plan {subscriptionPlan}</span>
+        </div>
+        <h1 class="welcome-heading">Panel de Control de tu Landing</h1>
+        <p class="welcome-sub">
+          Personalizá el diseño, gestioná tus contenidos y publicá cambios con un solo clic.
+        </p>
+      </section>
+
+      {logoutResult?.data && !logoutResult.data.ok && (
+        <div class="alert-box error" role="alert">
+          No se pudo cerrar sesión. Por favor intenta nuevamente.
+        </div>
+      )}
+
       {loadError ? (
-        <p class="error" role="alert">Sites are temporarily unavailable. Please try again.</p>
+        <div class="alert-box error" role="alert">
+          Los sitios no están disponibles temporalmente. Por favor intenta de nuevo en unos momentos.
+        </div>
       ) : sites.length === 0 ? (
-        <p class="empty">No sites are available for this account.</p>
+        <div class="empty-state-card">
+          <div class="empty-icon">🌐</div>
+          <h2>No tenés ningún sitio asignado todavía</h2>
+          <p>Contactá con soporte o a tu administrador de cuenta para aprovisionar tu primera landing page.</p>
+        </div>
       ) : (
-        <ul class="site-grid">
-          {sites.map((site) => (
-            <li class="site-card">
-              <h2>{site.name}</h2>
-              <p class="muted">Slug: <code>{site.slug}</code></p>
-              <div style="display: flex; gap: .75rem; margin-top: 1rem;">
-                <a href={`/admin/sites/${site.id}/theme`} class="button" style="text-decoration: none; font-size: .85rem; padding: .5rem .8rem;">Theme (Draft)</a>
-                <a href={`/admin/sites/${site.id}/hero`} class="button" style="text-decoration: none; font-size: .85rem; padding: .5rem .8rem; background: #2f4168; color: #f5f7ff;">Hero (Draft)</a>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div class="sites-container">
+          {sites.map((site) => {
+            const meta = metaMap.get(site.id);
+            const pub = pubMap.get(site.id);
+            const templateKey = meta?.template_key || "tech-diagnostic";
+            const templateName = TEMPLATE_LABELS[templateKey] || templateKey;
+            const publicUrl = `/sites/${site.slug}`;
+            const previewUrl = `/preview/${site.id}`;
+
+            return (
+              <article class="site-command-center">
+                <!-- Site Identity Header -->
+                <header class="site-card-header">
+                  <div class="site-identity">
+                    <div class="site-icon-avatar">🚀</div>
+                    <div class="site-titles">
+                      <div class="site-title-row">
+                        <h2 class="site-name">{site.name}</h2>
+                        {pub ? (
+                          <span class="status-badge published">
+                            <span class="status-pulse-dot"></span>
+                            🟢 En Vivo (v{pub.version})
+                          </span>
+                        ) : (
+                          <span class="status-badge draft">
+                            🟡 Borrador Listo para Publicar
+                          </span>
+                        )}
+                      </div>
+                      <div class="site-url-row">
+                        <span class="site-slug-label">Dirección Web:</span>
+                        <a href={publicUrl} target="_blank" class="site-link-chip" title="Abrir landing en nueva pestaña">
+                          <code>{publicUrl}</code>
+                          <span class="link-arrow">↗</span>
+                        </a>
+                        <span class="template-chip">🎨 {templateName}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Primary Quick Actions -->
+                  <div class="header-action-buttons">
+                    <a href={publicUrl} target="_blank" class="btn-action-primary" title="Ver tu sitio tal como lo ven los visitantes">
+                      👁️ Ver Landing Pública ↗
+                    </a>
+                    <a href={previewUrl} target="_blank" class="btn-action-secondary" title="Ver borradores antes de publicarlos">
+                      🔍 Vista Previa Borrador
+                    </a>
+                    <a href={`/admin/sites/${site.id}/publish`} class="btn-action-highlight" title="Lanzar cambios a producción">
+                      🚀 Publicar Cambios
+                    </a>
+                  </div>
+                </header>
+
+                <!-- Onboarding Workflow Progress -->
+                <div class="onboarding-guide-strip">
+                  <div class="guide-title">
+                    <span class="guide-icon">💡</span>
+                    <strong>Flujo rápido de configuración:</strong>
+                  </div>
+                  <div class="guide-steps">
+                    <a href={`/admin/sites/${site.id}/theme`} class="guide-step">
+                      <span class="step-num">1</span>
+                      <span class="step-label">Elegí tu paleta de colores</span>
+                    </a>
+                    <span class="step-connector">→</span>
+                    <a href={`/admin/sites/${site.id}/hero`} class="guide-step">
+                      <span class="step-num">2</span>
+                      <span class="step-label">Editá tu título y WhatsApp</span>
+                    </a>
+                    <span class="step-connector">→</span>
+                    <a href={`/admin/sites/${site.id}/publish`} class="guide-step">
+                      <span class="step-num">3</span>
+                      <span class="step-label">Hacé clic en Publicar</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Tools & Management Grid -->
+                <div class="modules-grid-section">
+                  <!-- Category 1: Diseño & Identidad -->
+                  <div class="module-category">
+                    <h3 class="category-title">
+                      <span class="cat-icon">🎨</span> Diseño & Marca
+                    </h3>
+                    <div class="category-cards">
+                      <a href={`/admin/sites/${site.id}/theme`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8;">
+                          🎨
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Tema & Colores</strong>
+                          <p class="tile-desc">Paletas corporativas, tipografía, bordes redondeados y estilo de botones.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/template`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(129, 140, 248, 0.12); color: #818cf8;">
+                          ⚡
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Plantilla Visual</strong>
+                          <p class="tile-desc">Cambiá de arquetipo de diseño al instante sin perder ninguno de tus textos.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/media`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(168, 85, 247, 0.12); color: #c084fc;">
+                          🖼️
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Galería Multimedia</strong>
+                          <p class="tile-desc">Subí tu logotipo, imágenes y capturas optimizadas para carga rápida.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- Category 2: Contenidos & Oferta -->
+                  <div class="module-category">
+                    <h3 class="category-title">
+                      <span class="cat-icon">📝</span> Contenido & Conversión
+                    </h3>
+                    <div class="category-cards">
+                      <a href={`/admin/sites/${site.id}/hero`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(34, 197, 94, 0.12); color: #4ade80;">
+                          📢
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Hero Principal</strong>
+                          <p class="tile-desc">Titular de impacto, bajada persuasiva, insignia y botón de llamado a la acción.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/cards`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(234, 179, 8, 0.12); color: #facc15;">
+                          💼
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Tarjetas de Servicios</strong>
+                          <p class="tile-desc">Destacá tus características, soluciones y diferenciales de negocio.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/promotions`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(249, 115, 22, 0.12); color: #fb923c;">
+                          🎁
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Promociones & Ofertas</strong>
+                          <p class="tile-desc">Banners con descuentos especiales, cupones y ofertas por tiempo limitado.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/contacts`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(20, 184, 166, 0.12); color: #2dd4bf;">
+                          📞
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Contacto & WhatsApp</strong>
+                          <p class="tile-desc">Canales directos: botón flotante de WhatsApp, teléfono, correo y ubicación.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- Category 3: Operaciones & Resultados -->
+                  <div class="module-category">
+                    <h3 class="category-title">
+                      <span class="cat-icon">🚀</span> Operaciones & Métricas
+                    </h3>
+                    <div class="category-cards">
+                      <a href={`/admin/sites/${site.id}/publish`} class="module-tile highlight-tile">
+                        <div class="tile-icon-box" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;">
+                          🚀
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Publicación & Versiones</strong>
+                          <p class="tile-desc">Lanzá tus borradores a producción con control inmutable y reversión segura.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/campaigns`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(236, 72, 153, 0.12); color: #f472b6;">
+                          🎯
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Campañas Temporales</strong>
+                          <p class="tile-desc">Activá overlays para Cyber Monday, Black Friday o lanzamientos especiales.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/domains`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(99, 102, 241, 0.12); color: #818cf8;">
+                          🌐
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Dominio Propio</strong>
+                          <p class="tile-desc">Conectá tu propio dominio .com o .tech con certificado SSL automático.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+
+                      <a href={`/admin/sites/${site.id}/analytics`} class="module-tile">
+                        <div class="tile-icon-box" style="background: rgba(16, 185, 129, 0.12); color: #34d399;">
+                          📊
+                        </div>
+                        <div class="tile-content">
+                          <strong class="tile-title">Analíticas & Visitas</strong>
+                          <p class="tile-desc">Consultá tráfico, visitas únicas y tasas de conversión en tiempo real.</p>
+                        </div>
+                        <span class="tile-arrow">→</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       )}
     </main>
+
+    <style>
+      /* Client Workspace Specific Styles */
+      .client-workspace-body {
+        background: radial-gradient(circle at 50% 0%, #101c38 0%, #060a14 100%);
+        min-height: 100vh;
+        color: #f8fafc;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      }
+
+      /* Header */
+      .client-header {
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 0;
+        gap: 1.5rem;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+      }
+
+      .brand-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease;
+      }
+
+      .brand-badge:hover {
+        transform: translateY(-1px);
+      }
+
+      .brand-icon-tile {
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.65rem;
+        background: radial-gradient(circle at 35% 25%, #18274d 0%, #080d1a 100%);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+      }
+
+      .brand-text-group {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand-title {
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: #f8fafc;
+      }
+
+      .brand-accent {
+        color: #38bdf8;
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .brand-subtitle {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: #94a3b8;
+      }
+
+      .client-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-item {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 0.45rem 0.85rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+      }
+
+      .nav-item:hover {
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .nav-item.active {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.1);
+        font-weight: 700;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(17, 26, 46, 0.8);
+        border: 1px solid rgba(56, 189, 248, 0.18);
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.82rem;
+      }
+
+      .user-status-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 8px #22c55e;
+      }
+
+      .user-email {
+        color: #cbd5e1;
+        font-weight: 500;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-role-tag {
+        background: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.35rem;
+      }
+
+      .btn-logout {
+        background: rgba(239, 68, 68, 0.12);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 0.4rem 0.85rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-logout:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #ffffff;
+      }
+
+      /* Workspace Main */
+      .workspace-main {
+        padding: 2.5rem 0 5rem;
+      }
+
+      /* Welcome Section */
+      .welcome-section {
+        margin-bottom: 2rem;
+      }
+
+      .welcome-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .badge-tenant {
+        background: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 0.25rem 0.65rem;
+        border-radius: 0.4rem;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+      }
+
+      .badge-plan {
+        background: rgba(168, 85, 247, 0.15);
+        color: #d8b4fe;
+        font-size: 0.78rem;
+        font-weight: 800;
+        padding: 0.25rem 0.65rem;
+        border-radius: 0.4rem;
+        border: 1px solid rgba(168, 85, 247, 0.3);
+      }
+
+      .welcome-heading {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        margin: 0 0 0.4rem;
+        color: #ffffff;
+      }
+
+      .welcome-sub {
+        color: #94a3b8;
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* Site Command Center */
+      .site-command-center {
+        background: #0d1527;
+        border: 1px solid rgba(56, 189, 248, 0.22);
+        border-radius: 1.25rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+      }
+
+      /* Site Card Header */
+      .site-card-header {
+        padding: 1.85rem 2rem;
+        background: linear-gradient(180deg, rgba(20, 32, 60, 0.8) 0%, rgba(13, 21, 39, 0.95) 100%);
+        border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+      }
+
+      .site-identity {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+      }
+
+      .site-icon-avatar {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 1rem;
+        background: radial-gradient(circle at 30% 30%, #1e3a8a 0%, #0f172a 100%);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        display: grid;
+        place-items: center;
+        font-size: 1.6rem;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+      }
+
+      .site-titles {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .site-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+      }
+
+      .site-name {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin: 0;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+      }
+
+      .status-badge {
+        font-size: 0.76rem;
+        font-weight: 750;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .status-badge.published {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.35);
+      }
+
+      .status-badge.draft {
+        background: rgba(234, 179, 8, 0.15);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.35);
+      }
+
+      .site-url-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .site-slug-label {
+        font-size: 0.82rem;
+        color: #64748b;
+      }
+
+      .site-link-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 0.2rem 0.6rem;
+        border-radius: 0.45rem;
+        color: #38bdf8;
+        text-decoration: none;
+        font-size: 0.82rem;
+        transition: all 0.2s ease;
+      }
+
+      .site-link-chip:hover {
+        background: rgba(56, 189, 248, 0.15);
+        border-color: #38bdf8;
+      }
+
+      .template-chip {
+        font-size: 0.76rem;
+        color: #cbd5e1;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 0.2rem 0.55rem;
+        border-radius: 0.4rem;
+      }
+
+      /* Header Action Buttons */
+      .header-action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-action-primary {
+        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.88rem;
+        padding: 0.65rem 1.15rem;
+        border-radius: 0.65rem;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        transition: all 0.2s ease;
+      }
+
+      .btn-action-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+      }
+
+      .btn-action-secondary {
+        background: rgba(30, 41, 59, 0.85);
+        color: #f1f5f9;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        font-weight: 600;
+        font-size: 0.88rem;
+        padding: 0.65rem 1rem;
+        border-radius: 0.65rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+
+      .btn-action-secondary:hover {
+        background: rgba(51, 65, 85, 0.9);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-action-highlight {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: #ffffff;
+        font-weight: 750;
+        font-size: 0.88rem;
+        padding: 0.65rem 1.15rem;
+        border-radius: 0.65rem;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        transition: all 0.2s ease;
+      }
+
+      .btn-action-highlight:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+      }
+
+      /* Guide Strip */
+      .onboarding-guide-strip {
+        background: rgba(56, 189, 248, 0.05);
+        border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+        padding: 0.9rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .guide-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        color: #38bdf8;
+      }
+
+      .guide-steps {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .guide-step {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+        font-size: 0.82rem;
+        color: #cbd5e1;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.3rem 0.7rem;
+        border-radius: 9999px;
+        transition: all 0.2s ease;
+      }
+
+      .guide-step:hover {
+        border-color: #38bdf8;
+        color: #ffffff;
+      }
+
+      .step-num {
+        width: 1.1rem;
+        height: 1.1rem;
+        border-radius: 50%;
+        background: #38bdf8;
+        color: #071225;
+        font-weight: 900;
+        font-size: 0.68rem;
+        display: grid;
+        place-items: center;
+      }
+
+      .step-connector {
+        color: #475569;
+        font-size: 0.8rem;
+      }
+
+      /* Modules Grid */
+      .modules-grid-section {
+        padding: 2rem;
+        display: grid;
+        gap: 2.2rem;
+      }
+
+      .module-category {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+
+      .category-title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .category-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+
+      .module-tile {
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 0.9rem;
+        padding: 1.15rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .module-tile:hover {
+        transform: translateY(-2px);
+        background: rgba(22, 36, 68, 0.7);
+        border-color: rgba(56, 189, 248, 0.35);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      }
+
+      .module-tile.highlight-tile {
+        border-color: rgba(56, 189, 248, 0.28);
+        background: rgba(14, 28, 54, 0.8);
+      }
+
+      .tile-icon-box {
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 0.65rem;
+        display: grid;
+        place-items: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+
+      .tile-content {
+        flex: 1;
+      }
+
+      .tile-title {
+        display: block;
+        font-size: 0.98rem;
+        font-weight: 750;
+        color: #ffffff;
+        margin-bottom: 0.25rem;
+      }
+
+      .tile-desc {
+        font-size: 0.82rem;
+        color: #94a3b8;
+        line-height: 1.45;
+        margin: 0;
+      }
+
+      .tile-arrow {
+        color: #475569;
+        font-size: 1.1rem;
+        transition: transform 0.2s ease, color 0.2s ease;
+      }
+
+      .module-tile:hover .tile-arrow {
+        color: #38bdf8;
+        transform: translateX(3px);
+      }
+
+      /* Alerts & Empty states */
+      .alert-box.error {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #fca5a5;
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-state-card {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: #0d1527;
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 1.25rem;
+      }
+
+      .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Responsiveness */
+      @media (max-width: 768px) {
+        .header-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .header-left {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
+          width: 100%;
+        }
+
+        .header-right {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .site-card-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .header-action-buttons {
+          width: 100%;
+          flex-direction: column;
+        }
+
+        .btn-action-primary, .btn-action-secondary, .btn-action-highlight {
+          width: 100%;
+          text-align: center;
+        }
+
+        .modules-grid-section {
+          padding: 1.25rem;
+        }
+
+        .category-cards {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </body>
 </html>
