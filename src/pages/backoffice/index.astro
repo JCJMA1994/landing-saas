@@ -6,6 +6,8 @@ import { createAdminClient } from "../../infrastructure/supabase/server";
 import { parseServerEnv } from "../../infrastructure/config/env";
 import { PLAN_IDS } from "../../domain/saas/plan";
 import { TEMPLATE_KEYS, TEMPLATE_MANIFESTS, type TemplateKey } from "../../domain/template/manifest";
+import { SupabasePaletteRepository } from "../../infrastructure/supabase/palette-repository";
+import type { PlatformPalette } from "../../domain/site/palette";
 import "../../styles/admin.css";
 
 if (!Astro.locals.user) {
@@ -24,6 +26,11 @@ if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
 
 const changePlanResult = Astro.getActionResult(actions.changePlan);
 const onboardResult = Astro.getActionResult(actions.onboardClient);
+const createPaletteResult = Astro.getActionResult(actions.createPlatformPalette);
+const deletePaletteResult = Astro.getActionResult(actions.deletePlatformPalette);
+
+const paletteRepo = new SupabasePaletteRepository(Astro.locals.supabase);
+const platformPalettes: PlatformPalette[] = await paletteRepo.listPalettes();
 
 let overview: any = null;
 let errorLoading = false;
@@ -233,6 +240,35 @@ try {
             <p class="banner-message">
               Plan actualizado a <strong>{changePlanResult.data.subscription.planId.toUpperCase()}</strong> correctamente.
             </p>
+          </div>
+        </div>
+      )}
+
+      {createPaletteResult?.data?.ok && (
+        <div class="feedback-banner success animate-slide-down" role="status">
+          <div class="banner-icon-glow">🎨</div>
+          <div class="banner-details">
+            <h3 class="banner-title">¡Paleta guardada en la plataforma!</h3>
+            <p class="banner-message">La nueva combinación de colores ya está disponible para todos los clientes.</p>
+          </div>
+        </div>
+      )}
+
+      {createPaletteResult?.data && !createPaletteResult.data.ok && (
+        <div class="feedback-banner error animate-slide-down" role="alert">
+          <div class="banner-icon-glow">⚠️</div>
+          <div class="banner-details">
+            <h3 class="banner-title">Error al crear la paleta</h3>
+            <p class="banner-message">{createPaletteResult.data.error}</p>
+          </div>
+        </div>
+      )}
+
+      {deletePaletteResult?.data?.ok && (
+        <div class="feedback-banner success animate-slide-down" role="status">
+          <div class="banner-icon-glow">🗑️</div>
+          <div class="banner-details">
+            <p class="banner-message">Paleta eliminada de la plataforma correctamente.</p>
           </div>
         </div>
       )}
@@ -488,6 +524,159 @@ try {
               </div>
             )}
           </section>
+
+          <!-- Platform Brand Palettes Section -->
+          <section class="section-card animate-fade-in" id="paletas-plataforma" style="margin-top: 2.5rem;">
+            <div class="card-header-cluster">
+              <div class="header-icon-box" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">🎨</div>
+              <div>
+                <h2 class="card-headline">Paletas de Colores de la Plataforma</h2>
+                <p class="card-subtext">
+                  Como superadmin podés crear y gestionar paletas cromáticas armónicas que estarán disponibles con 1-clic para todos los clientes en su editor de themes.
+                </p>
+              </div>
+            </div>
+
+            <!-- Existing Palettes Grid -->
+            <div class="palettes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+              {platformPalettes.map((p) => (
+                <div class="palette-card" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 0.75rem; padding: 1.25rem; position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                      <div>
+                        <strong style="font-size: 1rem; color: #f8fafc; display: block;">{p.name}</strong>
+                        {p.description && <span style="font-size: 0.75rem; color: #94a3b8; line-height: 1.3; display: block; margin-top: 0.2rem;">{p.description}</span>}
+                      </div>
+                      <span style={`font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 9999px; font-weight: 700; ${p.isSystem ? 'background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);' : 'background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);'}`}>
+                        {p.isSystem ? 'SISTEMA' : 'PROPIA'}
+                      </span>
+                    </div>
+
+                    <!-- 5 Color Swatches -->
+                    <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem; border-radius: 0.5rem; overflow: hidden; padding: 0.35rem; background: rgba(0,0,0,0.3);">
+                      <div title={`Primario: ${p.primaryColor}`} style={`flex: 1; height: 32px; border-radius: 4px; background: ${p.primaryColor};`}></div>
+                      <div title={`Secundario: ${p.secondaryColor}`} style={`flex: 1; height: 32px; border-radius: 4px; background: ${p.secondaryColor};`}></div>
+                      <div title={`Acento: ${p.accentColor}`} style={`flex: 1; height: 32px; border-radius: 4px; background: ${p.accentColor};`}></div>
+                      <div title={`Fondo: ${p.backgroundColor}`} style={`flex: 1; height: 32px; border-radius: 4px; background: ${p.backgroundColor}; border: 1px solid rgba(255,255,255,0.1);`}></div>
+                      <div title={`Texto: ${p.textColor}`} style={`flex: 1; height: 32px; border-radius: 4px; background: ${p.textColor};`}></div>
+                    </div>
+
+                    <div style="font-size: 0.72rem; color: #64748b; font-family: monospace; display: flex; justify-content: space-between;">
+                      <span>{p.primaryColor}</span>
+                      <span>{p.accentColor}</span>
+                      <span>{p.backgroundColor}</span>
+                    </div>
+                  </div>
+
+                  {!p.isSystem && (
+                    <form method="POST" action={actions.deletePlatformPalette} style="margin-top: 1rem; text-align: right;">
+                      <input type="hidden" name="paletteId" value={p.id} />
+                      <button type="submit" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 0.4rem; cursor: pointer; transition: all 0.2s;" onclick="return confirm('¿Eliminar esta paleta de la plataforma?')">
+                        🗑️ Eliminar
+                      </button>
+                    </form>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <!-- Form to Create New Palette -->
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(168, 85, 247, 0.3); border-radius: 0.85rem; padding: 1.5rem;">
+              <h3 style="font-size: 1.1rem; color: #f8fafc; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>➕ Agregar Nueva Paleta a la Plataforma</span>
+              </h3>
+              <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 1.25rem;">
+                Definí una combinación armónica de 5 colores. Los clientes podrán aplicarla directamente en sus landings.
+              </p>
+
+              <form method="POST" action={actions.createPlatformPalette} id="new-palette-form">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+                  <div class="input-field">
+                    <label for="paletteName">Nombre de la Paleta *</label>
+                    <input type="text" id="paletteName" name="name" required placeholder="Ej: Sunset Cyberpunk" minlength="2" maxlength="64" />
+                  </div>
+                  <div class="input-field" style="grid-column: span 2;">
+                    <label for="paletteDescription">Descripción (Opcional)</label>
+                    <input type="text" id="paletteDescription" name="description" placeholder="Ej: Tonos cálidos y oscuros para marcas vanguardistas" maxlength="256" />
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                  <div class="input-field">
+                    <label for="primaryColor">Primario *</label>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                      <input type="color" id="primaryColorPicker" value="#38bdf8" style="width: 38px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" />
+                      <input type="text" id="primaryColor" name="primaryColor" required pattern="^#[0-9a-fA-F]{6}$" value="#38bdf8" style="font-family: monospace; text-transform: lowercase;" />
+                    </div>
+                  </div>
+
+                  <div class="input-field">
+                    <label for="secondaryColor">Secundario *</label>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                      <input type="color" id="secondaryColorPicker" value="#818cf8" style="width: 38px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" />
+                      <input type="text" id="secondaryColor" name="secondaryColor" required pattern="^#[0-9a-fA-F]{6}$" value="#818cf8" style="font-family: monospace; text-transform: lowercase;" />
+                    </div>
+                  </div>
+
+                  <div class="input-field">
+                    <label for="accentColor">Acento *</label>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                      <input type="color" id="accentColorPicker" value="#f43f5e" style="width: 38px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" />
+                      <input type="text" id="accentColor" name="accentColor" required pattern="^#[0-9a-fA-F]{6}$" value="#f43f5e" style="font-family: monospace; text-transform: lowercase;" />
+                    </div>
+                  </div>
+
+                  <div class="input-field">
+                    <label for="backgroundColor">Fondo *</label>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                      <input type="color" id="backgroundColorPicker" value="#0a0f1e" style="width: 38px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" />
+                      <input type="text" id="backgroundColor" name="backgroundColor" required pattern="^#[0-9a-fA-F]{6}$" value="#0a0f1e" style="font-family: monospace; text-transform: lowercase;" />
+                    </div>
+                  </div>
+
+                  <div class="input-field">
+                    <label for="textColor">Texto *</label>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                      <input type="color" id="textColorPicker" value="#f8fafc" style="width: 38px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" />
+                      <input type="text" id="textColor" name="textColor" required pattern="^#[0-9a-fA-F]{6}$" value="#f8fafc" style="font-family: monospace; text-transform: lowercase;" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Live Preview of the Palette -->
+                <div id="palette-live-preview" style="border-radius: 0.65rem; padding: 1.25rem; margin-bottom: 1.5rem; transition: all 0.3s; background: #0a0f1e; border: 1px solid #38bdf844;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span id="preview-badge" style="font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 9999px; background: #38bdf822; color: #38bdf8; border: 1px solid #38bdf855;">
+                      ✨ Vista Previa en Vivo
+                    </span>
+                    <span id="preview-accent-tag" style="font-size: 0.75rem; font-weight: 700; color: #f43f5e;">
+                      ● Acento Destacado
+                    </span>
+                  </div>
+                  <h4 id="preview-heading" style="margin: 0 0 0.5rem; font-size: 1.25rem; color: #f8fafc;">
+                    Así se verá el encabezado con esta paleta
+                  </h4>
+                  <p id="preview-subtext" style="margin: 0 0 1rem; font-size: 0.85rem; color: #818cf8;">
+                    Los colores secundarios y de texto generan armonía en los párrafos y botones.
+                  </p>
+                  <div style="display: flex; gap: 0.75rem;">
+                    <span id="preview-btn" style="padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 700; background: #38bdf8; color: #0a0f1e;">
+                      Botón Primario
+                    </span>
+                    <span id="preview-accent-btn" style="padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 700; background: #f43f5e; color: #ffffff;">
+                      Botón de Acción
+                    </span>
+                  </div>
+                </div>
+
+                <div style="text-align: right;">
+                  <button type="submit" class="btn-cta-gold" style="padding: 0.75rem 1.75rem;">
+                    <span>💾 Guardar Paleta en la Plataforma</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
         </>
       )}
     </main>
@@ -543,6 +732,72 @@ try {
           passwordInput.type = "text";
         });
       }
+
+      // Palette Live Preview & Color Pickers Sync
+      const colorPairs = [
+        { picker: "primaryColorPicker", text: "primaryColor" },
+        { picker: "secondaryColorPicker", text: "secondaryColor" },
+        { picker: "accentColorPicker", text: "accentColor" },
+        { picker: "backgroundColorPicker", text: "backgroundColor" },
+        { picker: "textColorPicker", text: "textColor" },
+      ];
+
+      function updatePaletteLivePreview() {
+        const primary = (document.getElementById("primaryColor") as HTMLInputElement)?.value || "#38bdf8";
+        const secondary = (document.getElementById("secondaryColor") as HTMLInputElement)?.value || "#818cf8";
+        const accent = (document.getElementById("accentColor") as HTMLInputElement)?.value || "#f43f5e";
+        const bg = (document.getElementById("backgroundColor") as HTMLInputElement)?.value || "#0a0f1e";
+        const text = (document.getElementById("textColor") as HTMLInputElement)?.value || "#f8fafc";
+
+        const container = document.getElementById("palette-live-preview");
+        const badge = document.getElementById("preview-badge");
+        const accentTag = document.getElementById("preview-accent-tag");
+        const heading = document.getElementById("preview-heading");
+        const subtext = document.getElementById("preview-subtext");
+        const btn = document.getElementById("preview-btn");
+        const accentBtn = document.getElementById("preview-accent-btn");
+
+        if (container) {
+          container.style.backgroundColor = bg;
+          container.style.borderColor = primary + "55";
+        }
+        if (heading) heading.style.color = text;
+        if (subtext) subtext.style.color = secondary;
+        if (badge) {
+          badge.style.color = primary;
+          badge.style.backgroundColor = primary + "22";
+          badge.style.borderColor = primary + "55";
+        }
+        if (accentTag) accentTag.style.color = accent;
+        if (btn) {
+          btn.style.backgroundColor = primary;
+          btn.style.color = bg;
+        }
+        if (accentBtn) {
+          accentBtn.style.backgroundColor = accent;
+          accentBtn.style.color = "#ffffff";
+        }
+      }
+
+      colorPairs.forEach(({ picker, text }) => {
+        const pEl = document.getElementById(picker) as HTMLInputElement | null;
+        const tEl = document.getElementById(text) as HTMLInputElement | null;
+
+        if (pEl && tEl) {
+          pEl.addEventListener("input", () => {
+            tEl.value = pEl.value;
+            updatePaletteLivePreview();
+          });
+          tEl.addEventListener("input", () => {
+            if (/^#[0-9a-fA-F]{6}$/.test(tEl.value)) {
+              pEl.value = tEl.value;
+              updatePaletteLivePreview();
+            }
+          });
+        }
+      });
+
+      updatePaletteLivePreview();
     </script>
 
     <style>

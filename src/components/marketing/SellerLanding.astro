@@ -1017,12 +1017,13 @@ const faqs = [
   // 3D Flip Card Interactive Controller for Design Showcase
   const flipCards = document.querySelectorAll<HTMLElement>(".flip-card");
   flipCards.forEach((card) => {
-    const triggers = card.querySelectorAll<HTMLButtonElement>(".btn-flip-trigger, .btn-flip-back");
-    triggers.forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        card.classList.toggle("is-flipped");
-      });
+    card.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      // Do not flip if user clicks direct action links (like "Solicitar este estilo")
+      if (target.closest(".btn-template-select") || target.closest(".btn-back-cta")) {
+        return;
+      }
+      card.classList.toggle("is-flipped");
     });
   });
 </script>
@@ -1701,8 +1702,10 @@ const faqs = [
 
   .flip-card {
     perspective: 1400px;
-    height: 520px;
+    height: 535px;
     position: relative;
+    cursor: pointer;
+    user-select: none;
   }
 
   .flip-card-inner {

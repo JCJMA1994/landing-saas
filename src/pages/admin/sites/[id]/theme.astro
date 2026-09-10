@@ -1,6 +1,7 @@
 ---
 import { actions } from "astro:actions";
 import { SupabaseThemeRepository } from "../../../../infrastructure/supabase/theme-repository";
+import { SupabasePaletteRepository } from "../../../../infrastructure/supabase/palette-repository";
 import {
   DEFAULT_SITE_THEME,
   THEME_BUTTON_VARIANTS,
@@ -29,7 +30,12 @@ if (siteError || !siteData) {
 }
 
 const themeRepo = new SupabaseThemeRepository(Astro.locals.supabase);
-const existingTheme = await themeRepo.getTheme(siteId);
+const paletteRepo = new SupabasePaletteRepository(Astro.locals.supabase);
+
+const [existingTheme, platformPalettes] = await Promise.all([
+  themeRepo.getTheme(siteId),
+  paletteRepo.listPalettes(),
+]);
 
 const theme: SiteTheme = existingTheme ?? {
   siteId,
@@ -91,6 +97,40 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
             <input type="hidden" name="siteId" value={siteId} />
             <input type="hidden" name="tenantId" value={siteData.tenant_id} />
 
+            <!-- 1-Click Platform Palette Selector -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.75rem;">
+              <div style="margin-bottom: 0.75rem;">
+                <strong style="font-size: 0.95rem; color: #f8fafc; display: block;">🎨 Paletas de Marca Globales (1-Clic)</strong>
+                <span style="font-size: 0.78rem; color: #94a3b8;">Hacé clic en cualquier paleta para cargar automáticamente sus 5 colores en el formulario:</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;">
+                {platformPalettes.map((p) => (
+                  <button
+                    type="button"
+                    class="btn-apply-palette"
+                    data-primary={p.primaryColor}
+                    data-secondary={p.secondaryColor}
+                    data-accent={p.accentColor}
+                    data-bg={p.backgroundColor}
+                    data-text={p.textColor}
+                    style="display: flex; flex-direction: column; gap: 0.45rem; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem; padding: 0.65rem; cursor: pointer; text-align: left; transition: all 0.2s;"
+                  >
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      {p.name}
+                    </span>
+                    <div style="display: flex; gap: 2px; height: 14px; border-radius: 3px; overflow: hidden; width: 100%;">
+                      <span style={`flex: 1; background: ${p.primaryColor};`}></span>
+                      <span style={`flex: 1; background: ${p.secondaryColor};`}></span>
+                      <span style={`flex: 1; background: ${p.accentColor};`}></span>
+                      <span style={`flex: 1; background: ${p.backgroundColor}; border: 1px solid rgba(255,255,255,0.1);`}></span>
+                      <span style={`flex: 1; background: ${p.textColor};`}></span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div class="field">
               <label for="primaryColor">Primary Color (Hex)</label>
               <input id="primaryColor" name="primaryColor" type="text" pattern="^#[0-9a-fA-F]{6}$" required value={theme.primaryColor} />
@@ -135,7 +175,7 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
             </div>
 
             <div class="field">
-              <label for="buttonVariant">Button Variant</label>
+              <label for="buttonVariant">Button Style</label>
               <select id="buttonVariant" name="buttonVariant" required>
                 {THEME_BUTTON_VARIANTS.map((variant) => (
                   <option value={variant} selected={variant === theme.buttonVariant}>{variant}</option>
@@ -160,13 +200,13 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
           <h2 style="margin-top: 0;">Visual Tokens Preview</h2>
           <p class="muted">Live preview of selected brand palette tokens.</p>
           <div style="display: grid; gap: 1rem; margin-top: 1.5rem;">
-            <div style={`background: ${theme.backgroundColor}; color: ${theme.textColor}; padding: 1.5rem; border: 1px solid #304365; border-radius: .75rem;`}>
-              <h3 style={`color: ${theme.primaryColor}; margin-top: 0;`}>Brand Heading</h3>
-              <p style="margin-bottom: 1rem;">Sample text rendered with selected background and text contrast tokens.</p>
+            <div id="live-theme-preview-box" style={`background: ${theme.backgroundColor}; color: ${theme.textColor}; padding: 1.5rem; border: 1px solid #304365; border-radius: .75rem; transition: all 0.25s;`}>
+              <h3 id="preview-brand-h3" style={`color: ${theme.primaryColor}; margin-top: 0;`}>Brand Heading</h3>
+              <p id="preview-brand-p" style="margin-bottom: 1rem;">Sample text rendered with selected background and text contrast tokens.</p>
               <div style="display: flex; gap: .75rem; align-items: center; flex-wrap: wrap;">
-                <span style={`background: ${theme.primaryColor}; color: #ffffff; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Primary</span>
-                <span style={`background: ${theme.secondaryColor}; color: #ffffff; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Secondary</span>
-                <span style={`background: ${theme.accentColor}; color: #000000; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Accent</span>
+                <span id="preview-brand-primary-btn" style={`background: ${theme.primaryColor}; color: #ffffff; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Primary</span>
+                <span id="preview-brand-secondary-btn" style={`background: ${theme.secondaryColor}; color: #ffffff; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Secondary</span>
+                <span id="preview-brand-accent-btn" style={`background: ${theme.accentColor}; color: #000000; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700;`}>Accent</span>
               </div>
             </div>
           </div>
@@ -176,5 +216,46 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
         </aside>
       </div>
     </main>
+
+    <script>
+      const primaryInput = document.getElementById("primaryColor") as HTMLInputElement | null;
+      const secondaryInput = document.getElementById("secondaryColor") as HTMLInputElement | null;
+      const accentInput = document.getElementById("accentColor") as HTMLInputElement | null;
+      const bgInput = document.getElementById("backgroundColor") as HTMLInputElement | null;
+      const textInput = document.getElementById("textColor") as HTMLInputElement | null;
+
+      const previewBox = document.getElementById("live-theme-preview-box");
+      const previewH3 = document.getElementById("preview-brand-h3");
+      const previewPrimary = document.getElementById("preview-brand-primary-btn");
+      const previewSecondary = document.getElementById("preview-brand-secondary-btn");
+      const previewAccent = document.getElementById("preview-brand-accent-btn");
+
+      function updateLiveTokens() {
+        if (!previewBox || !primaryInput || !secondaryInput || !accentInput || !bgInput || !textInput) return;
+        previewBox.style.backgroundColor = bgInput.value;
+        previewBox.style.color = textInput.value;
+        if (previewH3) previewH3.style.color = primaryInput.value;
+        if (previewPrimary) previewPrimary.style.backgroundColor = primaryInput.value;
+        if (previewSecondary) previewSecondary.style.backgroundColor = secondaryInput.value;
+        if (previewAccent) previewAccent.style.backgroundColor = accentInput.value;
+      }
+
+      [primaryInput, secondaryInput, accentInput, bgInput, textInput].forEach((input) => {
+        input?.addEventListener("input", updateLiveTokens);
+      });
+
+      // Palette buttons click
+      const paletteBtns = document.querySelectorAll<HTMLButtonElement>(".btn-apply-palette");
+      paletteBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (primaryInput && btn.dataset.primary) primaryInput.value = btn.dataset.primary;
+          if (secondaryInput && btn.dataset.secondary) secondaryInput.value = btn.dataset.secondary;
+          if (accentInput && btn.dataset.accent) accentInput.value = btn.dataset.accent;
+          if (bgInput && btn.dataset.bg) bgInput.value = btn.dataset.bg;
+          if (textInput && btn.dataset.text) textInput.value = btn.dataset.text;
+          updateLiveTokens();
+        });
+      });
+    </script>
   </body>
 </html>

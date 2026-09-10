@@ -97,6 +97,7 @@ import { SupabaseSubscriptionRepository } from "../infrastructure/supabase/subsc
 import { MockBillingGateway } from "../infrastructure/billing/mock-billing-gateway";
 import { QuotaExceededError } from "../domain/saas/quota";
 import { FeatureNotAllowedError } from "../domain/saas/feature-flag";
+import { SupabasePaletteRepository } from "../infrastructure/supabase/palette-repository";
 
 async function verifyTenantRole(supabase: any, tenantId: string, userId: string): Promise<TenantRole | null> {
   const { data } = await supabase
@@ -995,6 +996,50 @@ export const server = {
         }
         return { ok: false, error: error?.message || "Failed to onboard client." };
       }
+    },
+  }),
+
+  createPlatformPalette: defineAction({
+    accept: "form",
+    input: z.object({
+      name: z.string().trim().min(2).max(64),
+      description: z.string().trim().max(256).optional(),
+      primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Formato hex inválido (#RRGGBB)"),
+      secondaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Formato hex inválido (#RRGGBB)"),
+      accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Formato hex inválido (#RRGGBB)"),
+      backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Formato hex inválido (#RRGGBB)"),
+      textColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Formato hex inválido (#RRGGBB)"),
+    }),
+    handler: async (input, context) => {
+      if (!context.locals.user) return { ok: false, error: "Authentication required." };
+      const subRepo = new SupabaseSubscriptionRepository(context.locals.supabase);
+      const isSuperadmin = await subRepo.isPlatformSuperadmin(context.locals.user.id);
+      if (!isSuperadmin) return { ok: false, error: "Forbidden: Superadmin access required." };
+
+      const paletteRepo = new SupabasePaletteRepository(context.locals.supabase);
+      const palette = await paletteRepo.createPalette(input);
+      if (!palette) return { ok: false, error: "Failed to create palette." };
+
+      return { ok: true, palette };
+    },
+  }),
+
+  deletePlatformPalette: defineAction({
+    accept: "form",
+    input: z.object({
+      paletteId: z.string().uuid(),
+    }),
+    handler: async (input, context) => {
+      if (!context.locals.user) return { ok: false, error: "Authentication required." };
+      const subRepo = new SupabaseSubscriptionRepository(context.locals.supabase);
+      const isSuperadmin = await subRepo.isPlatformSuperadmin(context.locals.user.id);
+      if (!isSuperadmin) return { ok: false, error: "Forbidden: Superadmin access required." };
+
+      const paletteRepo = new SupabasePaletteRepository(context.locals.supabase);
+      const deleted = await paletteRepo.deletePalette(input.paletteId);
+      if (!deleted) return { ok: false, error: "Failed to delete palette or palette is protected." };
+
+      return { ok: true };
     },
   }),
 };
