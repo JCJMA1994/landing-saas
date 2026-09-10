@@ -29,6 +29,11 @@ const templateShowcase = [
     mockSub: "Automatizaciones inteligentes, onboarding intuitivo y analíticas claras para hacer crecer tu negocio.",
     btnMain: "Comenzar Prueba Gratis",
     btnGhost: "Ver Demo en Vivo",
+    exclusiveComponents: [
+      "Flujo guiado de onboarding en 3 pasos",
+      "Tarjetas suaves con elevación y empatía",
+      "Botón WhatsApp con mensaje precargado"
+    ],
     features: [
       { icon: "🚀", title: "Activación Rápida", desc: "Configuración guiada en menos de 3 minutos.", metric: "+180% leads" },
       { icon: "📈", title: "Crecimiento Continuo", desc: "Embudos optimizados para retención constante.", metric: "99.2% retención" },
@@ -49,6 +54,11 @@ const templateShowcase = [
     mockSub: "Monitoreo preventivo, análisis de vulnerabilidades y certificación técnica para empresas exigentes.",
     btnMain: "Solicitar Diagnóstico",
     btnGhost: "Ver Reporte Técnico",
+    exclusiveComponents: [
+      "Cabecera HUD con telemetría de servicio",
+      "Escáner animado de diagnóstico continuo",
+      "Rejilla métrica densa con chips de estado"
+    ],
     features: [
       { icon: "🔍", title: "Escaneo Predictivo", desc: "Detección proactiva antes de que ocurra una falla.", metric: "0 incidentes" },
       { icon: "⚡", title: "Baja Latencia", desc: "Conexión a servidores ultra veloces en el Edge.", metric: "0.4ms avg" },
@@ -69,6 +79,11 @@ const templateShowcase = [
     mockSub: "Ingeniería de vanguardia, estética cyberpunk y overclocking garantizado con refrigeración activa.",
     btnMain: "Configurar Servidor",
     btnGhost: "Benchmarks en Vivo",
+    exclusiveComponents: [
+      "Cortes biselados a 45° en bordes y botones",
+      "Indicador turbo de frecuencia overclocking",
+      "Efectos neón y trazas de alta tensión"
+    ],
     features: [
       { icon: "⚡", title: "360 FPS Sostenidos", desc: "Fluidez absoluta en renderizado y procesamiento.", metric: "Max Peak" },
       { icon: "❄️", title: "Térmica Controlada", desc: "Gestión de flujo de aire y disipación líquida.", metric: "24°C Idle" },
@@ -89,6 +104,11 @@ const templateShowcase = [
     mockSub: "Consola unificada para tus APIs, microservicios, bases de datos y métricas de carga.",
     btnMain: "Abrir Telemetría",
     btnGhost: "Explorar API Docs",
+    exclusiveComponents: [
+      "Consola de comandos y terminal interactiva",
+      "Pings de latencia y monitoreo de nodos",
+      "Métricas de disponibilidad y uptime SLA"
+    ],
     features: [
       { icon: "📊", title: "Uptime 99.999%", desc: "Disponibilidad ininterrumpida con failover automático.", metric: "Cluster US-East" },
       { icon: "📡", title: "Throughput API", desc: "Procesamiento masivo de peticiones por segundo.", metric: "48.2k req/s" },
@@ -109,6 +129,11 @@ const templateShowcase = [
     mockSub: "Atención express, repuestos originales y diagnóstico transparente directo en tu WhatsApp.",
     btnMain: "Solicitar Turno Express",
     btnGhost: "Cotizar por WhatsApp 📲",
+    exclusiveComponents: [
+      "Cabecera de Orden de Trabajo #RW numerada",
+      "Sello estampado de garantía por 90 días",
+      "Desglose modular de repuestos y mano de obra"
+    ],
     features: [
       { icon: "🛠️", title: "Diagnóstico en el Día", desc: "Revisión integral sin cargo para presupuestos.", metric: "24hs entrega" },
       { icon: "⭐", title: "Repuestos Genuinos", desc: "Piezas originales homologadas por fábrica.", metric: "100% original" },
@@ -129,6 +154,11 @@ const templateShowcase = [
     mockSub: "Combinamos dirección de arte premium, tipografía refinada y arquitectura web de clase mundial.",
     btnMain: "Ver Casos de Éxito",
     btnGhost: "Agendar Consulta Privada",
+    exclusiveComponents: [
+      "Composición asimétrica de gran escala",
+      "Tipografía serif editorial de alta gama",
+      "Bloques de Pull-Quote y citas destacadas"
+    ],
     features: [
       { icon: "🖋️", title: "Dirección de Arte", desc: "Identidad visual cuidada hasta el último píxel.", metric: "Bespoke" },
       { icon: "📖", title: "Contenido Editorial", desc: "Storytelling estratégico que cautiva clientes e inversores.", metric: "High impact" },
@@ -358,8 +388,8 @@ const faqs = [
         </div>
       </div>
 
-      <!-- Interactive Live Template Showcase Mockup Simulator -->
-      <div class="mockup-frame" id="live-mockup-stage">
+      <!-- Interactive Mockup Preview -->
+      <div class="mockup-frame">
         <div class="mockup-header">
           <div class="mockup-dots">
             <span class="dot red"></span>
@@ -368,83 +398,43 @@ const faqs = [
           </div>
           <div class="mockup-url-bar">
             <span class="url-lock">🔒</span>
-            <span class="url-text" id="mockup-url-display">friendly-saas.app</span>
+            <span class="url-text">tunegocio.com</span>
             <span class="url-badge">EN VIVO</span>
           </div>
           <div class="mockup-admin-link">
-            <span class="admin-pill">Simulador de Diseños Activo</span>
+            <span class="admin-pill">Panel de Control: Activo</span>
           </div>
         </div>
 
-        <!-- Interactive Template Selector Bar -->
-        <div class="mockup-template-tabs">
-          <div class="tabs-label">
-            <span class="tab-live-pulse"></span>
-            <span>Explorá las 6 arquitecturas en vivo:</span>
-          </div>
-          <div class="tabs-list" role="tablist">
-            {templateShowcase.map((t, idx) => (
-              <button
-                type="button"
-                class={`mockup-tab-btn ${idx === 0 ? "active" : ""}`}
-                data-template-target={t.key}
-                role="tab"
-                aria-selected={idx === 0 ? "true" : "false"}
-                style={`--tab-accent: ${t.accent};`}
-                title={`Ver diseño ${t.name}`}
-              >
-                <span class="tab-indicator-dot" style={`background: ${t.accent}; box-shadow: 0 0 6px ${t.accent};`}></span>
-                <span class="tab-btn-title">{t.name}</span>
-              </button>
-            ))}
-          </div>
-          <!-- Auto-rotation progress indicator -->
-          <div class="tab-progress-track">
-            <div class="tab-progress-bar" id="mockup-progress-bar"></div>
-          </div>
-        </div>
-
-        <div class="mockup-viewport" id="mockup-viewport-stage">
-          {templateShowcase.map((t, idx) => (
-            <div
-              class={`mockup-template-panel panel-${t.key} ${idx === 0 ? "active" : ""}`}
-              id={`panel-${t.key}`}
-              data-template-key={t.key}
-              data-mock-url={t.mockUrl}
-              style={`--panel-accent: ${t.accent};`}
-            >
-              <!-- Visual Hero preview inside template -->
-              <div class="mockup-hero-preview">
-                <div class="preview-badge" style={`color: ${t.accent}; background: ${t.accent}15; border-color: ${t.accent}35;`}>
-                  {t.mockBadge}
-                </div>
-                <h3 class="preview-heading">{t.mockHeadline}</h3>
-                <p class="preview-sub">{t.mockSub}</p>
-                <div class="preview-action-row">
-                  <span class="preview-btn-main" style={`background: ${t.accent}; color: #060a14;`}>
-                    {t.btnMain}
-                  </span>
-                  <span class="preview-btn-ghost">
-                    {t.btnGhost}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Visual Features / Modules inside template -->
-              <div class="mockup-features-row">
-                {t.features.map((feat, featIdx) => (
-                  <div class={`preview-card ${featIdx === 1 ? "highlight" : ""}`} style={featIdx === 1 ? `border-color: ${t.accent}50; background: ${t.accent}0a;` : ""}>
-                    <div class="preview-card-top">
-                      <span class="card-icon">{feat.icon}</span>
-                      <span class="card-metric" style={`color: ${t.accent};`}>{feat.metric}</span>
-                    </div>
-                    <strong>{feat.title}</strong>
-                    <p>{feat.desc}</p>
-                  </div>
-                ))}
-              </div>
+        <div class="mockup-viewport">
+          <!-- Visual preview cards inside mockup -->
+          <div class="mockup-hero-preview">
+            <div class="preview-badge">Tu Negocio Online</div>
+            <div class="preview-heading">Aumentá tus ventas con una experiencia digital superior</div>
+            <div class="preview-sub">Atraé a tus clientes ideales con un diseño profesional y contacto directo.</div>
+            <div class="preview-action-row">
+              <span class="preview-btn-main">Contactar por WhatsApp</span>
+              <span class="preview-btn-ghost">Ver Servicios</span>
             </div>
-          ))}
+          </div>
+
+          <div class="mockup-features-row">
+            <div class="preview-card">
+              <span class="card-icon">🚀</span>
+              <strong>Servicio Principal</strong>
+              <p>Descripción clara y vendedora de tu propuesta.</p>
+            </div>
+            <div class="preview-card highlight">
+              <span class="card-icon">⭐</span>
+              <strong>Promoción Activa</strong>
+              <p>Motor de ofertas con cuenta regresiva integrada.</p>
+            </div>
+            <div class="preview-card">
+              <span class="card-icon">💬</span>
+              <strong>Contacto Inmediato</strong>
+              <p>Redirección directa a tu WhatsApp sin fricción.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -486,50 +476,228 @@ const faqs = [
 
       <div class="templates-grid">
         {templateShowcase.map((t) => (
-          <article class="template-card reveal-on-scroll" style={`--card-accent: ${t.accent}; --card-glow: ${t.accent}33;`}>
-            <div class="template-card-header">
-              <div class="template-meta">
-                <span class="template-category">{t.category}</span>
-                <span class="template-badge" style={`color: ${t.accent}; background: ${t.accent}18; border: 1px solid ${t.accent}35;`}>
-                  {t.badge}
-                </span>
-              </div>
-              <h3 class="template-name">{t.name}</h3>
-              <p class="template-desc">{t.description}</p>
-            </div>
+          <div class="flip-card reveal-on-scroll" data-template={t.key} style={`--card-accent: ${t.accent}; --card-glow: ${t.accent}33;`}>
+            <div class="flip-card-inner">
+              <!-- FRONT OF THE CARD -->
+              <div class="flip-card-front">
+                <div class="card-top-bar">
+                  <span class="template-category">{t.category}</span>
+                  <span class="template-badge" style={`color: ${t.accent}; background: ${t.accent}18; border: 1px solid ${t.accent}35;`}>
+                    {t.badge}
+                  </span>
+                </div>
 
-            <!-- Architectural Mini-Preview Bar -->
-            <div class="template-preview-bar">
-              <div class="preview-bar-header">
-                <span class="preview-indicator" style={`background: ${t.accent}; box-shadow: 0 0 8px ${t.accent};`}></span>
-                <span class="preview-slug">theme/{t.key}</span>
-              </div>
-              <div class="preview-skeleton-lines">
-                <div class="skeleton-line" style={`width: 70%; background: ${t.accent}40;`}></div>
-                <div class="skeleton-line" style={`width: 45%; background: rgba(255,255,255,0.08);`}></div>
-              </div>
-            </div>
+                <div class="card-main-info">
+                  <h3 class="template-name">{t.name}</h3>
+                  <p class="template-desc">{t.description}</p>
 
-            <div class="template-tags">
-              {t.tags.map((tag) => (
-                <span class="template-tag">#{tag}</span>
-              ))}
-            </div>
+                  <div class="exclusive-components-box">
+                    <span class="components-label">Componentes exclusivos:</span>
+                    <ul class="components-list">
+                      {t.exclusiveComponents.map((comp) => (
+                        <li>
+                          <span class="comp-bullet" style={`background: ${t.accent};`}></span>
+                          <span>{comp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-            <div class="template-card-footer">
-              <button
-                type="button"
-                class="btn-preview-switch"
-                data-switch-to={t.key}
-                title={`Ver animación en vivo del diseño ${t.name}`}
-              >
-                <span>👁️ Probar diseño animado &uarr;</span>
-              </button>
-              <a href="#contacto" class="btn-template-select">
-                Solicitar este estilo &rarr;
-              </a>
+                  <div class="template-tags">
+                    {t.tags.map((tag) => (
+                      <span class="template-tag">#{tag}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="card-front-footer">
+                  <button
+                    type="button"
+                    class="btn-flip-trigger"
+                    title={`Girar tarjeta para ver arquitectura de ${t.name}`}
+                  >
+                    <span>🔄 Ver diseño (Girar tarjeta)</span>
+                  </button>
+                  <a href="#contacto" class="btn-template-select">
+                    Solicitar este estilo &rarr;
+                  </a>
+                </div>
+              </div>
+
+              <!-- BACK OF THE CARD: ARCHITECTURAL MINI-MOCKUP -->
+              <div class="flip-card-back" style={`--back-accent: ${t.accent};`}>
+                <div class="mini-browser-bar">
+                  <div class="mini-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                  </div>
+                  <span class="mini-browser-url">tunegocio.com/{t.key}</span>
+                  <button type="button" class="btn-flip-back" title="Volver a la ficha">
+                    <span>↩ Volver</span>
+                  </button>
+                </div>
+
+                <!-- DYNAMIC ARCHITECTURAL MOCKUP PER TEMPLATE -->
+                <div class={`mini-template-stage stage-${t.key}`}>
+                  {t.key === "friendly-tech" && (
+                    <div class="mockup-content friendly-tech-mockup">
+                      <div class="friendly-avatar-row">
+                        <div class="friendly-avatar">😊</div>
+                        <div>
+                          <strong>Atención Personalizada</strong>
+                          <span class="friendly-status-pill">● Online ahora</span>
+                        </div>
+                      </div>
+                      <div class="friendly-stepper">
+                        <span class="step-pill active">1. Consulta</span>
+                        <span class="step-arr">&rarr;</span>
+                        <span class="step-pill">2. Solución</span>
+                        <span class="step-arr">&rarr;</span>
+                        <span class="step-pill">3. Listo!</span>
+                      </div>
+                      <div class="friendly-soft-card">
+                        <p>“Cuidamos tu negocio con respuestas claras en menos de 15 minutos.”</p>
+                      </div>
+                      <div class="friendly-cta-box">
+                        <span class="friendly-wa-btn">💬 Escribinos por WhatsApp</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {t.key === "tech-diagnostic" && (
+                    <div class="mockup-content diagnostic-mockup">
+                      <div class="diag-hud-header">
+                        <span class="diag-blink">● SCAN_RUNNING</span>
+                        <span class="diag-metric">FREQ: 100Hz</span>
+                      </div>
+                      <div class="diag-scanner-bar">
+                        <div class="diag-scanner-pulse"></div>
+                      </div>
+                      <div class="diag-grid-chips">
+                        <div class="diag-chip pass">
+                          <span>CORE_SYS:</span>
+                          <strong>OPTIMAL</strong>
+                        </div>
+                        <div class="diag-chip pass">
+                          <span>LATENCY:</span>
+                          <strong>0.4ms</strong>
+                        </div>
+                        <div class="diag-chip warn">
+                          <span>STORAGE:</span>
+                          <strong>98.9% CALIBRATED</strong>
+                        </div>
+                      </div>
+                      <div class="diag-action-row">
+                        <span class="diag-btn">[ EMITIR REPORTE TÉCNICO ]</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {t.key === "cyber-performance" && (
+                    <div class="mockup-content cyber-mockup">
+                      <div class="cyber-chamfer-header">
+                        <span class="cyber-badge">TURBO OVERCLOCK</span>
+                        <span class="cyber-hz">5.4 GHz</span>
+                      </div>
+                      <div class="cyber-energy-line"></div>
+                      <div class="cyber-spec-matrix">
+                        <div class="cyber-spec-row">
+                          <span>GPU BOOST:</span>
+                          <strong class="cyber-glow-val">ACTIVE</strong>
+                        </div>
+                        <div class="cyber-spec-row">
+                          <span>FPS CAP:</span>
+                          <strong class="cyber-glow-val">360 ULTRA</strong>
+                        </div>
+                        <div class="cyber-spec-row">
+                          <span>THERMAL:</span>
+                          <strong class="cyber-glow-val">22°C LIQUID</strong>
+                        </div>
+                      </div>
+                      <div class="cyber-cta-wrap">
+                        <span class="cyber-btn">&gt;&gt; DESPLEGAR RIG &lt;&lt;</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {t.key === "system-monitor" && (
+                    <div class="mockup-content monitor-mockup">
+                      <div class="terminal-command-line">
+                        <span class="term-user">root@sys-mon:~$</span>
+                        <span class="term-cmd">ping edge-nodes</span>
+                      </div>
+                      <div class="term-nodes-list">
+                        <div class="term-node-item">
+                          <span class="node-live">●</span>
+                          <span class="node-name">US-East-01</span>
+                          <span class="node-ping">12ms</span>
+                          <span class="node-state">[OK]</span>
+                        </div>
+                        <div class="term-node-item">
+                          <span class="node-live">●</span>
+                          <span class="node-name">EU-Central-02</span>
+                          <span class="node-ping">24ms</span>
+                          <span class="node-state">[OK]</span>
+                        </div>
+                        <div class="term-node-item">
+                          <span class="node-live">●</span>
+                          <span class="node-name">LATAM-South-01</span>
+                          <span class="node-ping">18ms</span>
+                          <span class="node-state">[OK]</span>
+                        </div>
+                      </div>
+                      <div class="term-uptime-bar">
+                        <span>SLA UPTIME: 99.999% VERIFIED</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {t.key === "repair-workshop" && (
+                    <div class="mockup-content workshop-mockup">
+                      <div class="workshop-ticket-top">
+                        <span class="ticket-stamp">TICKET #RW-8921</span>
+                        <span class="ticket-warranty">GARANTÍA 90 DÍAS</span>
+                      </div>
+                      <div class="workshop-service-box">
+                        <strong>Mantenimiento & Cambio de Módulo</strong>
+                        <p>Repuestos 100% homologados con trazabilidad de fábrica.</p>
+                      </div>
+                      <div class="workshop-parts-row">
+                        <span class="part-item">✓ Pieza OEM</span>
+                        <span class="part-item">✓ Calibración</span>
+                        <span class="part-item">✓ Prueba Final</span>
+                      </div>
+                      <div class="workshop-cta">
+                        <span class="workshop-wa">📲 Cotizar Orden por WhatsApp</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {t.key === "tech-editorial" && (
+                    <div class="mockup-content editorial-mockup">
+                      <div class="editorial-volume">
+                        <span>VOLUME IV &bull; STRATEGIC REVIEW</span>
+                      </div>
+                      <h4 class="editorial-headline">“La simplicidad es la forma suprema de sofisticación.”</h4>
+                      <blockquote class="editorial-pullquote">
+                        «Diseñamos arquitecturas que perduran, libres de modas pasajeras.»
+                      </blockquote>
+                      <div class="editorial-author-row">
+                        <span>Atelier Studio &mdash; Dirección de Arte</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div class="card-back-footer">
+                  <a href="#contacto" class="btn-template-select btn-back-cta">
+                    Elegir {t.name} &rarr;
+                  </a>
+                </div>
+              </div>
             </div>
-          </article>
+          </div>
         ))}
       </div>
 
@@ -846,109 +1014,17 @@ const faqs = [
     });
   }
 
-  // Interactive Live Mockup Switcher with Auto-Cycle and Manual Controls
-  const tabButtons = document.querySelectorAll<HTMLButtonElement>(".mockup-tab-btn");
-  const panels = document.querySelectorAll<HTMLElement>(".mockup-template-panel");
-  const urlDisplay = document.getElementById("mockup-url-display");
-  const progressBar = document.getElementById("mockup-progress-bar");
-  const mockupStage = document.getElementById("live-mockup-stage");
-  const switchButtons = document.querySelectorAll<HTMLButtonElement>(".btn-preview-switch");
-
-  if (tabButtons.length > 0 && panels.length > 0) {
-    let currentIdx = 0;
-    const totalTemplates = tabButtons.length;
-    const CYCLE_DURATION = 4500;
-    let cycleTimer: any = null;
-    let isPaused = false;
-
-    function activateTemplate(index: number) {
-      currentIdx = (index + totalTemplates) % totalTemplates;
-
-      tabButtons.forEach((btn, i) => {
-        const isActive = i === currentIdx;
-        btn.classList.toggle("active", isActive);
-        btn.setAttribute("aria-selected", isActive ? "true" : "false");
-      });
-
-      panels.forEach((panel, i) => {
-        const isActive = i === currentIdx;
-        panel.classList.toggle("active", isActive);
-        if (isActive && urlDisplay) {
-          const mockUrl = panel.getAttribute("data-mock-url");
-          if (mockUrl) urlDisplay.textContent = mockUrl;
-        }
-      });
-
-      restartProgress();
-    }
-
-    function restartProgress() {
-      if (!progressBar) return;
-      progressBar.style.transition = "none";
-      progressBar.style.width = "0%";
-      void progressBar.offsetWidth;
-      if (!isPaused) {
-        progressBar.style.transition = `width ${CYCLE_DURATION}ms linear`;
-        progressBar.style.width = "100%";
-      }
-    }
-
-    function startCycle() {
-      clearInterval(cycleTimer);
-      restartProgress();
-      cycleTimer = setInterval(() => {
-        if (!isPaused) {
-          activateTemplate(currentIdx + 1);
-        }
-      }, CYCLE_DURATION);
-    }
-
-    tabButtons.forEach((btn, i) => {
-      btn.addEventListener("click", () => {
-        activateTemplate(i);
-        startCycle();
+  // 3D Flip Card Interactive Controller for Design Showcase
+  const flipCards = document.querySelectorAll<HTMLElement>(".flip-card");
+  flipCards.forEach((card) => {
+    const triggers = card.querySelectorAll<HTMLButtonElement>(".btn-flip-trigger, .btn-flip-back");
+    triggers.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        card.classList.toggle("is-flipped");
       });
     });
-
-    if (mockupStage) {
-      mockupStage.addEventListener("mouseenter", () => {
-        isPaused = true;
-        if (progressBar) {
-          const computedWidth = window.getComputedStyle(progressBar).width;
-          progressBar.style.transition = "none";
-          progressBar.style.width = computedWidth;
-        }
-      });
-
-      mockupStage.addEventListener("mouseleave", () => {
-        isPaused = false;
-        startCycle();
-      });
-    }
-
-    switchButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const targetKey = btn.getAttribute("data-switch-to");
-        if (!targetKey) return;
-        const targetIdx = Array.from(tabButtons).findIndex(
-          (b) => b.getAttribute("data-template-target") === targetKey
-        );
-        if (targetIdx !== -1) {
-          activateTemplate(targetIdx);
-          startCycle();
-          if (mockupStage) {
-            mockupStage.scrollIntoView({ behavior: "smooth", block: "center" });
-            mockupStage.classList.add("mockup-highlight-pulse");
-            setTimeout(() => {
-              mockupStage.classList.remove("mockup-highlight-pulse");
-            }, 1200);
-          }
-        }
-      });
-    });
-
-    startCycle();
-  }
+  });
 </script>
 
 <style>
@@ -1434,129 +1510,9 @@ const faqs = [
     font-weight: 600;
   }
 
-  /* Mockup Template Tabs Bar */
-  .mockup-template-tabs {
-    background: #070c18;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0.85rem 1.25rem 0.65rem;
-  }
-
-  .tabs-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.65rem;
-  }
-
-  .tab-live-pulse {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 8px #10b981;
-    display: inline-block;
-    animation: pulse 1.8s infinite;
-  }
-
-  .tabs-list {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
-
-  .mockup-tab-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 9999px;
-    padding: 0.35rem 0.85rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .mockup-tab-btn:hover {
-    color: #f8fafc;
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  .mockup-tab-btn.active {
-    background: var(--tab-accent, #38bdf8);
-    color: #060a14;
-    border-color: var(--tab-accent, #38bdf8);
-    font-weight: 800;
-    box-shadow: 0 2px 12px var(--tab-accent, rgba(56, 189, 248, 0.4));
-    transform: translateY(-1px);
-  }
-
-  .tab-indicator-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-  }
-
-  .mockup-tab-btn.active .tab-indicator-dot {
-    background: #060a14 !important;
-    box-shadow: none !important;
-  }
-
-  .tab-progress-track {
-    width: 100%;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 0.85rem;
-  }
-
-  .tab-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #38bdf8, #818cf8, #a855f7);
-    border-radius: 2px;
-  }
-
   .mockup-viewport {
     padding: 2.5rem 2rem;
     background: radial-gradient(circle at top right, #13203c 0%, #0d1527 60%);
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Mockup Stage & Panels */
-  .mockup-template-panel {
-    display: none;
-    opacity: 0;
-    transform: translateY(10px) scale(0.99);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  .mockup-template-panel.active {
-    display: block;
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    animation: panelSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  @keyframes panelSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(12px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
   }
 
   .mockup-hero-preview {
@@ -1641,25 +1597,10 @@ const faqs = [
     background: rgba(56, 189, 248, 0.05);
   }
 
-  .preview-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .card-metric {
-    font-size: 0.72rem;
-    font-weight: 800;
-    font-family: monospace;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 0.15rem 0.45rem;
-    border-radius: 4px;
-  }
-
   .card-icon {
     font-size: 1.3rem;
     display: block;
+    margin-bottom: 0.5rem;
   }
 
   .preview-card strong {
@@ -1674,99 +1615,6 @@ const faqs = [
     color: #94a3b8;
     margin: 0;
     line-height: 1.4;
-  }
-
-  /* Stage Highlight Pulse when clicked from templates grid */
-  .mockup-highlight-pulse {
-    animation: stagePulse 1.2s ease-out;
-  }
-
-  @keyframes stagePulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.8);
-      border-color: #38bdf8;
-    }
-    50% {
-      box-shadow: 0 0 45px 10px rgba(56, 189, 248, 0.5);
-      border-color: #38bdf8;
-    }
-    100% {
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(56, 189, 248, 0.1);
-      border-color: #1e293b;
-    }
-  }
-
-  /* Distinct visual aesthetic per template panel */
-  .panel-friendly-tech .preview-heading {
-    color: #f0fdf4;
-  }
-
-  .panel-tech-diagnostic {
-    background: radial-gradient(circle at top right, #151e3f 0%, #0d1527 70%);
-  }
-  .panel-tech-diagnostic .preview-card {
-    border-left: 2px solid #818cf8;
-  }
-
-  .panel-cyber-performance {
-    background: radial-gradient(circle at top right, #240e3f 0%, #080c1a 70%);
-  }
-  .panel-cyber-performance .preview-heading {
-    text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-  }
-  .panel-cyber-performance .preview-card {
-    border-color: rgba(168, 85, 247, 0.25);
-    background: rgba(168, 85, 247, 0.04);
-  }
-
-  .panel-system-monitor {
-    background: radial-gradient(circle at top right, #092823 0%, #05121b 70%);
-  }
-  .panel-system-monitor .preview-heading {
-    font-family: monospace;
-    letter-spacing: -0.02em;
-  }
-
-  .panel-repair-workshop {
-    background: radial-gradient(circle at top right, #2b1d09 0%, #0e121a 70%);
-  }
-  .panel-repair-workshop .preview-card {
-    border-top: 2px solid #f59e0b;
-  }
-
-  .panel-tech-editorial {
-    background: radial-gradient(circle at top right, #2c0f1b 0%, #0b0f19 70%);
-  }
-  .panel-tech-editorial .preview-heading {
-    font-family: serif, system-ui;
-    font-style: italic;
-    font-weight: 700;
-  }
-
-  /* Button inside template cards to trigger live preview */
-  .btn-preview-switch {
-    width: 100%;
-    padding: 0.65rem 1rem;
-    margin-bottom: 0.5rem;
-    background: rgba(56, 189, 248, 0.08);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    border-radius: 0.5rem;
-    color: #38bdf8;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    transition: all 0.2s ease;
-  }
-
-  .btn-preview-switch:hover {
-    background: #38bdf8;
-    color: #060a14;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
   }
 
   /* Section Headers */
@@ -1842,28 +1690,56 @@ const faqs = [
     line-height: 1.6;
   }
 
-  /* Templates Showcase */
+
+  /* Templates Showcase & 3D Flip Card System */
   .templates-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.75rem;
-    margin-bottom: 3rem;
+    gap: 2rem;
+    margin-bottom: 3.5rem;
   }
 
-  .template-card {
-    background: #0d1527;
-    border: 1px solid #1e293b;
+  .flip-card {
+    perspective: 1400px;
+    height: 520px;
+    position: relative;
+  }
+
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.65s cubic-bezier(0.2, 0.85, 0.25, 1);
     border-radius: 1rem;
-    padding: 2rem;
+  }
+
+  .flip-card.is-flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-card-front,
+  .flip-card-back {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 1rem;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
+    padding: 1.75rem;
+    box-sizing: border-box;
+    background: #0d1527;
+    border: 1px solid #1e293b;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   }
 
-  .template-card::before {
+  .flip-card-front::before,
+  .flip-card-back::before {
     content: "";
     position: absolute;
     top: 0;
@@ -1873,56 +1749,28 @@ const faqs = [
     background: var(--card-accent, #38bdf8);
   }
 
-  .template-card:hover {
-    transform: translateY(-8px);
+  .flip-card-front {
+    z-index: 2;
+    transform: rotateY(0deg);
+  }
+
+  .flip-card-front:hover {
     border-color: rgba(255, 255, 255, 0.25);
     box-shadow: 0 20px 40px -15px var(--card-glow, rgba(56, 189, 248, 0.3));
   }
 
-  /* Architectural Mini-Preview Bar */
-  .template-preview-bar {
-    background: rgba(4, 7, 14, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 0.6rem;
-    padding: 0.85rem 1rem;
-    margin: 0.5rem 0 1.25rem;
+  .flip-card-back {
+    transform: rotateY(180deg);
+    z-index: 1;
+    background: #080d1a;
   }
 
-  .preview-bar-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.6rem;
-  }
-
-  .preview-indicator {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-  }
-
-  .preview-slug {
-    font-size: 0.72rem;
-    color: #64748b;
-    font-family: monospace;
-  }
-
-  .preview-skeleton-lines {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .skeleton-line {
-    height: 4px;
-    border-radius: 2px;
-  }
-
-  .template-meta {
+  /* Front Card Layout */
+  .card-top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
   }
 
   .template-category {
@@ -1944,49 +1792,521 @@ const faqs = [
     font-size: 1.35rem;
     font-weight: 800;
     color: #f8fafc;
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
   }
 
   .template-desc {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: #94a3b8;
-    line-height: 1.55;
-    margin: 0 0 1.5rem;
+    line-height: 1.5;
+    margin: 0 0 1rem;
+  }
+
+  .exclusive-components-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.6rem;
+    padding: 0.75rem 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .components-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--card-accent, #38bdf8);
+    margin-bottom: 0.4rem;
+  }
+
+  .components-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: #cbd5e1;
+  }
+
+  .components-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .comp-bullet {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
   }
 
   .template-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1.75rem;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
   }
 
   .template-tag {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #64748b;
     background: rgba(255, 255, 255, 0.03);
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.3rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.25rem;
+  }
+
+  .card-front-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: auto;
+  }
+
+  .btn-flip-trigger {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid var(--card-accent, #38bdf8);
+    border-radius: 0.5rem;
+    color: #f8fafc;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-flip-trigger:hover {
+    background: var(--card-accent, #38bdf8);
+    color: #060a14;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px var(--card-glow, rgba(56, 189, 248, 0.3));
   }
 
   .btn-template-select {
     display: block;
     text-align: center;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 0.5rem;
-    color: #f8fafc;
-    font-size: 0.9rem;
+    color: #cbd5e1;
+    font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s ease;
   }
 
   .btn-template-select:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Back Card Layout (Architectural Mockup) */
+  .mini-browser-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .mini-dots {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .mini-browser-url {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-family: monospace;
+  }
+
+  .btn-flip-back {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-flip-back:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+  }
+
+  .mini-template-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 0.65rem;
+    padding: 1.1rem;
+    overflow: hidden;
+    margin-bottom: 0.85rem;
+    position: relative;
+  }
+
+  .card-back-footer {
+    margin-top: auto;
+  }
+
+  .btn-back-cta {
+    background: var(--back-accent, #38bdf8) !important;
+    color: #060a14 !important;
+    font-weight: 800 !important;
+    border-color: var(--back-accent, #38bdf8) !important;
+  }
+
+  .btn-back-cta:hover {
+    box-shadow: 0 4px 16px var(--back-accent, rgba(56, 189, 248, 0.4));
+    transform: translateY(-1px);
+  }
+
+  /* Specific Miniature Mockup Styling per Template Architecture */
+  /* Friendly Tech */
+  .friendly-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.75rem;
+  }
+  .friendly-avatar {
+    font-size: 1.3rem;
+    background: rgba(56, 189, 248, 0.15);
+    padding: 0.35rem;
+    border-radius: 50%;
+  }
+  .friendly-avatar-row strong {
+    display: block;
+    font-size: 0.82rem;
+    color: #f8fafc;
+  }
+  .friendly-status-pill {
+    display: block;
+    font-size: 0.68rem;
+    color: #34d399;
+    font-weight: 700;
+  }
+  .friendly-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.2rem;
+    font-size: 0.7rem;
+    margin-bottom: 0.75rem;
+  }
+  .step-pill {
+    padding: 0.2rem 0.45rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+  }
+  .step-pill.active {
     background: #38bdf8;
     color: #060a14;
-    border-color: #38bdf8;
+    font-weight: 800;
+  }
+  .step-arr {
+    color: #64748b;
+  }
+  .friendly-soft-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.76rem;
+    color: #cbd5e1;
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+  .friendly-soft-card p {
+    margin: 0;
+  }
+  .friendly-wa-btn {
+    display: block;
+    text-align: center;
+    background: #10b981;
+    color: #060a14;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  /* Tech Diagnostic */
+  .diag-hud-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-family: monospace;
+    color: #818cf8;
+    font-weight: 800;
+    margin-bottom: 0.45rem;
+  }
+  .diag-scanner-bar {
+    height: 3px;
+    width: 100%;
+    background: rgba(129, 140, 248, 0.2);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    border-radius: 2px;
+  }
+  .diag-scanner-pulse {
+    height: 100%;
+    width: 40%;
+    background: #818cf8;
+    box-shadow: 0 0 10px #818cf8;
+    animation: scannerMove 1.8s ease-in-out infinite alternate;
+  }
+  @keyframes scannerMove {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(250%); }
+  }
+  .diag-grid-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-family: monospace;
+    font-size: 0.72rem;
+    margin-bottom: 0.75rem;
+  }
+  .diag-chip {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0.6rem;
+    background: rgba(129, 140, 248, 0.08);
+    border-left: 3px solid #818cf8;
+    border-radius: 3px;
+  }
+  .diag-chip strong {
+    color: #a5b4fc;
+  }
+  .diag-btn {
+    display: block;
+    text-align: center;
+    background: rgba(129, 140, 248, 0.15);
+    border: 1px solid #818cf8;
+    color: #818cf8;
+    font-size: 0.72rem;
+    font-weight: 800;
+    font-family: monospace;
+    padding: 0.45rem;
+    border-radius: 3px;
+  }
+
+  /* Cyber Performance */
+  .cyber-chamfer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.45rem;
+  }
+  .cyber-badge {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #a855f7;
+    letter-spacing: 0.05em;
+  }
+  .cyber-hz {
+    font-size: 0.85rem;
+    font-weight: 900;
+    font-family: monospace;
+    color: #38bdf8;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+  }
+  .cyber-energy-line {
+    height: 2px;
+    background: linear-gradient(90deg, #a855f7, #38bdf8);
+    box-shadow: 0 0 12px #a855f7;
+    margin-bottom: 0.75rem;
+  }
+  .cyber-spec-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    font-family: monospace;
+    margin-bottom: 0.75rem;
+  }
+  .cyber-spec-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0.5rem;
+    background: rgba(168, 85, 247, 0.08);
+    border-radius: 3px;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+  .cyber-glow-val {
+    color: #f0abfc;
+  }
+  .cyber-btn {
+    display: block;
+    text-align: center;
+    background: linear-gradient(90deg, #a855f7, #6366f1);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    padding: 0.45rem;
+    border-radius: 3px;
+  }
+
+  /* System Monitor */
+  .terminal-command-line {
+    font-family: monospace;
+    font-size: 0.74rem;
+    background: #030712;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    margin-bottom: 0.65rem;
+  }
+  .term-user {
+    color: #34d399;
+    font-weight: 700;
+    margin-right: 0.35rem;
+  }
+  .term-cmd {
+    color: #f1f5f9;
+  }
+  .term-nodes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-family: monospace;
+    font-size: 0.7rem;
+    margin-bottom: 0.65rem;
+  }
+  .term-node-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0.45rem;
+    background: rgba(52, 211, 153, 0.05);
+    border-radius: 3px;
+  }
+  .node-live {
+    color: #34d399;
+    font-size: 0.6rem;
+    margin-right: 0.3rem;
+    animation: pulse 1.5s infinite;
+  }
+  .node-state {
+    color: #34d399;
+    font-weight: 700;
+  }
+  .term-uptime-bar {
+    text-align: center;
+    font-family: monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.1);
+    padding: 0.35rem;
+    border-radius: 3px;
+    border: 1px solid rgba(52, 211, 153, 0.25);
+  }
+
+  /* Repair Workshop */
+  .workshop-ticket-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-weight: 800;
+    font-family: monospace;
+    color: #f59e0b;
+    margin-bottom: 0.55rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px dashed rgba(245, 158, 11, 0.4);
+  }
+  .workshop-service-box {
+    font-size: 0.78rem;
+    margin-bottom: 0.65rem;
+  }
+  .workshop-service-box strong {
+    display: block;
+    color: #f8fafc;
+    font-size: 0.82rem;
+    margin-bottom: 0.2rem;
+  }
+  .workshop-service-box p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.72rem;
+  }
+  .workshop-parts-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.08);
+    padding: 0.35rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.65rem;
+  }
+  .workshop-wa {
+    display: block;
+    text-align: center;
+    background: #f59e0b;
+    color: #060a14;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 0.45rem;
+    border-radius: 4px;
+  }
+
+  /* Tech Editorial */
+  .editorial-volume {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #f43f5e;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .editorial-headline {
+    font-family: serif, system-ui;
+    font-style: italic;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.35;
+    margin: 0 0 0.5rem;
+  }
+  .editorial-pullquote {
+    margin: 0 0 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid #f43f5e;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-style: italic;
+  }
+  .editorial-author-row {
+    font-size: 0.68rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   /* Live Sites Block */
