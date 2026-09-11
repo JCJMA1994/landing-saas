@@ -21,15 +21,18 @@ const {
   tenantId,
 } = Astro.props;
 
+const brandImage = snapshot.theme?.logoUrl || undefined;
+
 const seo = generateSeoMetadata({
   snapshot,
   host,
   pathname,
   customDomain,
   isDraftOrPreview,
+  imageUrl: brandImage,
 });
 
-const schemaOrg = generateSchemaOrgJsonLd(snapshot, seo.canonicalUrl);
+const schemaOrg = generateSchemaOrgJsonLd(snapshot, seo.canonicalUrl, brandImage);
 const jsonLdString = JSON.stringify(schemaOrg);
 ---
 

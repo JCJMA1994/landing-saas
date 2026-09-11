@@ -46,6 +46,8 @@ describe("Schema.org JSON-LD Generator", () => {
       email: "info@elrayo.pe",
       phone: "+51999888777",
       whatsappNumber: "+51999888777",
+      facebookUrl: "https://facebook.com/elrayope",
+      instagramHandle: "elrayope",
     },
   };
 
@@ -65,6 +67,10 @@ describe("Schema.org JSON-LD Generator", () => {
     expect(business?.url).toBe("https://taller-el-rayo.pe");
     expect(business?.image).toBe("https://example.com/image.jpg");
     expect(business?.telephone).toBe("+51999888777");
+    expect(business?.sameAs).toEqual([
+      "https://facebook.com/elrayope",
+      "https://instagram.com/elrayope",
+    ]);
     expect(business?.hasOfferCatalog?.itemListElement).toHaveLength(1);
     expect(business?.hasOfferCatalog?.itemListElement[0].itemOffered.name).toBe("Escaneo OBD-II");
 

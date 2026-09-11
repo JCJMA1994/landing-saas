@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
   } else {
     // Platform host: include homepage and published sites
     entries.push({
-      loc: `https://${appHostname}/`,
+      loc: `https://${rawHost}/`,
       changefreq: "daily",
       priority: "1.0",
     });
@@ -57,7 +57,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
         const pub = await publicationRepo.getActivePublication(site.id);
         if (pub) {
           entries.push({
-            loc: `https://${appHostname}/sites/${site.slug}`,
+            loc: `https://${rawHost}/sites/${site.slug}`,
             lastmod: pub.publishedAt ? new Date(pub.publishedAt).toISOString().slice(0, 10) : undefined,
             changefreq: "weekly",
             priority: "0.8",

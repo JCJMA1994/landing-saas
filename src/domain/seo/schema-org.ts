@@ -37,6 +37,16 @@ export function generateSchemaOrgJsonLd(
     if (snapshot.contacts.email) {
       businessNode.email = snapshot.contacts.email;
     }
+    const sameAs: string[] = [];
+    if (snapshot.contacts.facebookUrl) {
+      sameAs.push(snapshot.contacts.facebookUrl);
+    }
+    if (snapshot.contacts.instagramHandle) {
+      sameAs.push(`https://instagram.com/${snapshot.contacts.instagramHandle}`);
+    }
+    if (sameAs.length > 0) {
+      businessNode.sameAs = sameAs;
+    }
   }
 
   // OfferCatalog from cards
