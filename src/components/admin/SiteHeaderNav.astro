@@ -1,0 +1,762 @@
+---
+interface Props {
+  siteId: string;
+  siteName: string;
+  activeTab:
+    | "template"
+    | "theme"
+    | "hero"
+    | "cards"
+    | "media"
+    | "contacts"
+    | "promotions"
+    | "campaigns"
+    | "publish"
+    | "domains"
+    | "analytics";
+  status?: "draft" | "published";
+  hasPendingChanges?: boolean;
+}
+
+const {
+  siteId,
+  siteName,
+  activeTab,
+  status = "draft",
+  hasPendingChanges = false,
+} = Astro.props;
+
+// Steps definition for the onboarding wizard
+const wizardSteps = [
+  {
+    number: 1,
+    id: "design",
+    label: "Diseño & Estilo",
+    sublabel: "Plantilla y Colores",
+    path: `/admin/sites/${siteId}/template`,
+    activeMatches: ["template", "theme"],
+    subtabs: [
+      { id: "template", label: "Plantilla", path: `/admin/sites/${siteId}/template` },
+      { id: "theme", label: "Colores y Tipografía", path: `/admin/sites/${siteId}/theme` },
+    ],
+  },
+  {
+    number: 2,
+    id: "hero",
+    label: "Encabezado",
+    sublabel: "Título y Llamada",
+    path: `/admin/sites/${siteId}/hero`,
+    activeMatches: ["hero"],
+  },
+  {
+    number: 3,
+    id: "cards",
+    label: "Servicios",
+    sublabel: "Tarjetas y Beneficios",
+    path: `/admin/sites/${siteId}/cards`,
+    activeMatches: ["cards"],
+  },
+  {
+    number: 4,
+    id: "media",
+    label: "Identidad",
+    sublabel: "Logos y Medios",
+    path: `/admin/sites/${siteId}/media`,
+    activeMatches: ["media"],
+  },
+  {
+    number: 5,
+    id: "contacts",
+    label: "Contacto",
+    sublabel: "WhatsApp y Redes",
+    path: `/admin/sites/${siteId}/contacts`,
+    activeMatches: ["contacts"],
+  },
+  {
+    number: 6,
+    id: "marketing",
+    label: "Promociones",
+    sublabel: "Ofertas (Opcional)",
+    path: `/admin/sites/${siteId}/promotions`,
+    activeMatches: ["promotions", "campaigns"],
+    isOptional: true,
+    subtabs: [
+      { id: "promotions", label: "Promociones", path: `/admin/sites/${siteId}/promotions` },
+      { id: "campaigns", label: "Campañas UTM", path: `/admin/sites/${siteId}/campaigns` },
+    ],
+  },
+  {
+    number: 7,
+    id: "publish",
+    label: "Publicar",
+    sublabel: "Revisar y Lanzar",
+    path: `/admin/sites/${siteId}/publish`,
+    activeMatches: ["publish"],
+  },
+];
+
+const isManagementTab = activeTab === "domains" || activeTab === "analytics";
+const currentStepIndex = wizardSteps.findIndex((s) => s.activeMatches.includes(activeTab));
+const currentStep = currentStepIndex >= 0 ? wizardSteps[currentStepIndex] : null;
+
+// Next & Previous step calculations
+const prevStep = currentStepIndex > 0 ? wizardSteps[currentStepIndex - 1] : null;
+const nextStep = currentStepIndex >= 0 && currentStepIndex < wizardSteps.length - 1
+  ? wizardSteps[currentStepIndex + 1]
+  : null;
+---
+
+<nav class="site-header-nav" aria-label="Navegación del sitio y asistente">
+  <!-- Top Bar: Contexto del sitio y Acceso a Gestión Separada -->
+  <div class="site-nav-topbar">
+    <div class="site-nav-brand">
+      <a href="/admin" class="site-nav-back" title="Volver a la lista de sitios">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Sitios</span>
+      </a>
+      <span class="site-nav-separator">/</span>
+      <div class="site-nav-title-group">
+        <span class="site-nav-sitename">{siteName}</span>
+        {hasPendingChanges ? (
+          <span class="site-nav-chip chip-pending" title="Hay cambios en borrador listos para publicar">
+            ● Cambios pendientes
+          </span>
+        ) : status === "published" ? (
+          <span class="site-nav-chip chip-live" title="Sitio activo en internet">
+            ● En vivo
+          </span>
+        ) : (
+          <span class="site-nav-chip chip-draft" title="Sitio en borrador">
+            ● Borrador
+          </span>
+        )}
+      </div>
+    </div>
+
+    <!-- Gestión del Sitio (Dominios y Analíticas) Separados del Contenido -->
+    <div class="site-nav-management">
+      <div class="management-group" aria-label="Herramientas de gestión y métricas">
+        <a
+          href={`/admin/sites/${siteId}/domains`}
+          class:list={["management-link", { active: activeTab === "domains" }]}
+          title="Configurar dominio personalizado y DNS"
+        >
+          <span class="m-icon">🌐</span>
+          <span>Dominios</span>
+        </a>
+        <a
+          href={`/admin/sites/${siteId}/analytics`}
+          class:list={["management-link", { active: activeTab === "analytics" }]}
+          title="Ver métricas de visitas y conversiones de WhatsApp"
+        >
+          <span class="m-icon">📊</span>
+          <span>Analíticas</span>
+        </a>
+      </div>
+
+      <div class="actions-group">
+        <a
+          href={`/preview/${siteId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="preview-link"
+          title="Abrir vista previa del borrador en nueva pestaña"
+        >
+          <span>Vista Previa</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+        {activeTab !== "publish" && (
+          <a
+            href={`/admin/sites/${siteId}/publish`}
+            class="quick-publish-btn"
+            title="Ir directo a publicar el sitio"
+          >
+            🚀 Publicar
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {isManagementTab ? (
+    <div class="management-context-banner">
+      <div class="m-banner-info">
+        <span class="m-banner-badge">HERRAMIENTA DE GESTIÓN</span>
+        <span class="m-banner-text">
+          {activeTab === "domains" 
+            ? "Configura tu dominio web personalizado (.com, .pe) y certificados SSL." 
+            : "Consulta el rendimiento, visitas y conversiones de clientes en tiempo real."}
+        </span>
+      </div>
+      <a href={`/admin/sites/${siteId}/template`} class="m-banner-back-btn">
+        ← Volver al Asistente de Contenido
+      </a>
+    </div>
+  ) : (
+    <div class="wizard-container">
+      <div class="wizard-header">
+        <div class="wizard-progress-info">
+          <span class="wizard-step-counter">
+            PASO {currentStep ? currentStep.number : 1} DE 7
+          </span>
+          <span class="wizard-step-name">
+            {currentStep ? currentStep.label : "Asistente"}
+          </span>
+          {currentStep?.isOptional && (
+            <span class="wizard-optional-badge">Opcional</span>
+          )}
+        </div>
+
+        <div class="wizard-quick-actions">
+          {prevStep && (
+            <a href={prevStep.path} class="flow-btn flow-prev">
+              ← Anterior
+            </a>
+          )}
+          {nextStep && (
+            <a href={nextStep.path} class="flow-btn flow-next">
+              {currentStep?.isOptional ? "Omitir paso" : "Siguiente"} →
+            </a>
+          )}
+          {activeTab !== "publish" && (
+            <a href={`/admin/sites/${siteId}/publish`} class="flow-btn flow-direct">
+              Saltar a Publicar 🚀
+            </a>
+          )}
+        </div>
+      </div>
+
+      <ol class="wizard-steps-list">
+        {wizardSteps.map((step, idx) => {
+          const isCurrent = step.activeMatches.includes(activeTab);
+          const isCompleted = currentStepIndex > idx;
+
+          return (
+            <li class:list={["wizard-step-item", { current: isCurrent, completed: isCompleted }]}>
+              <a href={step.path} class="step-link" title={`${step.label}: ${step.sublabel}`}>
+                <div class="step-indicator">
+                  {isCompleted ? (
+                    <span class="check-icon">✓</span>
+                  ) : (
+                    <span class="step-num">{step.number}</span>
+                  )}
+                </div>
+                <div class="step-meta">
+                  <span class="step-label">{step.label}</span>
+                  <span class="step-sublabel">{step.sublabel}</span>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+
+      {currentStep?.subtabs && (
+        <div class="wizard-subtabs">
+          <span class="subtabs-label">Apartados:</span>
+          {currentStep.subtabs.map((sub) => (
+            <a
+              href={sub.path}
+              class:list={["subtab-link", { active: activeTab === sub.id }]}
+            >
+              {sub.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
+</nav>
+
+<style>
+  .site-header-nav {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  /* Topbar */
+  .site-nav-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.9rem 1.25rem;
+    background: #0d1527;
+    border: 1px solid #1f2e4d;
+    border-radius: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .site-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .site-nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease;
+  }
+  .site-nav-back:hover {
+    color: #f8fafc;
+    background: #1e293b;
+  }
+
+  .site-nav-separator {
+    color: #475569;
+    font-weight: 300;
+  }
+
+  .site-nav-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .site-nav-sitename {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+  }
+
+  .site-nav-chip {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+  }
+
+  .chip-pending {
+    background: #451a03;
+    color: #fcd34d;
+    border: 1px solid #b45309;
+  }
+
+  .chip-live {
+    background: #064e3b;
+    color: #6ee7b7;
+    border: 1px solid #059669;
+  }
+
+  .chip-draft {
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+  }
+
+  /* Management & Preview links */
+  .site-nav-management {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .management-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #131d31;
+    padding: 0.25rem;
+    border-radius: 0.65rem;
+    border: 1px solid #233454;
+  }
+
+  .management-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 0.5rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .management-link:hover {
+    color: #f8fafc;
+    background: #1e2d4a;
+  }
+  .management-link.active {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  }
+
+  .m-icon {
+    font-size: 0.95rem;
+  }
+
+  .actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .preview-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 0.5rem;
+    background: #1e293b;
+    color: #fcd34d;
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid #334155;
+    transition: all 0.15s ease;
+  }
+  .preview-link:hover {
+    background: #283548;
+    border-color: #fcd34d;
+  }
+
+  .quick-publish-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+    transition: all 0.15s ease;
+  }
+  .quick-publish-btn:hover {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    transform: translateY(-1px);
+  }
+
+  /* Management Context Banner */
+  .management-context-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: #111d33;
+    border: 1px solid #233557;
+    border-radius: 0.85rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .m-banner-info {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .m-banner-badge {
+    background: #1e3a8a;
+    color: #93c5fd;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+
+  .m-banner-text {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+  }
+
+  .m-banner-back-btn {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #38bdf8;
+    text-decoration: none;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid #0284c7;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease;
+  }
+  .m-banner-back-btn:hover {
+    background: rgba(56, 189, 248, 0.12);
+  }
+
+  /* Onboarding Stepper Container */
+  .wizard-container {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 1.1rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .wizard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 0.9rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .wizard-progress-info {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .wizard-step-counter {
+    background: #1e293b;
+    color: #38bdf8;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.4rem;
+    letter-spacing: 0.08em;
+  }
+
+  .wizard-step-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+
+  .wizard-optional-badge {
+    font-size: 0.7rem;
+    background: #334155;
+    color: #cbd5e1;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.35rem;
+    font-weight: 600;
+  }
+
+  .wizard-quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .flow-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    border-radius: 0.5rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .flow-prev {
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+  }
+  .flow-prev:hover {
+    color: #f8fafc;
+    background: #283548;
+  }
+
+  .flow-next {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .flow-next:hover {
+    background: #0369a1;
+  }
+
+  .flow-direct {
+    background: transparent;
+    color: #fcd34d;
+    border: 1px dashed #78350f;
+  }
+  .flow-direct:hover {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: #f59e0b;
+  }
+
+  /* Stepper List */
+  .wizard-steps-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+  }
+
+  .wizard-step-item {
+    display: flex;
+  }
+
+  .step-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.65rem;
+    background: #131d31;
+    border: 1px solid #1f2e4d;
+    text-decoration: none;
+    width: 100%;
+    transition: all 0.15s ease;
+  }
+  .step-link:hover {
+    background: #18253f;
+    border-color: #334a75;
+  }
+
+  .step-indicator {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    background: #1e293b;
+    color: #64748b;
+    flex-shrink: 0;
+  }
+
+  .step-meta {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .step-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .step-sublabel {
+    font-size: 0.7rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Completed step state */
+  .wizard-step-item.completed .step-link {
+    border-color: #1e3a5f;
+  }
+  .wizard-step-item.completed .step-indicator {
+    background: #064e3b;
+    color: #6ee7b7;
+  }
+  .wizard-step-item.completed .step-label {
+    color: #cbd5e1;
+  }
+
+  /* Current step state */
+  .wizard-step-item.current .step-link {
+    background: #172554;
+    border-color: #3b82f6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+  }
+  .wizard-step-item.current .step-indicator {
+    background: #2563eb;
+    color: #ffffff;
+  }
+  .wizard-step-item.current .step-label {
+    color: #60a5fa;
+  }
+  .wizard-step-item.current .step-sublabel {
+    color: #93c5fd;
+  }
+
+  /* Subtabs */
+  .wizard-subtabs {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #1e293b;
+    flex-wrap: wrap;
+  }
+
+  .subtabs-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .subtab-link {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.45rem;
+    color: #94a3b8;
+    text-decoration: none;
+    background: #1e293b;
+    border: 1px solid #334155;
+    transition: all 0.15s ease;
+  }
+  .subtab-link:hover {
+    color: #f8fafc;
+    background: #283548;
+  }
+  .subtab-link.active {
+    background: #3b82f6;
+    color: #ffffff;
+    border-color: #3b82f6;
+  }
+
+  /* Responsive */
+  @media (max-width: 64rem) {
+    .wizard-steps-list {
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+  }
+
+  @media (max-width: 42rem) {
+    .site-nav-topbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .site-nav-management {
+      justify-content: space-between;
+    }
+    .wizard-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .step-sublabel {
+      display: none;
+    }
+  }
+</style>

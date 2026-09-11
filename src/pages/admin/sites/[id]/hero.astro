@@ -4,6 +4,7 @@ import { SupabaseHeroRepository } from "../../../../infrastructure/supabase/hero
 import { SupabaseMediaRepository } from "../../../../infrastructure/supabase/media-repository";
 import { SupabaseStorageGateway } from "../../../../infrastructure/supabase/storage-gateway";
 import { DEFAULT_SITE_HERO } from "../../../../domain/site/hero";
+import SiteHeaderNav from "../../../../components/admin/SiteHeaderNav.astro";
 import "../../../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
@@ -64,26 +65,19 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Contenido del Sitio &bull; <span class="badge" style="background: #e5a93c; color: #1c1103;">Modo Borrador</span></p>
-      <h1>{siteData.name} &mdash; Sección Hero Principal</h1>
-      <p class="muted">Diseñá el titular de impacto, mensaje clave y botón de llamada a la acción. Los cambios se guardan en borrador hasta su publicación.</p>
+      <SiteHeaderNav
+        siteId={siteId}
+        siteName={siteData.name}
+        activeTab="hero"
+      />
 
-      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
-        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
-          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link active">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
-        </ul>
-      </nav>
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #38bdf8;">Paso 2 de 7 &bull; Encabezado Principal</p>
+        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Encabezado (Hero)</h1>
+        <p class="muted" style="max-width: 48rem; margin: 0;">
+          Redacta el titular principal, la propuesta de valor y el botón de llamada a la acción que verán tus visitantes al entrar.
+        </p>
+      </div>
 
       {isSuccess && <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">Borrador del Hero guardado con éxito.</p>}
       {errorMessage && <p class="error" role="alert">{errorMessage}</p>}
@@ -164,10 +158,27 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
             <p class="muted" style="margin-bottom: 1.5rem;">{hero.subheadline}</p>
             <a href={hero.ctaLink} class="button" style="text-decoration: none; display: inline-block;">{hero.ctaText}</a>
           </div>
-          <div style="margin-top: 2rem;">
-            <a href="/admin" class="nav-link">&larr; Volver al Panel</a>
+          <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <a href={`/admin/sites/${siteId}/template`} class="nav-link">&larr; Paso 1: Plantilla</a>
+            <a href={`/admin/sites/${siteId}/cards`} class="button" style="background: #0284c7; color: #fff; text-decoration: none; font-size: 0.85rem;">
+              Omitir / Siguiente Paso &rarr;
+            </a>
           </div>
         </aside>
+      </div>
+
+      <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #293958; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <span class="muted" style="font-size: 0.9rem;">
+          ¿Listo con el encabezado? Continúa para detallar tus servicios o tarjetas destacadas.
+        </span>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href={`/admin/sites/${siteId}/template`} class="button" style="background: #1e293b; color: #94a3b8; text-decoration: none; border: 1px solid #334155;">
+            &larr; Paso Anterior
+          </a>
+          <a href={`/admin/sites/${siteId}/cards`} class="button" style="background: #0284c7; color: #ffffff; text-decoration: none; font-weight: 700;">
+            Continuar al Paso 3: Servicios &rarr;
+          </a>
+        </div>
       </div>
     </main>
   </body>

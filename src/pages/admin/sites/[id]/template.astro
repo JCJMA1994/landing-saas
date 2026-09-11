@@ -17,6 +17,7 @@ import {
 } from "../../../../domain/template/manifest";
 import { checkTemplateCompatibility } from "../../../../domain/template/compatibility";
 import TemplateRenderer from "../../../../components/templates/TemplateRenderer.astro";
+import SiteHeaderNav from "../../../../components/admin/SiteHeaderNav.astro";
 import "../../../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
@@ -92,28 +93,19 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Dirección Visual &bull; <span class="badge" style="background: #38bdf8; color: #0284c7;">Personalización</span></p>
-      <h1>{siteData.name} &mdash; Plantilla Visual</h1>
-      <p class="muted">
-        Selecciona la dirección estética y estructura para esta landing page.
-      </p>
+      <SiteHeaderNav
+        siteId={siteId}
+        siteName={siteData.name}
+        activeTab="template"
+      />
 
-      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
-        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link active">Plantilla</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
-          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
-        </ul>
-      </nav>
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #38bdf8;">Paso 1 de 7 &bull; Diseño Base</p>
+        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Plantilla Visual</h1>
+        <p class="muted" style="max-width: 48rem; margin: 0;">
+          Selecciona el estilo y disposición de tu página. Puedes cambiar la plantilla en cualquier momento sin perder tus textos ni contactos.
+        </p>
+      </div>
 
       <div class="draft-indicator-banner" style="margin-bottom: 2rem;">
         <span class="draft-badge">BORRADOR</span>
@@ -244,6 +236,20 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
           </div>
         </div>
       </section>
+
+      <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #293958; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <span class="muted" style="font-size: 0.9rem;">
+          ¿Satisfecho con la estructura? Continúa para personalizar los colores o redactar tu encabezado.
+        </span>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href={`/admin/sites/${siteId}/theme`} class="button" style="background: #1e293b; color: #94a3b8; text-decoration: none; border: 1px solid #334155;">
+            Colores y Estilo →
+          </a>
+          <a href={`/admin/sites/${siteId}/hero`} class="button" style="background: #0284c7; color: #ffffff; text-decoration: none; font-weight: 700;">
+            Continuar al Paso 2: Encabezado →
+          </a>
+        </div>
+      </div>
     </main>
 
     <style>

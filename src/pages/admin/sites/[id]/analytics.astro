@@ -3,6 +3,7 @@ import { actions } from "astro:actions";
 import { SupabaseAnalyticsRepository } from "../../../../infrastructure/supabase/analytics-repository";
 import { getSiteAnalyticsSummaryUseCase } from "../../../../application/analytics/track-event";
 import type { TenantRole } from "../../../../domain/tenant/roles";
+import SiteHeaderNav from "../../../../components/admin/SiteHeaderNav.astro";
 
 export const prerender = false;
 
@@ -187,30 +188,19 @@ const summary = await getSiteAnalyticsSummaryUseCase(siteId, role, analyticsRepo
     </header>
 
     <main class="shell dashboard">
-      <p style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 0.5rem;">
-        Analíticas & Métricas &bull; <span class="badge badge-info">Tiempo Real</span>
-      </p>
-      <h1 style="margin: 0 0 0.5rem 0;">{siteData.name} &mdash; Métricas de Rendimiento</h1>
-      <p style="color: var(--color-text-muted); margin-bottom: 2rem;">
-        Telemetría respetuosa de la privacidad (cookieless) que mide impresiones, interacciones en botones de llamada a la acción y contactos por WhatsApp de los últimos 30 días.
-      </p>
+      <SiteHeaderNav
+        siteId={siteId}
+        siteName={siteData.name}
+        activeTab="analytics"
+      />
 
-      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
-        <ul class="nav-links" style="border-bottom: 1px solid var(--color-border); padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
-          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link active">Analíticas</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
-        </ul>
-      </nav>
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #38bdf8;">Gestión &bull; Rendimiento</p>
+        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Métricas y Resultados</h1>
+        <p class="muted" style="max-width: 48rem; margin: 0;">
+          Supervisa el tráfico real de tu sitio, clics a tu WhatsApp y efectividad de tus campañas en los últimos 30 días sin cookies invasivas.
+        </p>
+      </div>
 
       <!-- Resumen de Métricas -->
       <div class="metrics-grid">

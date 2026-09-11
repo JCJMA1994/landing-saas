@@ -7,6 +7,7 @@ import {
   CAMPAIGN_STATUSES,
 } from "../../../../domain/campaign/campaign";
 import { CAMPAIGN_PRESET_CONFIGS } from "../../../../domain/campaign/presets";
+import SiteHeaderNav from "../../../../components/admin/SiteHeaderNav.astro";
 import "../../../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
@@ -71,28 +72,19 @@ const defaultEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOStr
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Motor de Campañas &bull; <span class="badge" style="background: #91b7ff; color: #071225;">Marketing</span></p>
-      <h1>{siteData.name} &mdash; Campañas & Modos Estacionales</h1>
-      <p class="muted">
-        Configurá promociones y temas temporales con resolución determinista por fecha y prioridad. Los overlays aplican sin duplicar la landing.
-      </p>
+      <SiteHeaderNav
+        siteId={siteId}
+        siteName={siteData.name}
+        activeTab="campaigns"
+      />
 
-      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
-        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
-          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link active">Campañas</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
-        </ul>
-      </nav>
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #38bdf8;">Paso 6 de 7 &bull; Campañas Estacionales (Opcional)</p>
+        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Campañas & Modos Estacionales</h1>
+        <p class="muted" style="max-width: 48rem; margin: 0;">
+          Programa ofertas temporales (Black Friday, Cyber, Verano) que se activen automáticamente según la fecha o enlaces UTM.
+        </p>
+      </div>
 
       {isSuccess && (
         <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">

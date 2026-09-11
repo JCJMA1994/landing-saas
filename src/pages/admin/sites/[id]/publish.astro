@@ -13,6 +13,7 @@ import {
 import { DEFAULT_SITE_THEME } from "../../../../domain/site/theme";
 import { isTemplateKey, type TemplateKey } from "../../../../domain/template/manifest";
 import { parseServerEnv } from "../../../../infrastructure/config/env";
+import SiteHeaderNav from "../../../../components/admin/SiteHeaderNav.astro";
 import "../../../../styles/admin.css";
 
 const env = parseServerEnv(import.meta.env, process.env);
@@ -121,28 +122,21 @@ const actionError = publishResult && !publishResult.data?.ok
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Ciclo de Publicación &bull; <span class="badge" style="background: #91b7ff; color: #071225;">Producción</span></p>
-      <h1>{siteData.name} &mdash; Publicación e Historial</h1>
-      <p class="muted">
-        Control de versiones inmutables y despliegue atómico con sumas de verificación SHA-256. El sitio público sólo lee de la versión activa.
-      </p>
+      <SiteHeaderNav
+        siteId={siteId}
+        siteName={siteData.name}
+        activeTab="publish"
+        status={activePublication ? "published" : "draft"}
+        hasPendingChanges={hasPendingChanges}
+      />
 
-      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
-        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
-          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link active">Publicar</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
-        </ul>
-      </nav>
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #38bdf8;">Paso 7 de 7 &bull; Lanzamiento</p>
+        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Publicar y Estado del Sitio</h1>
+        <p class="muted" style="max-width: 48rem; margin: 0;">
+          Publica las novedades de tu sitio en internet con un solo clic. Cada versión queda respaldada de forma segura para que puedas volver atrás cuando quieras.
+        </p>
+      </div>
 
       {actionSuccess && (
         <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">
@@ -181,24 +175,26 @@ const actionError = publishResult && !publishResult.data?.ok
                     {new Date(activePublication.publishedAt).toLocaleString()}
                   </strong>
                 </div>
-                <div>
-                  <span class="muted" style="font-size: 0.85rem; display: block;">SHA-256 Checksum:</span>
-                  <code style="background: #091225; padding: 0.2rem 0.5rem; border-radius: 0.4rem; font-size: 0.8rem; color: #91b7ff; word-break: break-all;">
+                <details style="margin-top: 0.25rem; font-size: 0.85rem; color: #8292b3;">
+                  <summary style="cursor: pointer; user-select: none;">
+                    <span style="color: #6ee7b7; font-weight: 600;">✓ Versión verificada</span> &bull; <span style="text-decoration: underline;">Ver detalles de seguridad</span>
+                  </summary>
+                  <code style="display: block; margin-top: 0.4rem; background: #091225; padding: 0.4rem 0.6rem; border-radius: 0.4rem; font-size: 0.78rem; color: #91b7ff; word-break: break-all;">
                     {activePublication.checksum}
                   </code>
-                </div>
+                </details>
               </>
             )}
 
             <div style="padding-top: 1rem; border-top: 1px solid #293958;">
-              <span class="muted" style="font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Sincronización de Borrador:</span>
+              <span class="muted" style="font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Sincronización con la web:</span>
               {hasPendingChanges ? (
                 <div style="padding: 0.75rem 1rem; background: #2f2512; border-left: 3px solid #ffd57a; border-radius: 0.4rem; color: #ffe8b3; font-size: 0.9rem;">
-                  ⚠️ Hay cambios sin publicar en el borrador. La suma del borrador difiere de la versión en vivo.
+                  ⚠️ Tienes cambios guardados que aún no son visibles para el público. Haz clic en "Publicar Cambios en Vivo" para lanzarlos.
                 </div>
               ) : (
                 <div style="padding: 0.75rem 1rem; background: #12281a; border-left: 3px solid #4ade80; border-radius: 0.4rem; color: #bbf7d0; font-size: 0.9rem;">
-                  ✓ El borrador actual coincide 100% con la versión activa en vivo.
+                  ✓ Tu sitio web está completamente al día. La versión pública coincide 100% con tu borrador.
                 </div>
               )}
             </div>
@@ -218,9 +214,9 @@ const actionError = publishResult && !publishResult.data?.ok
 
         <!-- Publish Action Card -->
         <section class="panel" style="width: 100%;">
-          <h2 style="margin-top: 0; font-size: 1.25rem;">Publicar Nueva Versión</h2>
+          <h2 style="margin-top: 0; font-size: 1.25rem;">Lanzar Nueva Versión</h2>
           <p class="muted" style="font-size: 0.9rem;">
-            Esta acción generará un snapshot inmutable con los datos actuales de borrador (plantilla, tema, hero, tarjetas, promociones y contactos), calculará su hash criptográfico SHA-256 y lo marcará como la nueva versión activa del sitio.
+            Al publicar, los cambios que editaste (diseño, contenidos, medios y contacto) se aplicarán inmediatamente a tu sitio web en internet.
           </p>
 
           <form method="POST" action={actions.publishSite} style="margin-top: 2rem;">
@@ -228,17 +224,17 @@ const actionError = publishResult && !publishResult.data?.ok
             <input type="hidden" name="tenantId" value={siteData.tenant_id} />
             
             <div style="margin-bottom: 1.5rem; background: #091225; padding: 1rem; border-radius: 0.65rem; border: 1px solid #293958;">
-              <span style="display: block; font-size: 0.85rem; color: #b8c3dc; margin-bottom: 0.25rem;">Próxima versión a emitir:</span>
+              <span style="display: block; font-size: 0.85rem; color: #b8c3dc; margin-bottom: 0.25rem;">Próxima versión a publicar:</span>
               <strong style="font-size: 1.4rem; color: #91b7ff;">v{nextVersion}</strong>
-              <span style="display: block; font-size: 0.8rem; color: #8292b3; margin-top: 0.25rem;">Plantilla: {templateKey}</span>
+              <span style="display: block; font-size: 0.8rem; color: #8292b3; margin-top: 0.25rem;">Plantilla seleccionada: {templateKey}</span>
             </div>
 
             <button
               type="submit"
               class="button"
-              style="width: 100%; font-size: 1.05rem; padding: 1rem;"
+              style="width: 100%; font-size: 1.05rem; padding: 1rem; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);"
             >
-              Publicar Ahora (v{nextVersion})
+              🚀 Publicar Cambios en Vivo (v{nextVersion})
             </button>
           </form>
         </section>
@@ -251,7 +247,7 @@ const actionError = publishResult && !publishResult.data?.ok
           <span class="muted" style="font-size: 0.9rem;">Total de versiones: {history.length}</span>
         </div>
         <p class="muted" style="margin-top: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
-          Conforme a ADR 0002, el historial es inmutable: ningún registro de publicación se elimina ni se modifica. Al revertir, se crea una versión nueva que clona el snapshot de la versión elegida.
+          Cada vez que publicas tu sitio se guarda una copia de respaldo automática. Si hiciste cambios y quieres volver a cómo se veía antes, puedes restaurar cualquier versión con un solo clic.
         </p>
 
         {history.length === 0 ? (
@@ -267,7 +263,7 @@ const actionError = publishResult && !publishResult.data?.ok
                   <th>Estado</th>
                   <th>Fecha de Publicación</th>
                   <th>Plantilla</th>
-                  <th>SHA-256 Checksum</th>
+                  <th>Seguridad</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -292,12 +288,12 @@ const actionError = publishResult && !publishResult.data?.ok
                         <span class="badge" style="background: #233e66; color: #91b7ff;">{pubTemplate}</span>
                       </td>
                       <td>
-                        <code
-                          title={pub.checksum}
-                          style="background: #091225; padding: 0.2rem 0.5rem; border-radius: 0.4rem; font-size: 0.8rem; color: #91b7ff;"
+                        <span
+                          title={`Checksum SHA-256: ${pub.checksum}`}
+                          style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: #6ee7b7; background: #064e3b; padding: 0.2rem 0.5rem; border-radius: 0.35rem; cursor: help;"
                         >
-                          {pub.checksum.slice(0, 16)}...
-                        </code>
+                          ✓ Verificada
+                        </span>
                       </td>
                       <td>
                         <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -319,9 +315,9 @@ const actionError = publishResult && !publishResult.data?.ok
                                 type="submit"
                                 class="button"
                                 style="padding: 0.4rem 0.75rem; font-size: 0.85rem; background: #4a3818; color: #ffd57a;"
-                                onclick="return confirm('¿Confirmas la reversión a la versión v' + this.form.targetVersion.value + '? Se creará una nueva versión inmutable.');"
+                                onclick="return confirm('¿Confirmas que deseas restaurar la versión v' + this.form.targetVersion.value + '? Tu sitio volverá a verse exactamente como en esa fecha.');"
                               >
-                                Revertir a v{pub.version}
+                                Restaurar v{pub.version}
                               </button>
                             </form>
                           )}

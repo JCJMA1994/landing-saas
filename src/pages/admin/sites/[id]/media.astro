@@ -3,6 +3,7 @@ import { actions } from "astro:actions";
 import { SupabaseMediaRepository } from "../../../../infrastructure/supabase/media-repository";
 import { SupabaseStorageGateway } from "../../../../infrastructure/supabase/storage-gateway";
 import type { MediaAsset } from "../../../../domain/site/media";
+import SiteHeaderNav from "../../../../components/admin/SiteHeaderNav.astro";
 import "../../../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
@@ -65,26 +66,19 @@ const errorMessage = uploadResult && !uploadResult.data?.ok
     </header>
 
     <main class="shell dashboard">
-      <p class="eyebrow">Almacenamiento del Sitio &bull; <span class="badge" style="background: #e5a93c; color: #1c1103;">Modo Borrador</span></p>
-      <h1>{siteData.name} &mdash; Galería Multimedia</h1>
-      <p class="muted">Subí y administrá tus imágenes de marca (JPEG, PNG, WebP &bull; Máximo 5MB por archivo).</p>
+      <SiteHeaderNav
+        siteId={siteId}
+        siteName={siteData.name}
+        activeTab="media"
+      />
 
-      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
-        <ul class="nav-links" style="border-bottom: 1px solid #293958; padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
-          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link active">Multimedia</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link">Dominios</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
-        </ul>
-      </nav>
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #38bdf8;">Paso 4 de 7 &bull; Identidad y Medios</p>
+        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Galería Multimedia</h1>
+        <p class="muted" style="max-width: 48rem; margin: 0;">
+          Sube tus logos, favicon e imágenes para que tus plantillas luzcan profesionales y representen tu marca.
+        </p>
+      </div>
 
       {isSuccess && <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">Archivo multimedia subido o eliminado con éxito.</p>}
       {errorMessage && <p class="error" role="alert">{errorMessage}</p>}
@@ -140,10 +134,27 @@ const errorMessage = uploadResult && !uploadResult.data?.ok
               })}
             </div>
           )}
-          <div style="margin-top: 2rem;">
-            <a href="/admin" class="nav-link">&larr; Volver al Panel</a>
+          <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <a href={`/admin/sites/${siteId}/cards`} class="nav-link">&larr; Paso 3: Servicios</a>
+            <a href={`/admin/sites/${siteId}/contacts`} class="button" style="background: #0284c7; color: #fff; text-decoration: none; font-size: 0.85rem;">
+              Omitir / Siguiente Paso &rarr;
+            </a>
           </div>
         </section>
+      </div>
+
+      <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #293958; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <span class="muted" style="font-size: 0.9rem;">
+          ¿Imágenes listas? Continúa para configurar tus vías de contacto y botón de WhatsApp.
+        </span>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href={`/admin/sites/${siteId}/cards`} class="button" style="background: #1e293b; color: #94a3b8; text-decoration: none; border: 1px solid #334155;">
+            &larr; Paso Anterior
+          </a>
+          <a href={`/admin/sites/${siteId}/contacts`} class="button" style="background: #0284c7; color: #ffffff; text-decoration: none; font-weight: 700;">
+            Continuar al Paso 5: Contacto & Redes &rarr;
+          </a>
+        </div>
       </div>
     </main>
   </body>

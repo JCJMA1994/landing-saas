@@ -3,6 +3,7 @@ import { actions } from "astro:actions";
 import { parseServerEnv } from "../../../../infrastructure/config/env";
 import { SupabaseDomainRepository } from "../../../../infrastructure/supabase/domain-repository";
 import { getDnsChallengeRecords } from "../../../../domain/domain/site-domain";
+import SiteHeaderNav from "../../../../components/admin/SiteHeaderNav.astro";
 
 export const prerender = false;
 
@@ -243,30 +244,19 @@ const landingSubdomainUrl = env.appHostname === "localhost"
     </header>
 
     <main class="shell dashboard">
-      <p style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 0.5rem;">
-        Dominios & Conectividad &bull; <span class="badge badge-info">SSL Activo</span>
-      </p>
-      <h1 style="margin: 0 0 0.5rem 0;">{siteData.name} &mdash; Dominios & DNS</h1>
-      <p style="color: var(--color-text-muted); margin-bottom: 2rem;">
-        Conectá subdominios de la plataforma o dominios personalizados de tus clientes con resolución segura y certificados SSL automáticos.
-      </p>
+      <SiteHeaderNav
+        siteId={siteId}
+        siteName={siteData.name}
+        activeTab="domains"
+      />
 
-      <nav aria-label="Secciones del sitio" style="margin-bottom: 2rem;">
-        <ul class="nav-links" style="border-bottom: 1px solid var(--color-border); padding-bottom: .75rem;">
-          <li><a href={`/admin/sites/${siteId}/template`} class="nav-link">Plantilla</a></li>
-          <li><a href={`/admin/sites/${siteId}/theme`} class="nav-link">Tema</a></li>
-          <li><a href={`/admin/sites/${siteId}/hero`} class="nav-link">Hero</a></li>
-          <li><a href={`/admin/sites/${siteId}/cards`} class="nav-link">Tarjetas</a></li>
-          <li><a href={`/admin/sites/${siteId}/promotions`} class="nav-link">Promociones</a></li>
-          <li><a href={`/admin/sites/${siteId}/contacts`} class="nav-link">Contacto</a></li>
-          <li><a href={`/admin/sites/${siteId}/media`} class="nav-link">Multimedia</a></li>
-          <li><a href={`/admin/sites/${siteId}/campaigns`} class="nav-link">Campañas</a></li>
-          <li><a href={`/admin/sites/${siteId}/publish`} class="nav-link">Publicar</a></li>
-          <li><a href={`/admin/sites/${siteId}/domains`} class="nav-link active">Dominios</a></li>
-          <li><a href={`/admin/sites/${siteId}/analytics`} class="nav-link">Analíticas</a></li>
-          <li><a href={`/preview/${siteId}`} target="_blank" class="nav-link" style="color: #ffd57a;">Vista Previa ↗</a></li>
-        </ul>
-      </nav>
+      <div style="margin-bottom: 2rem;">
+        <p class="eyebrow" style="color: #38bdf8;">Gestión &bull; Conectividad</p>
+        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Dominios & DNS</h1>
+        <p class="muted" style="max-width: 48rem; margin: 0;">
+          Conecta un subdominio gratuito o vincula tu propio dominio personalizado (.com, .net, .pe) con certificados SSL automáticos y seguros.
+        </p>
+      </div>
 
       {isSuccess && (
         <div class="card" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399; margin-bottom: 1.5rem;" role="status">
