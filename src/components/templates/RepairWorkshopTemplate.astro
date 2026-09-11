@@ -40,7 +40,8 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
       <nav class="work-nav" aria-label="Navegación principal">
         <a href="#inicio" class="work-nav-link">Inicio</a>
-        <a href="#garantias" class="work-nav-link">Garantías</a>
+        <a href="#despiece" class="work-nav-link">Despiece</a>
+        <a href="#garantias" class="work-nav-link">Protocolo</a>
         <a href="#servicios" class="work-nav-link">Servicios</a>
         <a href="#contacto" class="work-nav-link">Contacto</a>
       </nav>
@@ -174,12 +175,90 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </section>
   )}
 
+  {/* Technical Blueprint & Component Callouts (Soluciones Modulares Style) */}
+  <section id="despiece" class="work-blueprint-section" aria-label="Despiece técnico y componentes">
+    <div class="work-container">
+      <div class="work-blueprint-header">
+        <span class="work-blueprint-tag">DESPIECE Y ARQUITECTURA DE HARDWARE</span>
+        <h2 class="work-blueprint-title">Intervención Especializada por Componente</h2>
+        <p class="work-blueprint-desc">Identificación de puntos críticos con peritaje bajo microscopio y reemplazo homologado.</p>
+      </div>
+
+      <div class="work-blueprint-stage">
+        <div class="work-blueprint-canvas">
+          <div class="work-blueprint-grid-overlay"></div>
+          
+          {/* Central Technical Diagram */}
+          <div class="work-blueprint-schematic">
+            <div class="work-schematic-chassis">
+              <div class="work-schematic-core">
+                <Icon name="cpu" size={48} />
+                <span class="work-schematic-label">PLACA PRINCIPAL & CHIPSET BGA</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Hotspot Callouts */}
+          <div class="work-blueprint-callouts">
+            <div class="work-callout-node">
+              <div class="work-node-pointer">
+                <span class="work-node-ring"></span>
+                <span class="work-node-dot">01</span>
+              </div>
+              <div class="work-node-card">
+                <span class="work-node-category">ALIMENTACIÓN</span>
+                <h4 class="work-node-title">Líneas de Carga & Batería</h4>
+                <p class="work-node-text">Medición de consumo en mA y calibración de celdas genuinas.</p>
+              </div>
+            </div>
+
+            <div class="work-callout-node">
+              <div class="work-node-pointer">
+                <span class="work-node-ring"></span>
+                <span class="work-node-dot">02</span>
+              </div>
+              <div class="work-node-card">
+                <span class="work-node-category">MICROELECTRÓNICA</span>
+                <h4 class="work-node-title">Reballing & Soldadura SMD</h4>
+                <p class="work-node-text">Reconstrucción de pistas y sustitución de circuitos integrados.</p>
+              </div>
+            </div>
+
+            <div class="work-callout-node">
+              <div class="work-node-pointer">
+                <span class="work-node-ring"></span>
+                <span class="work-node-dot">03</span>
+              </div>
+              <div class="work-node-card">
+                <span class="work-node-category">DISIPACIÓN TÉRMICA</span>
+                <h4 class="work-node-title">Conductividad & Coolers</h4>
+                <p class="work-node-text">Thermal pads de alta densidad y limpieza de cámaras de vapor.</p>
+              </div>
+            </div>
+
+            <div class="work-callout-node">
+              <div class="work-node-pointer">
+                <span class="work-node-ring"></span>
+                <span class="work-node-dot">04</span>
+              </div>
+              <div class="work-node-card">
+                <span class="work-node-category">INTERFACES Y BUSES</span>
+                <h4 class="work-node-title">Puertos & Conectores Blindados</h4>
+                <p class="work-node-text">Pruebas de osciloscopio sobre señales de alta transferencia.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   {/* Workshop Operational Protocol & Guarantees */}
   <section id="garantias" class="work-protocol-ribbon" aria-label="Compromisos y Garantías de Taller">
     <div class="work-container work-protocol-grid">
       <div class="work-protocol-box">
         <div class="work-protocol-icon">
-          <Icon name="check-circle" size={24} />
+          <Icon name="shield" size={24} />
         </div>
         <div>
           <strong class="work-protocol-heading">Repuestos 100% Genuinos</strong>
@@ -188,7 +267,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
       <div class="work-protocol-box">
         <div class="work-protocol-icon">
-          <Icon name="clock" size={24} />
+          <Icon name="bolt" size={24} />
         </div>
         <div>
           <strong class="work-protocol-heading">Diagnóstico en 24 Horas</strong>
@@ -197,11 +276,43 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
       <div class="work-protocol-box">
         <div class="work-protocol-icon">
-          <Icon name="shield" size={24} />
+          <Icon name="check" size={24} />
         </div>
         <div>
           <strong class="work-protocol-heading">Garantía Certificada</strong>
           <p class="work-protocol-text">Respaldo total sobre mano de obra especializada e intervenciones electrónicas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Workshop Step-by-Step Workflow */}
+  <section class="work-stages-section" aria-label="Etapas de servicio en taller">
+    <div class="work-container">
+      <div class="work-stages-header">
+        <span class="work-blueprint-tag">PROTOCOLO DE ATENCIÓN</span>
+        <h3 class="work-stages-title">Flujo de Peritaje e Intervención en 4 Fases</h3>
+      </div>
+      <div class="work-stages-grid">
+        <div class="work-stage-item">
+          <span class="work-stage-num">FASE 01</span>
+          <h4 class="work-stage-name">Ingreso & Peritaje</h4>
+          <p class="work-stage-desc">Recepción fotográfica del equipo y orden de trabajo digitalizada con número de seguimiento.</p>
+        </div>
+        <div class="work-stage-item">
+          <span class="work-stage-num">FASE 02</span>
+          <h4 class="work-stage-name">Aislación ESD</h4>
+          <p class="work-stage-desc">Desarme en banco con protección antiestática certificada y ordenamiento milimétrico.</p>
+        </div>
+        <div class="work-stage-item">
+          <span class="work-stage-num">FASE 03</span>
+          <h4 class="work-stage-name">Reparación de Precisión</h4>
+          <p class="work-stage-desc">Sustitución de piezas originales con registro térmico y mediciones con osciloscopio.</p>
+        </div>
+        <div class="work-stage-item">
+          <span class="work-stage-num">FASE 04</span>
+          <h4 class="work-stage-name">Test de Estrés & Salida</h4>
+          <p class="work-stage-desc">Ciclo continuo de 4 horas bajo carga máxima antes de emitir la garantía escrita.</p>
         </div>
       </div>
     </div>
@@ -316,7 +427,8 @@ const activePromotions = promotions.filter((p) => p.isActive);
           <span class="work-footer-heading">SECCIONES</span>
           <nav class="work-footer-nav" aria-label="Navegación pie de página">
             <a href="#inicio" class="work-footer-link">Inicio</a>
-            <a href="#garantias" class="work-footer-link">Garantías</a>
+            <a href="#despiece" class="work-footer-link">Despiece</a>
+            <a href="#garantias" class="work-footer-link">Protocolo</a>
             <a href="#servicios" class="work-footer-link">Servicios</a>
             <a href="#contacto" class="work-footer-link">Contacto</a>
           </nav>
@@ -1033,5 +1145,227 @@ const activePromotions = promotions.filter((p) => p.isActive);
     text-align: center;
     color: #64748b;
     font-size: 0.75rem;
+  }
+
+  /* Blueprint Despiece Section (Soluciones Modulares Style) */
+  .work-blueprint-section {
+    padding: 4.5rem 0;
+    border-top: 1px solid rgba(245, 158, 11, 0.15);
+    background: radial-gradient(circle at center, rgba(245, 158, 11, 0.04) 0%, transparent 70%);
+  }
+
+  .work-blueprint-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 3rem;
+  }
+
+  .work-blueprint-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--ds-color-accent, #f59e0b);
+    background: rgba(245, 158, 11, 0.12);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    margin-bottom: 0.75rem;
+  }
+
+  .work-blueprint-title {
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.75rem;
+  }
+
+  .work-blueprint-desc {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .work-blueprint-stage {
+    background: #090e17;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 8px;
+    padding: 2.5rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+  }
+
+  .work-blueprint-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-size: 30px 30px;
+    background-image: 
+      linear-gradient(to right, rgba(245, 158, 11, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(245, 158, 11, 0.04) 1px, transparent 1px);
+    pointer-events: none;
+  }
+
+  .work-blueprint-schematic {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .work-schematic-chassis {
+    width: 240px;
+    height: 140px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 2px dashed rgba(245, 158, 11, 0.4);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.1);
+  }
+
+  .work-schematic-core {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-schematic-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    font-family: var(--ds-font-mono, monospace);
+  }
+
+  .work-blueprint-callouts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .work-callout-node {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .work-callout-node:hover {
+    border-color: rgba(245, 158, 11, 0.5);
+    transform: translateY(-2px);
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  .work-node-pointer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .work-node-dot {
+    width: 28px;
+    height: 28px;
+    background: var(--ds-color-accent, #f59e0b);
+    color: #0b0f19;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 900;
+    font-family: var(--ds-font-mono, monospace);
+  }
+
+  .work-node-category {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--ds-color-accent, #f59e0b);
+    font-family: var(--ds-font-mono, monospace);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .work-node-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.35rem;
+  }
+
+  .work-node-text {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* 4-Phase Workflow Section */
+  .work-stages-section {
+    padding: 4rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .work-stages-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .work-stages-title {
+    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0.5rem 0 0;
+  }
+
+  .work-stages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .work-stage-item {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 1.5rem;
+    border-left: 3px solid var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-stage-num {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--ds-color-accent, #f59e0b);
+    font-family: var(--ds-font-mono, monospace);
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .work-stage-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem;
+  }
+
+  .work-stage-desc {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.45;
+    margin: 0;
   }
 </style>

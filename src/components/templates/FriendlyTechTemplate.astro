@@ -41,7 +41,9 @@ const activePromotions = promotions.filter((p) => p.isActive);
       <nav class="friendly-nav" aria-label="Navegación principal">
         <a href="#inicio" class="friendly-nav-link">Inicio</a>
         <a href="#proceso" class="friendly-nav-link">Cómo Funciona</a>
-        <a href="#servicios" class="friendly-nav-link">Servicios</a>
+        <a href="#soluciones" class="friendly-nav-link">Soluciones</a>
+        <a href="#planes" class="friendly-nav-link">Planes</a>
+        <a href="#opiniones" class="friendly-nav-link">Opiniones</a>
         <a href="#contacto" class="friendly-nav-link">Contacto</a>
       </nav>
 
@@ -123,7 +125,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </aside>
   )}
 
-  {/* Hero: Warm and Approachable */}
+  {/* Hero: Warm and Approachable SaaS Hero */}
   {hero && (
     <section id="inicio" class="friendly-hero-section">
       <div class="friendly-container friendly-hero-grid">
@@ -153,23 +155,68 @@ const activePromotions = promotions.filter((p) => p.isActive);
         </div>
 
         <div class="friendly-hero-media">
-          {hero.imageUrl ? (
-            <div class="friendly-hero-img-wrap">
-              <img src={hero.imageUrl} alt={hero.headline} class="friendly-hero-img" />
+          <div class="friendly-saas-mockup-frame">
+            <div class="friendly-mockup-browser-header">
+              <span class="friendly-browser-dot"></span>
+              <span class="friendly-browser-dot"></span>
+              <span class="friendly-browser-dot"></span>
+              <span class="friendly-browser-url">{siteName.toLowerCase().replace(/\s+/g, '')}.com</span>
             </div>
-          ) : (
-            <div class="friendly-welcome-card">
-              <div class="friendly-welcome-icon">
-                <Icon name="heart" size={36} />
+            {hero.imageUrl ? (
+              <div class="friendly-hero-img-wrap">
+                <img src={hero.imageUrl} alt={hero.headline} class="friendly-hero-img" />
               </div>
-              <h3 class="friendly-welcome-title">Estamos para acompañarte</h3>
-              <p class="friendly-welcome-text">Sin trámites complejos ni demoras. Asesoramiento humano directo.</p>
+            ) : (
+              <div class="friendly-welcome-card">
+                <div class="friendly-welcome-icon">
+                  <Icon name="heart" size={36} />
+                </div>
+                <h3 class="friendly-welcome-title">Estamos para acompañarte</h3>
+                <p class="friendly-welcome-text">Sin trámites complejos ni demoras. Asesoramiento humano directo.</p>
+              </div>
+            )}
+            <div class="friendly-floating-chip friendly-chip-top">
+              <span class="friendly-chip-pulse"></span>
+              <span>Soporte 24/7 Verificado</span>
             </div>
-          )}
+            <div class="friendly-floating-chip friendly-chip-bottom">
+              <Icon name="star" size={14} class="friendly-star-active" />
+              <span>99.8% Satisfacción</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   )}
+
+  {/* Trust & Integrations Bar (SaaS Partner Strip - Whitespace Style) */}
+  <section class="friendly-trust-strip" aria-label="Tecnología e integraciones">
+    <div class="friendly-container">
+      <p class="friendly-trust-caption">COMPATIBLE Y SINCRONIZADO CON TUS PLATAFORMAS FAVORITAS</p>
+      <div class="friendly-trust-logos">
+        <div class="friendly-trust-badge">
+          <Icon name="cpu" size={16} />
+          <span>Google Workspace</span>
+        </div>
+        <div class="friendly-trust-badge">
+          <Icon name="bolt" size={16} />
+          <span>Slack & Notion</span>
+        </div>
+        <div class="friendly-trust-badge">
+          <Icon name="shield" size={16} />
+          <span>Microsoft 365</span>
+        </div>
+        <div class="friendly-trust-badge">
+          <Icon name="rocket" size={16} />
+          <span>Cloud Infrastructure</span>
+        </div>
+        <div class="friendly-trust-badge">
+          <Icon name="whatsapp" size={16} />
+          <span>WhatsApp Business</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Friendly Experience: 3 Simple Steps */}
   <section id="proceso" class="friendly-steps-section" aria-label="Cómo te ayudamos">
@@ -200,15 +247,76 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </div>
   </section>
 
-  {/* Cards: Approachable Solutions */}
-  {cards.length > 0 && (
-    <section id="servicios" class="friendly-cards-section">
-      <div class="friendly-container">
-        <div class="friendly-section-heading">
-          <h2 class="friendly-section-title">¿Cómo podemos ayudarte hoy?</h2>
-          <p class="friendly-section-subtitle">Explicamos todo de forma clara y sin términos complicados.</p>
+  {/* Solutions: Zigzag Deep-Dive & Approachable Cards (HubSpot Style) */}
+  <section id="soluciones" class="friendly-cards-section">
+    <div class="friendly-container">
+      <div class="friendly-section-heading">
+        <span class="friendly-steps-eyebrow">SOLUCIONES A TU MEDIDA</span>
+        <h2 class="friendly-section-title">¿Cómo podemos ayudarte hoy?</h2>
+        <p class="friendly-section-subtitle">Explicamos todo de forma clara y sin términos complicados.</p>
+      </div>
+
+      {/* Alternating Feature Showcase */}
+      <div class="friendly-zigzag-wrap">
+        <div class="friendly-zigzag-row">
+          <div class="friendly-zigzag-copy">
+            <span class="friendly-zigzag-pill">GESTIÓN SIMPLE</span>
+            <h3 class="friendly-zigzag-title">Diseñado para que ahorres tiempo y ganes tranquilidad</h3>
+            <p class="friendly-zigzag-desc">Cada herramienta y proceso está optimizado para que accedas a respuestas rápidas sin tener que lidiar con configuraciones técnicas complejas.</p>
+            <ul class="friendly-zigzag-list">
+              <li><Icon name="check" size={16} class="friendly-check-icon" /> Interfaz limpia, intuitiva y accesible desde cualquier dispositivo.</li>
+              <li><Icon name="check" size={16} class="friendly-check-icon" /> Notificaciones instantáneas y seguimiento en tiempo real.</li>
+              <li><Icon name="check" size={16} class="friendly-check-icon" /> Cero fricción operativa con asistencia humana cuando la necesites.</li>
+            </ul>
+          </div>
+          <div class="friendly-zigzag-visual">
+            <div class="friendly-preview-card">
+              <div class="friendly-preview-topbar">
+                <span class="friendly-preview-indicator"></span>
+                <span class="friendly-preview-label">Panel en Vivo</span>
+              </div>
+              <div class="friendly-preview-metric-box">
+                <span class="friendly-metric-val">100%</span>
+                <span class="friendly-metric-tag">Transparencia y claridad</span>
+              </div>
+              <div class="friendly-preview-bar-track">
+                <div class="friendly-preview-bar-fill" style="width: 85%;"></div>
+              </div>
+              <span class="friendly-preview-note">Optimización activa sin interrupciones</span>
+            </div>
+          </div>
         </div>
 
+        <div class="friendly-zigzag-row friendly-zigzag-reverse">
+          <div class="friendly-zigzag-copy">
+            <span class="friendly-zigzag-pill">ACOMPAÑAMIENTO CONSTANTE</span>
+            <h3 class="friendly-zigzag-title">Atención personalizada que resuelve tus dudas en minutos</h3>
+            <p class="friendly-zigzag-desc">Detrás de la tecnología hay personas comprometidas con entender exactamente lo que requiere tu proyecto o negocio.</p>
+            <ul class="friendly-zigzag-list">
+              <li><Icon name="check" size={16} class="friendly-check-icon" /> Asesoramiento directo sin intermediarios ni bots confusos.</li>
+              <li><Icon name="check" size={16} class="friendly-check-icon" /> Presupuestos claros antes de iniciar cualquier labor.</li>
+              <li><Icon name="check" size={16} class="friendly-check-icon" /> Garantía de satisfacción en cada entrega realizada.</li>
+            </ul>
+          </div>
+          <div class="friendly-zigzag-visual">
+            <div class="friendly-preview-card friendly-preview-chat">
+              <div class="friendly-preview-topbar">
+                <Icon name="heart" size={16} class="friendly-heart-icon" />
+                <span class="friendly-preview-label">Atención Dedicada</span>
+              </div>
+              <div class="friendly-chat-bubble friendly-chat-in">
+                <span>¿Cuánto tardamos en empezar?</span>
+              </div>
+              <div class="friendly-chat-bubble friendly-chat-out">
+                <span>¡Al instante! Ya dejamos todo listo para tu proyecto.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Cards: Approachable Solutions Grid */}
+      {cards.length > 0 && (
         <div class="friendly-cards-grid">
           {cards.map((card) => (
             <Card variant="elevated" class="friendly-card-bubble">
@@ -233,9 +341,102 @@ const activePromotions = promotions.filter((p) => p.isActive);
             </Card>
           ))}
         </div>
+      )}
+    </div>
+  </section>
+
+  {/* Pricing & Value Plans (Whitespace / SaaS Style) */}
+  <section id="planes" class="friendly-pricing-section" aria-label="Planes y presupuestos">
+    <div class="friendly-container">
+      <div class="friendly-section-heading">
+        <span class="friendly-steps-eyebrow">PLANES CLAROS</span>
+        <h2 class="friendly-section-title">Elegí la opción ideal para tu objetivo</h2>
+        <p class="friendly-section-subtitle">Precios transparentes y sin sorpresas. Adaptados a lo que realmente necesitás.</p>
       </div>
-    </section>
-  )}
+
+      <div class="friendly-pricing-grid">
+        <div class="friendly-pricing-card">
+          <div class="friendly-pricing-header">
+            <h3 class="friendly-pricing-name">Inicial</h3>
+            <p class="friendly-pricing-desc">Para resolver dudas puntuales o proyectos que recién comienzan.</p>
+            <div class="friendly-pricing-rate">
+              <span class="friendly-pricing-currency">$</span>
+              <span class="friendly-pricing-amount">29</span>
+              <span class="friendly-pricing-period">/consulta</span>
+            </div>
+          </div>
+          <ul class="friendly-pricing-perks">
+            <li><Icon name="check" size={16} /> Diagnóstico inicial express</li>
+            <li><Icon name="check" size={16} /> Asesoramiento personalizado</li>
+            <li><Icon name="check" size={16} /> Plan de acción en 24hs</li>
+          </ul>
+          <a href="#contacto" class="friendly-pricing-btn">Elegir Plan Inicial</a>
+        </div>
+
+        <div class="friendly-pricing-card friendly-pricing-featured">
+          <div class="friendly-featured-badge">MÁS ELEGIDO</div>
+          <div class="friendly-pricing-header">
+            <h3 class="friendly-pricing-name">Profesional</h3>
+            <p class="friendly-pricing-desc">La solución completa para optimizar y escalar con respaldo garantizado.</p>
+            <div class="friendly-pricing-rate">
+              <span class="friendly-pricing-currency">$</span>
+              <span class="friendly-pricing-amount">89</span>
+              <span class="friendly-pricing-period">/mes</span>
+            </div>
+          </div>
+          <ul class="friendly-pricing-perks">
+            <li><Icon name="check" size={16} /> Todo lo del plan Inicial</li>
+            <li><Icon name="check" size={16} /> Monitoreo y mantenimiento preventivo</li>
+            <li><Icon name="check" size={16} /> Soporte prioritario por WhatsApp</li>
+            <li><Icon name="check" size={16} /> Ajustes y optimización continua</li>
+          </ul>
+          <a href="#contacto" class="friendly-pricing-btn friendly-pricing-btn-primary">Empezar con Profesional</a>
+        </div>
+
+        <div class="friendly-pricing-card">
+          <div class="friendly-pricing-header">
+            <h3 class="friendly-pricing-name">Empresarial</h3>
+            <p class="friendly-pricing-desc">Acompañamiento integral a medida para alta demanda y equipos.</p>
+            <div class="friendly-pricing-rate">
+              <span class="friendly-pricing-amount">A Medida</span>
+            </div>
+          </div>
+          <ul class="friendly-pricing-perks">
+            <li><Icon name="check" size={16} /> Arquitectura e integración dedicada</li>
+            <li><Icon name="check" size={16} /> SLA de respuesta menor a 2 horas</li>
+            <li><Icon name="check" size={16} /> Consultoría estratégica mensual</li>
+            <li><Icon name="check" size={16} /> Capacitación directa a tu equipo</li>
+          </ul>
+          <a href="#contacto" class="friendly-pricing-btn">Consultar por WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Social Proof & Testimonials (HubSpot & Whitespace Style) */}
+  <section id="opiniones" class="friendly-testimonials-section" aria-label="Testimonios de clientes">
+    <div class="friendly-container">
+      <div class="friendly-testimonial-card">
+        <div class="friendly-testimonial-stars">
+          <Icon name="star" size={20} class="friendly-star-active" />
+          <Icon name="star" size={20} class="friendly-star-active" />
+          <Icon name="star" size={20} class="friendly-star-active" />
+          <Icon name="star" size={20} class="friendly-star-active" />
+          <Icon name="star" size={20} class="friendly-star-active" />
+        </div>
+        <blockquote class="friendly-testimonial-quote">
+          “Trabajar con este equipo nos cambió por completo la velocidad y la tranquilidad operativa. La claridad en cada paso y la rapidez para responder dudas es de otro nivel.”
+        </blockquote>
+        <div class="friendly-testimonial-author">
+          <div class="friendly-author-avatar">MC</div>
+          <div class="friendly-author-info">
+            <span class="friendly-author-name">Mariana Costa</span>
+            <span class="friendly-author-role">Directora de Operaciones en InnovaTech</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Contacts: Friendly Invitation */}
   {contacts && (
@@ -315,7 +516,9 @@ const activePromotions = promotions.filter((p) => p.isActive);
           <nav class="friendly-footer-nav" aria-label="Navegación pie de página">
             <a href="#inicio" class="friendly-footer-link">Inicio</a>
             <a href="#proceso" class="friendly-footer-link">Cómo Funciona</a>
-            <a href="#servicios" class="friendly-footer-link">Servicios</a>
+            <a href="#soluciones" class="friendly-footer-link">Soluciones</a>
+            <a href="#planes" class="friendly-footer-link">Planes</a>
+            <a href="#opiniones" class="friendly-footer-link">Opiniones</a>
             <a href="#contacto" class="friendly-footer-link">Contacto</a>
           </nav>
         </div>
@@ -1051,5 +1254,513 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .friendly-footer-social:hover {
     color: var(--ds-color-primary, #60a5fa);
+  }
+
+  /* SaaS Mockup Frame & Floating Chips (HubSpot Style) */
+  .friendly-saas-mockup-frame {
+    position: relative;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--ds-theme-radius, 1rem);
+    padding: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+  }
+
+  .friendly-mockup-browser-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 0.75rem;
+  }
+
+  .friendly-browser-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .friendly-browser-url {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: #64748b;
+    font-family: var(--ds-font-mono, monospace);
+  }
+
+  .friendly-floating-chip {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #f8fafc;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    z-index: 2;
+  }
+
+  .friendly-chip-top {
+    top: -12px;
+    right: 18px;
+  }
+
+  .friendly-chip-bottom {
+    bottom: -14px;
+    left: 18px;
+  }
+
+  .friendly-chip-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+  }
+
+  /* Trust & Integrations Strip (Whitespace Style) */
+  .friendly-trust-strip {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.015);
+    padding: 2.2rem 0;
+    text-align: center;
+  }
+
+  .friendly-trust-caption {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #64748b;
+    margin: 0 0 1.25rem;
+  }
+
+  .friendly-trust-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .friendly-trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+  }
+
+  .friendly-trust-badge:hover {
+    color: #ffffff;
+    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  /* Zigzag Feature Showcase (HubSpot Style) */
+  .friendly-zigzag-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .friendly-zigzag-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .friendly-zigzag-reverse {
+    direction: rtl;
+  }
+
+  .friendly-zigzag-reverse > * {
+    direction: ltr;
+  }
+
+  @media (max-width: 860px) {
+    .friendly-zigzag-row {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .friendly-zigzag-reverse {
+      direction: ltr;
+    }
+  }
+
+  .friendly-zigzag-pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--ds-color-primary, #60a5fa);
+    background: rgba(59, 130, 246, 0.12);
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    margin-bottom: 0.75rem;
+  }
+
+  .friendly-zigzag-title {
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    font-weight: 700;
+    line-height: 1.25;
+    color: #ffffff;
+    margin: 0 0 1rem;
+  }
+
+  .friendly-zigzag-desc {
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .friendly-zigzag-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .friendly-zigzag-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    color: #cbd5e1;
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+
+  .friendly-check-icon {
+    color: #10b981;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Interactive Preview Cards in Zigzag */
+  .friendly-preview-card {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+  }
+
+  .friendly-preview-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .friendly-preview-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+  }
+
+  .friendly-preview-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .friendly-preview-metric-box {
+    margin-bottom: 1.25rem;
+  }
+
+  .friendly-metric-val {
+    display: block;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  .friendly-metric-tag {
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+
+  .friendly-preview-bar-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+
+  .friendly-preview-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #10b981);
+    border-radius: 4px;
+  }
+
+  .friendly-preview-note {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  .friendly-preview-chat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .friendly-chat-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: 0.85rem;
+    font-size: 0.85rem;
+    max-width: 85%;
+    line-height: 1.4;
+  }
+
+  .friendly-chat-in {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border-bottom-left-radius: 2px;
+  }
+
+  .friendly-chat-out {
+    align-self: flex-end;
+    background: var(--ds-color-primary, #3b82f6);
+    color: #ffffff;
+    font-weight: 500;
+    border-bottom-right-radius: 2px;
+  }
+
+  /* Pricing Table (Whitespace Style) */
+  .friendly-pricing-section {
+    padding: 4.5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .friendly-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.75rem;
+    margin-top: 2.5rem;
+    align-items: stretch;
+  }
+
+  .friendly-pricing-card {
+    position: relative;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .friendly-pricing-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .friendly-pricing-featured {
+    background: rgba(30, 58, 138, 0.25);
+    border: 2px solid var(--ds-color-primary, #3b82f6);
+    box-shadow: 0 15px 35px -5px rgba(59, 130, 246, 0.2);
+  }
+
+  .friendly-featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ds-color-primary, #3b82f6);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+  }
+
+  .friendly-pricing-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem;
+  }
+
+  .friendly-pricing-desc {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin: 0 0 1.25rem;
+    min-height: 2.5rem;
+  }
+
+  .friendly-pricing-rate {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .friendly-pricing-currency {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .friendly-pricing-amount {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  .friendly-pricing-period {
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+
+  .friendly-pricing-perks {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .friendly-pricing-perks li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: #cbd5e1;
+  }
+
+  .friendly-pricing-perks li :global(.ds-icon) {
+    color: #10b981;
+    flex-shrink: 0;
+  }
+
+  .friendly-pricing-btn {
+    display: block;
+    text-align: center;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+
+  .friendly-pricing-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .friendly-pricing-btn-primary {
+    background: var(--ds-color-primary, #3b82f6);
+    border-color: var(--ds-color-primary, #3b82f6);
+    color: #ffffff;
+  }
+
+  .friendly-pricing-btn-primary:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  }
+
+  /* Testimonials (HubSpot & Whitespace Style) */
+  .friendly-testimonials-section {
+    padding: 4rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .friendly-testimonial-card {
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+  }
+
+  .friendly-testimonial-stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .friendly-star-active {
+    color: #fbbf24;
+  }
+
+  .friendly-testimonial-quote {
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    font-style: italic;
+    color: #f1f5f9;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  .friendly-testimonial-author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .friendly-author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--ds-color-primary, #3b82f6);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .friendly-author-info {
+    text-align: left;
+  }
+
+  .friendly-author-name {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .friendly-author-role {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
   }
 </style>

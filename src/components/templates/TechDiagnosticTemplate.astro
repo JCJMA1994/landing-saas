@@ -40,6 +40,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
       <nav class="diag-nav" aria-label="Navegación principal">
         <a href="#inicio" class="diag-nav-link">Inicio</a>
+        <a href="#auditoria" class="diag-nav-link">Auditoría</a>
         <a href="#servicios" class="diag-nav-link">Servicios</a>
         <a href="#contacto" class="diag-nav-link">Contacto</a>
       </nav>
@@ -55,6 +56,46 @@ const activePromotions = promotions.filter((p) => p.isActive);
           >
             <Icon name="whatsapp" size={15} />
             <span>WhatsApp</span>
+          </a>
+        )}
+        {contacts?.instagramHandle && (
+          <a
+            href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="diag-header-social"
+            title="Instagram"
+            aria-label="Instagram"
+          >
+            <Icon name="instagram" size={15} />
+          </a>
+        )}
+        {contacts?.facebookUrl && (
+          <a
+            href={contacts.facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="diag-header-social"
+            title="Facebook"
+            aria-label="Facebook"
+          >
+            <Icon name="facebook" size={15} />
+          </a>
+        )}
+        {contacts?.email && (
+          <a
+            href={`mailto:${contacts.email}`}
+            class="diag-header-social"
+            title="Correo"
+            aria-label="Correo"
+          >
+            <Icon name="email" size={15} />
+          </a>
+        )}
+        {contacts?.phone && (
+          <a href={`tel:${contacts.phone}`} class="diag-header-phone" title="Teléfono">
+            <Icon name="phone" size={13} />
+            <span>{contacts.phone}</span>
           </a>
         )}
       </div>
@@ -135,6 +176,76 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
     </section>
   )}
+
+  {/* Diagnostic Scorecard & Health Audit Matrix */}
+  <section id="auditoria" class="diag-audit-section" aria-label="Matriz de auditoría técnica y calibración">
+    <div class="diag-container">
+      <div class="diag-section-header">
+        <div class="diag-section-tag">
+          <span class="diag-tag-num">[02]</span>
+          <span class="diag-tag-name">TABLERO DE AUDITORÍA Y CALIBRACIÓN</span>
+        </div>
+        <h2 class="diag-section-heading">Diagnóstico Antes y Después de la Intervención</h2>
+        <p class="diag-section-desc">Métricas cuantificables obtenidas mediante instrumental de laboratorio y peritaje computarizado.</p>
+      </div>
+
+      <div class="diag-audit-grid">
+        <div class="diag-audit-card">
+          <div class="diag-audit-top">
+            <span class="diag-audit-badge">HARDWARE HEALTH</span>
+            <Icon name="cpu" size={20} />
+          </div>
+          <h4 class="diag-audit-param">Integridad de Circuitos & BGA</h4>
+          <div class="diag-audit-meter-wrap">
+            <div class="diag-meter-labels">
+              <span>ESTADO PREVIO: 42%</span>
+              <span class="diag-meter-target">CALIBRADO: 99.4%</span>
+            </div>
+            <div class="diag-meter-bar">
+              <div class="diag-meter-fill" style="width: 99%;"></div>
+            </div>
+          </div>
+          <span class="diag-audit-verdict">DIAGNÓSTICO: TOLERANCIA ÓPTIMA</span>
+        </div>
+
+        <div class="diag-audit-card">
+          <div class="diag-audit-top">
+            <span class="diag-audit-badge">TERMODINÁMICA</span>
+            <Icon name="bolt" size={20} />
+          </div>
+          <h4 class="diag-audit-param">Disipación y Delta Térmico</h4>
+          <div class="diag-audit-meter-wrap">
+            <div class="diag-meter-labels">
+              <span>TEMPERATURA BASE: 78°C</span>
+              <span class="diag-meter-target">POST-SERVICIO: 38°C</span>
+            </div>
+            <div class="diag-meter-bar">
+              <div class="diag-meter-fill" style="width: 95%;"></div>
+            </div>
+          </div>
+          <span class="diag-audit-verdict">DIAGNÓSTICO: EFICIENCIA TÉRMICA ESTABLE</span>
+        </div>
+
+        <div class="diag-audit-card">
+          <div class="diag-audit-top">
+            <span class="diag-audit-badge">FIRMWARE & BUSES</span>
+            <Icon name="shield" size={20} />
+          </div>
+          <h4 class="diag-audit-param">Firmware & Integridad de Datos</h4>
+          <div class="diag-audit-meter-wrap">
+            <div class="diag-meter-labels">
+              <span>ALERTAS DE LOG: 14</span>
+              <span class="diag-meter-target">CORREGIDAS: 100%</span>
+            </div>
+            <div class="diag-meter-bar">
+              <div class="diag-meter-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+          <span class="diag-audit-verdict">DIAGNÓSTICO: PARCHEO Y SELLADO CONFORME</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Cards Section: Diagnostic Telemetry Grid */}
   {cards.length > 0 && (
@@ -257,6 +368,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
           <span class="diag-footer-heading">SECCIONES</span>
           <nav class="diag-footer-nav" aria-label="Navegación pie de página">
             <a href="#inicio" class="diag-footer-link">Inicio</a>
+            <a href="#auditoria" class="diag-footer-link">Auditoría</a>
             <a href="#servicios" class="diag-footer-link">Servicios</a>
             <a href="#contacto" class="diag-footer-link">Contacto</a>
           </nav>
@@ -949,5 +1061,113 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .diag-footer-social:hover {
     color: var(--ds-color-primary, #60a5fa);
+  }
+
+  /* Diagnostic Scorecard & Health Audit Matrix */
+  .diag-audit-section {
+    padding: 4.5rem 0;
+    border-top: 1px solid rgba(245, 158, 11, 0.15);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .diag-section-desc {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0.5rem 0 0;
+    max-width: 650px;
+  }
+
+  .diag-audit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .diag-audit-card {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+
+  .diag-audit-card:hover {
+    border-color: rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .diag-audit-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .diag-audit-badge {
+    font-size: 0.65rem;
+    font-weight: 900;
+    font-family: var(--ds-font-mono, monospace);
+    letter-spacing: 0.08em;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+  }
+
+  .diag-audit-param {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 1.25rem;
+  }
+
+  .diag-audit-meter-wrap {
+    margin-bottom: 1.25rem;
+  }
+
+  .diag-meter-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    font-family: var(--ds-font-mono, monospace);
+    color: #64748b;
+    margin-bottom: 0.4rem;
+  }
+
+  .diag-meter-target {
+    color: #10b981;
+    font-weight: 700;
+  }
+
+  .diag-meter-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .diag-meter-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #10b981);
+    border-radius: 2px;
+  }
+
+  .diag-audit-verdict {
+    font-size: 0.68rem;
+    font-weight: 800;
+    font-family: var(--ds-font-mono, monospace);
+    color: #10b981;
+    letter-spacing: 0.06em;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    align-self: flex-start;
   }
 </style>

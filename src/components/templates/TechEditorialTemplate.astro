@@ -38,8 +38,9 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
       <nav class="edit-nav" aria-label="Navegación principal">
         <a href="#inicio" class="edit-nav-link">Inicio</a>
-        <a href="#manifiesto" class="edit-nav-link">Manifiesto</a>
+        <a href="#propuesta" class="edit-nav-link">Propuesta</a>
         <a href="#servicios" class="edit-nav-link">Servicios</a>
+        <a href="#testimonios" class="edit-nav-link">Opinión</a>
         <a href="#contacto" class="edit-nav-link">Contacto</a>
       </nav>
 
@@ -159,68 +160,128 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </section>
   )}
 
-  {/* Editorial Indices & Value Manifesto */}
-  <section id="manifiesto" class="edit-manifesto-section" aria-label="Compromisos Editoriales de Excelencia">
+  {/* 3 Numbered Value Columns (La Máquina Generadora Style) */}
+  <section id="propuesta" class="edit-pillars-section" aria-label="Propuesta clara y directa">
     <div class="edit-container">
-      <div class="edit-manifesto-grid">
-        <div class="edit-manifesto-column">
-          <span class="edit-manifesto-num">I.</span>
-          <h3 class="edit-manifesto-title">Excelencia Operativa</h3>
-          <p class="edit-manifesto-p">Cada proceso es supervisado con estándares rigurosos de precisión y consistencia técnica.</p>
+      <div class="edit-pillars-header">
+        <h2 class="edit-pillars-headline">Claro. Preciso. Rápido.</h2>
+        <p class="edit-pillars-subhead">Diseñamos soluciones directas para que tus proyectos avancen sin rodeos técnicos innecesarios.</p>
+      </div>
+
+      <div class="edit-pillars-grid">
+        <div class="edit-pillar-col">
+          <span class="edit-pillar-big-num">1</span>
+          <h3 class="edit-pillar-title">Claro</h3>
+          <p class="edit-pillar-text">Explicamos cada diagnóstico en lenguaje simple y transparente para que siempre tengas el control.</p>
         </div>
-        <div class="edit-manifesto-column">
-          <span class="edit-manifesto-num">II.</span>
-          <h3 class="edit-manifesto-title">Atención Personalizada</h3>
-          <p class="edit-manifesto-p">Asesoramiento profesional directo y cercano, sin intermediarios impersonales.</p>
+        <div class="edit-pillar-col">
+          <span class="edit-pillar-big-num">2</span>
+          <h3 class="edit-pillar-title">Preciso</h3>
+          <p class="edit-pillar-text">Sin improvisaciones: atacamos la raíz del problema con instrumental especializado y criterio formal.</p>
         </div>
-        <div class="edit-manifesto-column">
-          <span class="edit-manifesto-num">III.</span>
-          <h3 class="edit-manifesto-title">Garantía Verificable</h3>
-          <p class="edit-manifesto-p">Trazabilidad documentada y respaldo formal en cada servicio prestado.</p>
+        <div class="edit-pillar-col">
+          <span class="edit-pillar-big-num">3</span>
+          <h3 class="edit-pillar-title">Rápido</h3>
+          <p class="edit-pillar-text">Tiempos de respuesta ágiles y ejecución certera para que tu operación nunca se detenga.</p>
         </div>
       </div>
     </div>
   </section>
 
-  {/* Cards: In-depth Editorial Features */}
+  {/* Cards: In-depth Editorial Features with Vertical Rotated Tab */}
   {cards.length > 0 && (
     <section id="servicios" class="edit-features-section">
       <div class="edit-container">
-        <div class="edit-section-header">
-          <span class="edit-kicker">PROPUESTA DE VALOR</span>
-          <h2 class="edit-section-title">Ejes Fundamentales de Servicio</h2>
-        </div>
+        <div class="edit-services-layout">
+          {/* Vertical Rotated Tab */}
+          <div class="edit-vertical-tab-wrapper">
+            <div class="edit-vertical-tab">
+              <span>SERVICIOS</span>
+            </div>
+            <p class="edit-vertical-note">Diseño y ejecución pensados para transformar tu experiencia.</p>
+          </div>
 
-        <div class="edit-features-grid">
-          {cards.map((card, idx) => (
-            <Card variant="flat" class="edit-feature-column">
-              <span class="edit-column-num">{String(idx + 1).padStart(2, "0")}</span>
-              <div class="edit-column-body">
-                <div class="edit-column-icon-wrap">
-                  <Icon name={(card.iconKey as any) || "star"} size={22} />
-                </div>
-                <h3 class="edit-column-title">{card.title}</h3>
-                {card.description && <p class="edit-column-text">{card.description}</p>}
-                {card.badge && (
-                  <div class="edit-column-badge">
-                    <Badge variant="neutral" size="sm">{card.badge}</Badge>
+          <div class="edit-services-content">
+            <div class="edit-features-grid">
+              {cards.map((card, idx) => (
+                <Card variant="flat" class="edit-feature-column">
+                  <span class="edit-column-num">{String(idx + 1).padStart(2, "0")}</span>
+                  <div class="edit-column-body">
+                    <div class="edit-column-icon-wrap">
+                      <Icon name={(card.iconKey as any) || "star"} size={22} />
+                    </div>
+                    <h3 class="edit-column-title">{card.title}</h3>
+                    {card.description && <p class="edit-column-text">{card.description}</p>}
+                    {card.badge && (
+                      <div class="edit-column-badge">
+                        <Badge variant="neutral" size="sm">{card.badge}</Badge>
+                      </div>
+                    )}
+                    {card.linkUrl && (
+                      <div class="edit-column-link-box">
+                        <a href={card.linkUrl} class="edit-column-link">
+                          <span>Continuar leyendo</span>
+                          <Icon name="external" size={12} />
+                        </a>
+                      </div>
+                    )}
                   </div>
-                )}
-                {card.linkUrl && (
-                  <div class="edit-column-link-box">
-                    <a href={card.linkUrl} class="edit-column-link">
-                      <span>Continuar leyendo</span>
-                      <Icon name="external" size={12} />
-                    </a>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   )}
+
+  {/* Giant Editorial Testimonial (La Máquina Generadora Style) */}
+  <section id="testimonios" class="edit-quote-banner-section" aria-label="Testimonio editorial destacado">
+    <div class="edit-container">
+      <div class="edit-giant-quote-box">
+        <span class="edit-big-quote-mark" aria-hidden="true">“</span>
+        <blockquote class="edit-giant-quote-text">
+          Entendí lo que era un servicio realmente efectivo y estratégico; ahora puedo ver mejores resultados y total tranquilidad en cada etapa.
+        </blockquote>
+        <span class="edit-big-quote-mark-end" aria-hidden="true">”</span>
+        
+        <div class="edit-quote-signature">
+          <div class="edit-signature-avatar">LR</div>
+          <div class="edit-signature-info">
+            <strong class="edit-signature-name">Lic. Roberto Lozano</strong>
+            <span class="edit-signature-role">Consultor & Director de Operaciones</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* 3-Step Action Plan Closer (La Máquina Style) */}
+  <section class="edit-action-plan-section" aria-label="Comienza hoy en 3 pasos">
+    <div class="edit-container">
+      <div class="edit-plan-header">
+        <h3 class="edit-plan-headline">Comienza a construir una solución efectiva</h3>
+        <p class="edit-plan-lead">Un proceso ordenado en 3 pasos para poner en marcha tu proyecto con total respaldo.</p>
+      </div>
+      <div class="edit-plan-grid">
+        <div class="edit-plan-step">
+          <span class="edit-step-digit">1</span>
+          <h4 class="edit-step-title">Programa una consulta</h4>
+          <p class="edit-step-p">Escribinos directamente para conocer tus necesidades técnicas o requerimientos específicos.</p>
+        </div>
+        <div class="edit-plan-step">
+          <span class="edit-step-digit">2</span>
+          <h4 class="edit-step-title">Trazamos el plan</h4>
+          <p class="edit-step-p">Recibís una propuesta con objetivos definidos, plazos claros e inversión transparente.</p>
+        </div>
+        <div class="edit-plan-step">
+          <span class="edit-step-digit">3</span>
+          <h4 class="edit-step-title">Ejecución con garantía</h4>
+          <p class="edit-step-p">Implementamos las soluciones para que alcances resultados concretos sin sorpresas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Contacts: Bespoke Correspondence Column */}
   {contacts && (
@@ -281,8 +342,9 @@ const activePromotions = promotions.filter((p) => p.isActive);
           <span class="edit-footer-heading">SECCIONES</span>
           <nav class="edit-footer-nav" aria-label="Navegación pie de página">
             <a href="#inicio" class="edit-footer-link">Inicio</a>
-            <a href="#manifiesto" class="edit-footer-link">Manifiesto</a>
+            <a href="#propuesta" class="edit-footer-link">Propuesta</a>
             <a href="#servicios" class="edit-footer-link">Servicios</a>
+            <a href="#testimonios" class="edit-footer-link">Opinión</a>
             <a href="#contacto" class="edit-footer-link">Contacto</a>
           </nav>
         </div>
@@ -947,5 +1009,239 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .edit-footer-social:hover {
     color: var(--ds-color-primary, #60a5fa);
+  }
+
+  /* 3 Numbered Value Columns (La Máquina Generadora Style) */
+  .edit-pillars-section {
+    padding: 5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  .edit-pillars-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 3.5rem;
+  }
+
+  .edit-pillars-headline {
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.15;
+    margin: 0 0 0.85rem;
+  }
+
+  .edit-pillars-subhead {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .edit-pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2.5rem;
+  }
+
+  .edit-pillar-col {
+    position: relative;
+    padding: 1rem 0;
+  }
+
+  .edit-pillar-big-num {
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ds-color-accent, #f97316);
+    display: block;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+  }
+
+  .edit-pillar-title {
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem;
+  }
+
+  .edit-pillar-text {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Services with Vertical Rotated Tab */
+  .edit-services-layout {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 2.5rem;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 768px) {
+    .edit-services-layout {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .edit-vertical-tab-wrapper {
+    position: sticky;
+    top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .edit-vertical-tab {
+    background: var(--ds-color-accent, #f97316);
+    color: #ffffff;
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    padding: 1.25rem 0.75rem;
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(249, 115, 22, 0.2);
+  }
+
+  .edit-vertical-note {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* Giant Quote Section */
+  .edit-quote-banner-section {
+    padding: 5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .edit-giant-quote-box {
+    max-width: 820px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    padding: 1rem 2rem;
+  }
+
+  .edit-big-quote-mark,
+  .edit-big-quote-mark-end {
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: 5rem;
+    line-height: 0;
+    color: var(--ds-color-accent, #f97316);
+    opacity: 0.5;
+    display: inline-block;
+  }
+
+  .edit-giant-quote-text {
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: clamp(1.35rem, 2.8vw, 2.1rem);
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.35;
+    margin: 1.5rem 0;
+  }
+
+  .edit-quote-signature {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    text-align: left;
+    margin-top: 1rem;
+  }
+
+  .edit-signature-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--ds-color-accent, #f97316);
+    color: #ffffff;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+  }
+
+  .edit-signature-name {
+    display: block;
+    color: #ffffff;
+    font-size: 0.95rem;
+  }
+
+  .edit-signature-role {
+    display: block;
+    color: #64748b;
+    font-size: 0.78rem;
+  }
+
+  /* 3-Step Action Plan Section */
+  .edit-action-plan-section {
+    padding: 4.5rem 0;
+  }
+
+  .edit-plan-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .edit-plan-headline {
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem;
+  }
+
+  .edit-plan-lead {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .edit-plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+  }
+
+  .edit-plan-step {
+    border-top: 2px solid var(--ds-color-accent, #f97316);
+    padding-top: 1rem;
+  }
+
+  .edit-step-digit {
+    font-family: var(--ds-font-serif, Georgia, serif);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--ds-color-accent, #f97316);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .edit-step-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.4rem;
+  }
+
+  .edit-step-p {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.45;
+    margin: 0;
   }
 </style>

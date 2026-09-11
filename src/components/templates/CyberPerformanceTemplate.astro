@@ -41,7 +41,9 @@ const activePromotions = promotions.filter((p) => p.isActive);
       <nav class="cyber-nav" aria-label="Navegación principal">
         <a href="#inicio" class="cyber-nav-link">Inicio</a>
         <a href="#rendimiento" class="cyber-nav-link">Rendimiento</a>
-        <a href="#servicios" class="cyber-nav-link">Servicios</a>
+        <a href="#showcase" class="cyber-nav-link">Showcase</a>
+        <a href="#servicios" class="cyber-nav-link">Módulos</a>
+        <a href="#alianzas" class="cyber-nav-link">Alianzas</a>
         <a href="#contacto" class="cyber-nav-link">Contacto</a>
       </nav>
 
@@ -195,6 +197,66 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </div>
   </section>
 
+  {/* Project & Speed Showcase (Intro Works Style) */}
+  <section id="showcase" class="cyber-showcase-section" aria-label="Vitrina de Casos y Proyectos">
+    <div class="cyber-container">
+      <div class="cyber-section-header">
+        <span class="cyber-lane-tag">// CASOS Y DESPLIEGUES</span>
+        <h2 class="cyber-section-title">Portafolio Cinético de Alto Desempeño</h2>
+      </div>
+
+      <div class="cyber-showcase-grid">
+        <div class="cyber-showcase-card">
+          <div class="cyber-showcase-thumb">
+            <span class="cyber-showcase-tag">CLOUD INFRA</span>
+            <Icon name="cpu" size={32} class="cyber-showcase-icon" />
+          </div>
+          <div class="cyber-showcase-body">
+            <h4 class="cyber-showcase-title">Sistemas de Alta Concurrencia</h4>
+            <p class="cyber-showcase-desc">Despliegues con escalabilidad horizontal y distribución de carga en tiempo real.</p>
+            <span class="cyber-showcase-metric">LATENCIA REDUCIDA -60%</span>
+          </div>
+        </div>
+
+        <div class="cyber-showcase-card">
+          <div class="cyber-showcase-thumb">
+            <span class="cyber-showcase-tag">DATA ENGINE</span>
+            <Icon name="chart" size={32} class="cyber-showcase-icon" />
+          </div>
+          <div class="cyber-showcase-body">
+            <h4 class="cyber-showcase-title">Telemetría y Procesamiento Masivo</h4>
+            <p class="cyber-showcase-desc">Pipelines de ingesta de datos con latencia submilisegundo y trazabilidad completa.</p>
+            <span class="cyber-showcase-metric">PROCESAMIENTO 100K OPS/S</span>
+          </div>
+        </div>
+
+        <div class="cyber-showcase-card">
+          <div class="cyber-showcase-thumb">
+            <span class="cyber-showcase-tag">HARDWARE PRO</span>
+            <Icon name="bolt" size={32} class="cyber-showcase-icon" />
+          </div>
+          <div class="cyber-showcase-body">
+            <h4 class="cyber-showcase-title">Workstations de Render & Simulación</h4>
+            <p class="cyber-showcase-desc">Ensambles extremos refrigerados por líquido para modelado 3D y simulaciones pesadas.</p>
+            <span class="cyber-showcase-metric">ESTABILIDAD TÉRMICA 24/7</span>
+          </div>
+        </div>
+
+        <div class="cyber-showcase-card">
+          <div class="cyber-showcase-thumb">
+            <span class="cyber-showcase-tag">CYBER SEC</span>
+            <Icon name="shield" size={32} class="cyber-showcase-icon" />
+          </div>
+          <div class="cyber-showcase-body">
+            <h4 class="cyber-showcase-title">Aislamiento y Cifrado Perimetral</h4>
+            <p class="cyber-showcase-desc">Blindaje integral con políticas Zero-Trust y mitigación automática de intrusiones.</p>
+            <span class="cyber-showcase-metric">ZERO TRUST VERIFICADO</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   {/* Cards: Overclocked Performance Matrix */}
   {cards.length > 0 && (
     <section id="servicios" class="cyber-cards-section">
@@ -232,6 +294,44 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
     </section>
   )}
+
+  {/* Client & Partner Grid in Dark Glass (Intro Works Style) */}
+  <section id="alianzas" class="cyber-partners-section" aria-label="Alianzas y Ecosistema">
+    <div class="cyber-container">
+      <div class="cyber-partners-header">
+        <span class="cyber-lane-tag">// CLIENTES Y TECNOLOGÍAS INTEGRADAS</span>
+        <h3 class="cyber-partners-title">Ecosistema Tecnológico de Primer Nivel</h3>
+      </div>
+
+      <div class="cyber-partners-grid">
+        <div class="cyber-partner-card">
+          <span class="cyber-partner-symbol">◈</span>
+          <span class="cyber-partner-name">NVIDIA Enterprise</span>
+          <span class="cyber-partner-sub">GPU Computing</span>
+        </div>
+        <div class="cyber-partner-card">
+          <span class="cyber-partner-symbol">▲</span>
+          <span class="cyber-partner-name">AMD Instinct</span>
+          <span class="cyber-partner-sub">High-Density Compute</span>
+        </div>
+        <div class="cyber-partner-card">
+          <span class="cyber-partner-symbol">◆</span>
+          <span class="cyber-partner-name">Intel Xeon Scalable</span>
+          <span class="cyber-partner-sub">Mission Critical</span>
+        </div>
+        <div class="cyber-partner-card">
+          <span class="cyber-partner-symbol">❖</span>
+          <span class="cyber-partner-name">Cisco Systems</span>
+          <span class="cyber-partner-sub">100GbE Networking</span>
+        </div>
+        <div class="cyber-partner-card">
+          <span class="cyber-partner-symbol">⬡</span>
+          <span class="cyber-partner-name">Supermicro</span>
+          <span class="cyber-partner-sub">Modular Server Chassis</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Contacts: Kinetic Dispatch */}
   {contacts && (
@@ -306,7 +406,9 @@ const activePromotions = promotions.filter((p) => p.isActive);
           <nav class="cyber-footer-nav" aria-label="Navegación pie de página">
             <a href="#inicio" class="cyber-footer-link">Inicio</a>
             <a href="#rendimiento" class="cyber-footer-link">Rendimiento</a>
-            <a href="#servicios" class="cyber-footer-link">Servicios</a>
+            <a href="#showcase" class="cyber-footer-link">Showcase</a>
+            <a href="#servicios" class="cyber-footer-link">Módulos</a>
+            <a href="#alianzas" class="cyber-footer-link">Alianzas</a>
             <a href="#contacto" class="cyber-footer-link">Contacto</a>
           </nav>
         </div>
@@ -1043,5 +1145,161 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .cyber-footer-social:hover {
     color: #ec4899;
+  }
+
+  /* Showcase Section (Intro Works Style) */
+  .cyber-showcase-section {
+    padding: 4.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .cyber-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .cyber-showcase-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cyber-showcase-card:hover {
+    border-color: rgba(236, 72, 153, 0.6);
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.15);
+    transform: translateY(-3px);
+  }
+
+  .cyber-showcase-thumb {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(59, 130, 246, 0.15));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 2.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .cyber-showcase-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    font-family: var(--ds-font-mono);
+    color: #ec4899;
+    letter-spacing: 0.08em;
+  }
+
+  .cyber-showcase-icon {
+    color: #f8fafc;
+    filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.5));
+  }
+
+  .cyber-showcase-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+  }
+
+  .cyber-showcase-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+  }
+
+  .cyber-showcase-desc {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.45;
+    margin: 0 0 1.25rem;
+  }
+
+  .cyber-showcase-metric {
+    font-size: 0.68rem;
+    font-weight: 800;
+    font-family: var(--ds-font-mono);
+    color: #38bdf8;
+    letter-spacing: 0.06em;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    align-self: flex-start;
+  }
+
+  /* Client & Partner Grid in Dark Glass (Intro Works Style) */
+  .cyber-partners-section {
+    padding: 4.5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .cyber-partners-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .cyber-partners-title {
+    font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0.5rem 0 0;
+    letter-spacing: -0.01em;
+  }
+
+  .cyber-partners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .cyber-partner-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 1.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .cyber-partner-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(236, 72, 153, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .cyber-partner-symbol {
+    font-size: 1.5rem;
+    color: #ec4899;
+    margin-bottom: 0.5rem;
+  }
+
+  .cyber-partner-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.2rem;
+  }
+
+  .cyber-partner-sub {
+    font-size: 0.72rem;
+    color: #64748b;
+    font-family: var(--ds-font-mono);
   }
 </style>
