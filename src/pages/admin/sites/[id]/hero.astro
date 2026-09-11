@@ -1,6 +1,8 @@
 ---
 import { actions } from "astro:actions";
 import { SupabaseHeroRepository } from "../../../../infrastructure/supabase/hero-repository";
+import { SupabaseMediaRepository } from "../../../../infrastructure/supabase/media-repository";
+import { SupabaseStorageGateway } from "../../../../infrastructure/supabase/storage-gateway";
 import { DEFAULT_SITE_HERO } from "../../../../domain/site/hero";
 import "../../../../styles/admin.css";
 
@@ -26,6 +28,10 @@ if (siteError || !siteData) {
 const heroRepo = new SupabaseHeroRepository(Astro.locals.supabase);
 const existingHero = await heroRepo.getHero(siteId);
 const hero = existingHero ?? { siteId, ...DEFAULT_SITE_HERO };
+
+const mediaRepo = new SupabaseMediaRepository(Astro.locals.supabase);
+const storageGateway = new SupabaseStorageGateway(Astro.locals.supabase);
+const mediaAssets = await mediaRepo.listBySite(siteId);
 
 const saveResult = Astro.getActionResult(actions.saveSiteHero);
 const isSuccess = Boolean(saveResult?.data && saveResult.data.ok);
@@ -114,6 +120,32 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
               <input id="ctaLink" name="ctaLink" type="text" required maxlength="256" placeholder="#contacto o https://..." value={hero.ctaLink} />
             </div>
 
+            <div class="field">
+              <label for="imageUrl">Imagen Visual del Hero (Opcional)</label>
+              <input id="imageUrl" name="imageUrl" type="text" maxlength="512" placeholder="https://... o seleccioná abajo" value={hero.imageUrl ?? ""} />
+              {mediaAssets.length > 0 && (
+                <div style="margin-top: .75rem;">
+                  <span style="font-size: .8rem; color: #94a3b8; display: block; margin-bottom: .5rem;">Hacé clic en una imagen para seleccionarla:</span>
+                  <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
+                    {mediaAssets.map((asset) => {
+                      const assetUrl = storageGateway.getUrl(asset.filePath);
+                      return (
+                        <button
+                          type="button"
+                          onclick={`document.getElementById('imageUrl').value = '${assetUrl}';`}
+                          style="background: #0c1426; border: 1px solid #293958; border-radius: .4rem; padding: .25rem; cursor: pointer; display: flex; align-items: center; gap: .4rem;"
+                          title={asset.altText}
+                        >
+                          <img src={assetUrl} alt={asset.altText} style="width: 2.5rem; height: 2.5rem; object-fit: cover; border-radius: .25rem;" />
+                          <span style="font-size: .75rem; color: #f8fafc; max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{asset.altText}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button type="submit" style="margin-top: 1rem;">Guardar Borrador del Hero</button>
           </form>
         </section>
@@ -122,6 +154,11 @@ const errorMessage = saveResult && !saveResult.data?.ok ? saveResult.data?.error
           <h2 style="margin-top: 0;">Vista Previa del Componente</h2>
           <p class="muted">Demostración en vivo de cómo se verá el hero en tu landing.</p>
           <div style="padding: 2rem; border: 1px dashed #536483; border-radius: 1rem; margin-top: 1.5rem; background: #0c1426;">
+            {hero.imageUrl && (
+              <div style="margin-bottom: 1.5rem; border-radius: .5rem; overflow: hidden; border: 1px solid #293958; max-height: 14rem;">
+                <img src={hero.imageUrl} alt="Vista previa Hero" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+              </div>
+            )}
             {hero.badgeText && <span class="eyebrow" style="display: block; margin-bottom: .5rem;">{hero.badgeText}</span>}
             <h3 style="font-size: 1.75rem; margin: .5rem 0 1rem; line-height: 1.2;">{hero.headline}</h3>
             <p class="muted" style="margin-bottom: 1.5rem;">{hero.subheadline}</p>

@@ -27,6 +27,7 @@ export class SupabaseHeroRepository implements HeroRepository {
         ctaText: record["cta_text"] as string,
         ctaLink: record["cta_link"] as string,
         badgeText: typeof record["badge_text"] === "string" ? record["badge_text"] : undefined,
+        imageUrl: typeof record["image_url"] === "string" ? record["image_url"] : undefined,
         updatedAt: typeof record["updated_at"] === "string" ? record["updated_at"] : undefined,
       };
     } catch {
@@ -45,6 +46,7 @@ export class SupabaseHeroRepository implements HeroRepository {
           cta_text: hero.ctaText,
           cta_link: hero.ctaLink,
           badge_text: hero.badgeText ?? null,
+          image_url: hero.imageUrl ?? null,
           updated_at: new Date().toISOString(),
         });
 

@@ -116,6 +116,11 @@ export async function saveSiteHeroUseCase(
     throw new InvalidHeroError("CTA link must be a valid safe URL or path.");
   }
 
+  const imageUrl = hero.imageUrl && hero.imageUrl.trim().length > 0 ? hero.imageUrl.trim() : undefined;
+  if (imageUrl && !isSafeLink(imageUrl)) {
+    throw new InvalidHeroError("Image URL must be a valid safe URL or path.");
+  }
+
   await repo.saveHero({
     siteId: hero.siteId,
     headline,
@@ -123,6 +128,7 @@ export async function saveSiteHeroUseCase(
     ctaText,
     ctaLink,
     badgeText: hero.badgeText ? hero.badgeText.trim() : undefined,
+    imageUrl,
   });
 
   await audit.record({

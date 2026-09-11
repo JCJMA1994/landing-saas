@@ -235,6 +235,7 @@ export const server = {
       ctaText: z.string().trim().min(1).max(40),
       ctaLink: z.string().trim().min(1).max(256),
       badgeText: z.string().trim().max(60).optional(),
+      imageUrl: z.string().trim().max(512).optional(),
     }),
     handler: async (input, context) => {
       if (!context.locals.user) return { ok: false, error: "Authentication required." };

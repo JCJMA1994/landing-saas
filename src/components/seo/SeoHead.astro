@@ -39,6 +39,11 @@ const jsonLdString = JSON.stringify(schemaOrg);
 <meta name="robots" content={seo.robots} />
 {seo.themeColor && <meta name="theme-color" content={seo.themeColor} />}
 
+<!-- Favicon & App Icons -->
+<link rel="icon" href={snapshot.theme?.faviconUrl || snapshot.hero?.imageUrl || "/favicon.svg"} />
+<link rel="apple-touch-icon" href={snapshot.theme?.faviconUrl || snapshot.hero?.imageUrl || "/favicon.svg"} />
+
+
 <!-- Open Graph / Facebook / WhatsApp -->
 <meta property="og:type" content={seo.openGraph.type} />
 <meta property="og:title" content={seo.openGraph.title} />

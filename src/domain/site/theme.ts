@@ -21,6 +21,7 @@ export interface SiteTheme {
   radiusKey: ThemeRadius;
   buttonVariant: ThemeButtonVariant;
   cardVariant: ThemeCardVariant;
+  faviconUrl?: string | undefined;
   updatedAt?: string | undefined;
 }
 

@@ -3,7 +3,7 @@ import type { SiteTheme } from "../../domain/site/theme";
 import type { SiteHero } from "../../domain/site/hero";
 import type { SiteCard } from "../../domain/site/card";
 import type { SitePromotion } from "../../domain/site/promotion";
-import type { SiteContacts } from "../../domain/site/contact";
+import { type SiteContacts, generateWhatsAppUrl } from "../../domain/site/contact";
 import { themeToCssVariables, serializeCssVariables } from "../../domain/design-system/tokens";
 import Button from "../design-system/Button.astro";
 import Badge from "../design-system/Badge.astro";
@@ -33,8 +33,59 @@ const activePromotions = promotions.filter((p) => p.isActive);
         <Icon name="heart" size={20} class="friendly-heart-icon" />
         <span class="friendly-brand-text">{siteName}</span>
       </div>
-      <div class="friendly-motto">
-        <span>Tecnología simple, clara y a tu alcance</span>
+      <div class="friendly-header-actions">
+        {contacts?.whatsappNumber && (
+          <a
+            href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="friendly-header-social"
+            title="WhatsApp"
+            aria-label="WhatsApp"
+          >
+            <Icon name="whatsapp" size={16} />
+          </a>
+        )}
+        {contacts?.instagramHandle && (
+          <a
+            href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="friendly-header-social"
+            title="Instagram"
+            aria-label="Instagram"
+          >
+            <Icon name="instagram" size={16} />
+          </a>
+        )}
+        {contacts?.facebookUrl && (
+          <a
+            href={contacts.facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="friendly-header-social"
+            title="Facebook"
+            aria-label="Facebook"
+          >
+            <Icon name="facebook" size={16} />
+          </a>
+        )}
+        {contacts?.email && (
+          <a
+            href={`mailto:${contacts.email}`}
+            class="friendly-header-social"
+            title="Correo"
+            aria-label="Correo"
+          >
+            <Icon name="email" size={16} />
+          </a>
+        )}
+        {contacts?.phone && (
+          <a href={`tel:${contacts.phone}`} class="friendly-header-phone" title="Teléfono">
+            <Icon name="phone" size={14} />
+            <span>{contacts.phone}</span>
+          </a>
+        )}
       </div>
     </div>
   </header>
@@ -85,13 +136,19 @@ const activePromotions = promotions.filter((p) => p.isActive);
         </div>
 
         <div class="friendly-hero-media">
-          <div class="friendly-welcome-card">
-            <div class="friendly-welcome-icon">
-              <Icon name="heart" size={36} />
+          {hero.imageUrl ? (
+            <div class="friendly-hero-img-wrap">
+              <img src={hero.imageUrl} alt={hero.headline} class="friendly-hero-img" />
             </div>
-            <h3 class="friendly-welcome-title">Estamos para acompañarte</h3>
-            <p class="friendly-welcome-text">Sin trámites complejos ni demoras. Asesoramiento humano directo.</p>
-          </div>
+          ) : (
+            <div class="friendly-welcome-card">
+              <div class="friendly-welcome-icon">
+                <Icon name="heart" size={36} />
+              </div>
+              <h3 class="friendly-welcome-title">Estamos para acompañarte</h3>
+              <p class="friendly-welcome-text">Sin trámites complejos ni demoras. Asesoramiento humano directo.</p>
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -195,6 +252,56 @@ const activePromotions = promotions.filter((p) => p.isActive);
   <footer class="friendly-footer">
     <div class="friendly-container friendly-footer-row">
       <span>© {new Date().getFullYear()} {siteName}. Hecho con calidez humana.</span>
+      {contacts && (
+        <div class="friendly-footer-socials">
+          {contacts.whatsappNumber && (
+            <a
+              href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="friendly-footer-social"
+              title="WhatsApp"
+              aria-label="WhatsApp"
+            >
+              <Icon name="whatsapp" size={16} />
+            </a>
+          )}
+          {contacts.instagramHandle && (
+            <a
+              href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="friendly-footer-social"
+              title="Instagram"
+              aria-label="Instagram"
+            >
+              <Icon name="instagram" size={16} />
+            </a>
+          )}
+          {contacts.facebookUrl && (
+            <a
+              href={contacts.facebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="friendly-footer-social"
+              title="Facebook"
+              aria-label="Facebook"
+            >
+              <Icon name="facebook" size={16} />
+            </a>
+          )}
+          {contacts.email && (
+            <a
+              href={`mailto:${contacts.email}`}
+              class="friendly-footer-social"
+              title="Correo"
+              aria-label="Correo"
+            >
+              <Icon name="email" size={16} />
+            </a>
+          )}
+        </div>
+      )}
       <span>ATENCIÓN TRANSPARENTE</span>
     </div>
   </footer>
@@ -518,5 +625,69 @@ const activePromotions = promotions.filter((p) => p.isActive);
     align-items: center;
     flex-wrap: wrap;
     gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .friendly-hero-img-wrap {
+    border-radius: var(--ds-theme-radius, 1rem);
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .friendly-hero-img {
+    width: 100%;
+    height: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .friendly-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .friendly-header-social {
+    color: var(--ds-color-muted, #94a3b8);
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+
+  .friendly-header-social:hover {
+    color: var(--ds-color-primary, #60a5fa);
+    transform: translateY(-1px);
+  }
+
+  .friendly-header-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.15s ease;
+  }
+
+  .friendly-header-phone:hover {
+    color: var(--ds-color-primary, #60a5fa);
+  }
+
+  .friendly-footer-socials {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .friendly-footer-social {
+    color: var(--ds-color-muted, #94a3b8);
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s ease;
+  }
+
+  .friendly-footer-social:hover {
+    color: var(--ds-color-primary, #60a5fa);
   }
 </style>

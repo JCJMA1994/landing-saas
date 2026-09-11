@@ -3,7 +3,7 @@ import type { SiteTheme } from "../../domain/site/theme";
 import type { SiteHero } from "../../domain/site/hero";
 import type { SiteCard } from "../../domain/site/card";
 import type { SitePromotion } from "../../domain/site/promotion";
-import type { SiteContacts } from "../../domain/site/contact";
+import { type SiteContacts, generateWhatsAppUrl } from "../../domain/site/contact";
 import { themeToCssVariables, serializeCssVariables } from "../../domain/design-system/tokens";
 import Button from "../design-system/Button.astro";
 import Badge from "../design-system/Badge.astro";
@@ -33,8 +33,59 @@ const activePromotions = promotions.filter((p) => p.isActive);
         <Icon name="wrench" size={20} />
         <span class="work-station-name">{siteName} // BANCO DE SERVICIO TÉCNICO</span>
       </div>
-      <div class="work-ticket-stamp">
-        <span>ORDEN DE TRABAJO ACTIVA</span>
+      <div class="work-header-actions">
+        {contacts?.whatsappNumber && (
+          <a
+            href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="work-header-social"
+            title="WhatsApp"
+            aria-label="WhatsApp"
+          >
+            <Icon name="whatsapp" size={16} />
+          </a>
+        )}
+        {contacts?.instagramHandle && (
+          <a
+            href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="work-header-social"
+            title="Instagram"
+            aria-label="Instagram"
+          >
+            <Icon name="instagram" size={16} />
+          </a>
+        )}
+        {contacts?.facebookUrl && (
+          <a
+            href={contacts.facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="work-header-social"
+            title="Facebook"
+            aria-label="Facebook"
+          >
+            <Icon name="facebook" size={16} />
+          </a>
+        )}
+        {contacts?.email && (
+          <a
+            href={`mailto:${contacts.email}`}
+            class="work-header-social"
+            title="Correo"
+            aria-label="Correo"
+          >
+            <Icon name="email" size={16} />
+          </a>
+        )}
+        {contacts?.phone && (
+          <a href={`tel:${contacts.phone}`} class="work-header-phone" title="Teléfono">
+            <Icon name="phone" size={14} />
+            <span>{contacts.phone}</span>
+          </a>
+        )}
       </div>
     </div>
   </header>
@@ -80,20 +131,26 @@ const activePromotions = promotions.filter((p) => p.isActive);
             </div>
 
             <div class="work-intake-media">
-              <div class="work-bench-specs">
-                <div class="work-spec-item">
-                  <span class="work-spec-key">BANCO:</span>
-                  <span class="work-spec-val">#04 - CERTIFICADO</span>
+              {hero.imageUrl ? (
+                <div class="work-hero-img-wrap">
+                  <img src={hero.imageUrl} alt={hero.headline} class="work-hero-img" />
                 </div>
-                <div class="work-spec-item">
-                  <span class="work-spec-key">PROTOCOLO:</span>
-                  <span class="work-spec-val">INSPECCIÓN DINÁMICA</span>
+              ) : (
+                <div class="work-bench-specs">
+                  <div class="work-spec-item">
+                    <span class="work-spec-key">BANCO:</span>
+                    <span class="work-spec-val">#04 - CERTIFICADO</span>
+                  </div>
+                  <div class="work-spec-item">
+                    <span class="work-spec-key">PROTOCOLO:</span>
+                    <span class="work-spec-val">INSPECCIÓN DINÁMICA</span>
+                  </div>
+                  <div class="work-spec-item">
+                    <span class="work-spec-key">REPUESTOS:</span>
+                    <span class="work-spec-val">ORIGINALES / TRAZADOS</span>
+                  </div>
                 </div>
-                <div class="work-spec-item">
-                  <span class="work-spec-key">REPUESTOS:</span>
-                  <span class="work-spec-val">ORIGINALES / TRAZADOS</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -194,6 +251,56 @@ const activePromotions = promotions.filter((p) => p.isActive);
   <footer class="work-footer">
     <div class="work-container work-footer-wrap">
       <span>© {new Date().getFullYear()} {siteName} - Servicio Técnico y Reparaciones</span>
+      {contacts && (
+        <div class="work-footer-socials">
+          {contacts.whatsappNumber && (
+            <a
+              href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="work-footer-social"
+              title="WhatsApp"
+              aria-label="WhatsApp"
+            >
+              <Icon name="whatsapp" size={16} />
+            </a>
+          )}
+          {contacts.instagramHandle && (
+            <a
+              href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="work-footer-social"
+              title="Instagram"
+              aria-label="Instagram"
+            >
+              <Icon name="instagram" size={16} />
+            </a>
+          )}
+          {contacts.facebookUrl && (
+            <a
+              href={contacts.facebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="work-footer-social"
+              title="Facebook"
+              aria-label="Facebook"
+            >
+              <Icon name="facebook" size={16} />
+            </a>
+          )}
+          {contacts.email && (
+            <a
+              href={`mailto:${contacts.email}`}
+              class="work-footer-social"
+              title="Correo"
+              aria-label="Correo"
+            >
+              <Icon name="email" size={16} />
+            </a>
+          )}
+        </div>
+      )}
       <span>GARANTÍA EN MANO DE OBRA Y REPUESTOS</span>
     </div>
   </footer>
@@ -535,5 +642,70 @@ const activePromotions = promotions.filter((p) => p.isActive);
     align-items: center;
     flex-wrap: wrap;
     gap: var(--ds-space-2, 0.5rem);
+  }
+
+  .work-hero-img-wrap {
+    border-radius: var(--ds-theme-radius, 4px);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #000;
+  }
+
+  .work-hero-img {
+    width: 100%;
+    height: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .work-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .work-header-social {
+    color: var(--ds-color-muted, #94a3b8);
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+
+  .work-header-social:hover {
+    color: var(--ds-color-accent, #f59e0b);
+    transform: translateY(-1px);
+  }
+
+  .work-header-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-family: var(--ds-font-mono);
+    transition: color 0.15s ease;
+  }
+
+  .work-header-phone:hover {
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-footer-socials {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .work-footer-social {
+    color: var(--ds-color-muted, #94a3b8);
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s ease;
+  }
+
+  .work-footer-social:hover {
+    color: var(--ds-color-accent, #f59e0b);
   }
 </style>

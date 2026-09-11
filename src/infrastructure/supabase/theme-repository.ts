@@ -31,6 +31,7 @@ export class SupabaseThemeRepository implements ThemeRepository {
         radiusKey: record["radius_key"] as ThemeRadius,
         buttonVariant: record["button_variant"] as ThemeButtonVariant,
         cardVariant: record["card_variant"] as ThemeCardVariant,
+        faviconUrl: typeof record["favicon_url"] === "string" ? record["favicon_url"] : undefined,
         updatedAt: typeof record["updated_at"] === "string" ? record["updated_at"] : undefined,
       };
     } catch {
@@ -53,6 +54,7 @@ export class SupabaseThemeRepository implements ThemeRepository {
           radius_key: theme.radiusKey,
           button_variant: theme.buttonVariant,
           card_variant: theme.cardVariant,
+          favicon_url: theme.faviconUrl ?? null,
           updated_at: new Date().toISOString(),
         });
 

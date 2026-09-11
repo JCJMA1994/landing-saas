@@ -5,6 +5,7 @@ export interface SiteHero {
   ctaText: string;
   ctaLink: string;
   badgeText?: string | undefined;
+  imageUrl?: string | undefined;
   updatedAt?: string | undefined;
 }
 
