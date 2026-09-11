@@ -16,3 +16,5 @@ supabase/.branches/
 .env*
 .codegraph/
 scripts/add-env.mjs
+
+.env*
