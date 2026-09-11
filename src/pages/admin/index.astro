@@ -158,7 +158,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
 
             return (
               <article class="site-command-center">
-                <!-- Site Identity Header -->
+                <!-- Site Identity Masthead Card -->
                 <header class="site-card-header">
                   <div class="site-identity">
                     <div class="site-icon-avatar">🚀</div>
@@ -168,7 +168,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
                         {pub ? (
                           <span class="status-badge published">
                             <span class="status-pulse-dot"></span>
-                            🟢 En Vivo (v{pub.version})
+                            En Vivo (v{pub.version})
                           </span>
                         ) : (
                           <span class="status-badge draft">
@@ -189,189 +189,162 @@ const TEMPLATE_LABELS: Record<string, string> = {
 
                   <!-- Primary Quick Actions -->
                   <div class="header-action-buttons">
+                    <a href={`/admin/sites/${site.id}/publish`} class="btn-action-highlight" title="Lanzar cambios a producción">
+                      🚀 Publicar Cambios
+                    </a>
                     <a href={publicUrl} target="_blank" class="btn-action-primary" title="Ver tu sitio tal como lo ven los visitantes">
                       👁️ Ver Landing Pública ↗
                     </a>
                     <a href={previewUrl} target="_blank" class="btn-action-secondary" title="Ver borradores antes de publicarlos">
-                      🔍 Vista Previa Borrador
-                    </a>
-                    <a href={`/admin/sites/${site.id}/publish`} class="btn-action-highlight" title="Lanzar cambios a producción">
-                      🚀 Publicar Cambios
+                      🔍 Vista Previa Borrador ↗
                     </a>
                   </div>
                 </header>
 
-                <!-- Onboarding Workflow Progress -->
-                <div class="onboarding-guide-strip">
-                  <div class="guide-title">
-                    <span class="guide-icon">💡</span>
-                    <strong>Flujo rápido de configuración:</strong>
+                <!-- Section 1: Onboarding Paso a Paso (7 Pasos Guiados) -->
+                <section class="onboarding-guide-section">
+                  <div class="section-intro-header">
+                    <div class="section-badge-pill">RUTA GUIADA DE EDICIÓN</div>
+                    <h3 class="section-heading-title">Paso a Paso para Personalizar tu Sitio</h3>
+                    <p class="section-heading-desc">
+                      Seguí estos 7 pasos para configurar tu landing de principio a fin, o ingresá directamente al paso que quieras modificar.
+                    </p>
                   </div>
-                  <div class="guide-steps">
-                    <a href={`/admin/sites/${site.id}/theme`} class="guide-step">
-                      <span class="step-num">1</span>
-                      <span class="step-label">Elegí tu paleta de colores</span>
+
+                  <div class="onboarding-steps-grid">
+                    <!-- Paso 1: Plantilla Visual -->
+                    <a href={`/admin/sites/${site.id}/template`} class="step-module-card">
+                      <div class="step-module-top">
+                        <span class="step-order-badge">PASO 1</span>
+                        <span class="step-module-icon">⚡</span>
+                      </div>
+                      <strong class="step-module-title">Plantilla Visual</strong>
+                      <p class="step-module-desc">Elegí el arquetipo de diseño y estructura adaptado a tu tipo de negocio.</p>
+                      <span class="step-module-action">Elegir plantilla &rarr;</span>
                     </a>
-                    <span class="step-connector">→</span>
-                    <a href={`/admin/sites/${site.id}/hero`} class="guide-step">
-                      <span class="step-num">2</span>
-                      <span class="step-label">Editá tu título y WhatsApp</span>
+
+                    <!-- Paso 2: Colores & Estilo -->
+                    <a href={`/admin/sites/${site.id}/theme`} class="step-module-card">
+                      <div class="step-module-top">
+                        <span class="step-order-badge">PASO 2</span>
+                        <span class="step-module-icon">🎨</span>
+                      </div>
+                      <strong class="step-module-title">Colores y Estilo</strong>
+                      <p class="step-module-desc">Paleta corporativa, tipografía, radios redondeados y estilo de botones.</p>
+                      <span class="step-module-action">Ajustar colores &rarr;</span>
                     </a>
-                    <span class="step-connector">→</span>
-                    <a href={`/admin/sites/${site.id}/publish`} class="guide-step">
-                      <span class="step-num">3</span>
-                      <span class="step-label">Hacé clic en Publicar</span>
+
+                    <!-- Paso 3: Encabezado (Hero) -->
+                    <a href={`/admin/sites/${site.id}/hero`} class="step-module-card">
+                      <div class="step-module-top">
+                        <span class="step-order-badge">PASO 3</span>
+                        <span class="step-module-icon">📢</span>
+                      </div>
+                      <strong class="step-module-title">Encabezado (Hero)</strong>
+                      <p class="step-module-desc">Titular de impacto, propuesta de valor y botón de llamada a la acción.</p>
+                      <span class="step-module-action">Redactar hero &rarr;</span>
+                    </a>
+
+                    <!-- Paso 4: Servicios & Tarjetas -->
+                    <a href={`/admin/sites/${site.id}/cards`} class="step-module-card">
+                      <div class="step-module-top">
+                        <span class="step-order-badge">PASO 4</span>
+                        <span class="step-module-icon">💼</span>
+                      </div>
+                      <strong class="step-module-title">Servicios y Contenido</strong>
+                      <p class="step-module-desc">Destacá tus servicios, beneficios y soluciones principales.</p>
+                      <span class="step-module-action">Editar tarjetas &rarr;</span>
+                    </a>
+
+                    <!-- Paso 5: Identidad & Medios -->
+                    <a href={`/admin/sites/${site.id}/media`} class="step-module-card">
+                      <div class="step-module-top">
+                        <span class="step-order-badge">PASO 5</span>
+                        <span class="step-module-icon">🖼️</span>
+                      </div>
+                      <strong class="step-module-title">Identidad & Medios</strong>
+                      <p class="step-module-desc">Subí tu logo, favicon de navegador e imágenes en alta calidad.</p>
+                      <span class="step-module-action">Subir archivos &rarr;</span>
+                    </a>
+
+                    <!-- Paso 6: Contacto y WhatsApp -->
+                    <a href={`/admin/sites/${site.id}/contacts`} class="step-module-card">
+                      <div class="step-module-top">
+                        <span class="step-order-badge">PASO 6</span>
+                        <span class="step-module-icon">📞</span>
+                      </div>
+                      <strong class="step-module-title">Contacto & Redes</strong>
+                      <p class="step-module-desc">Botón flotante de WhatsApp, teléfono, correo y ubicación comercial.</p>
+                      <span class="step-module-action">Configurar canales &rarr;</span>
+                    </a>
+
+                    <!-- Paso 7: Publicar y Lanzar -->
+                    <a href={`/admin/sites/${site.id}/publish`} class="step-module-card step-module-highlight">
+                      <div class="step-module-top">
+                        <span class="step-order-badge highlight-badge">PASO 7</span>
+                        <span class="step-module-icon">🚀</span>
+                      </div>
+                      <strong class="step-module-title highlight-title">Publicar y Lanzar</strong>
+                      <p class="step-module-desc">Lanzá tus cambios en vivo con respaldos inmutables y reversión en 1 clic.</p>
+                      <span class="step-module-action highlight-action">Lanzar sitio &rarr;</span>
                     </a>
                   </div>
-                </div>
+                </section>
 
-                <!-- Tools & Management Grid -->
-                <div class="modules-grid-section">
-                  <!-- Category 1: Diseño & Identidad -->
-                  <div class="module-category">
-                    <h3 class="category-title">
-                      <span class="cat-icon">🎨</span> Diseño & Marca
-                    </h3>
-                    <div class="category-cards">
-                      <a href={`/admin/sites/${site.id}/theme`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8;">
-                          🎨
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Tema & Colores</strong>
-                          <p class="tile-desc">Paletas corporativas, tipografía, bordes redondeados y estilo de botones.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-
-                      <a href={`/admin/sites/${site.id}/template`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(129, 140, 248, 0.12); color: #818cf8;">
-                          ⚡
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Plantilla Visual</strong>
-                          <p class="tile-desc">Cambiá de arquetipo de diseño al instante sin perder ninguno de tus textos.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-
-                      <a href={`/admin/sites/${site.id}/media`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(168, 85, 247, 0.12); color: #c084fc;">
-                          🖼️
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Galería Multimedia</strong>
-                          <p class="tile-desc">Subí tu logotipo, imágenes y capturas optimizadas para carga rápida.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-                    </div>
+                <!-- Section 2: Conectividad y Analítica (APARTE) -->
+                <section class="management-tools-section">
+                  <div class="section-intro-header">
+                    <div class="section-badge-pill tool-badge">CONECTIVIDAD & ANALÍTICA</div>
+                    <h3 class="section-heading-title">Herramientas de Crecimiento y Operación</h3>
+                    <p class="section-heading-desc">
+                      Configuraciones independientes de tu dominio web, métricas en tiempo real y promociones estacionales.
+                    </p>
                   </div>
 
-                  <!-- Category 2: Contenidos & Oferta -->
-                  <div class="module-category">
-                    <h3 class="category-title">
-                      <span class="cat-icon">📝</span> Contenido & Conversión
-                    </h3>
-                    <div class="category-cards">
-                      <a href={`/admin/sites/${site.id}/hero`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(34, 197, 94, 0.12); color: #4ade80;">
-                          📢
+                  <div class="management-tools-grid">
+                    <!-- Dominio Propio & DNS -->
+                    <a href={`/admin/sites/${site.id}/domains`} class="management-tool-card">
+                      <div class="tool-card-left">
+                        <div class="tool-icon-box icon-domain">🌐</div>
+                        <div class="tool-content">
+                          <strong class="tool-title">Dominio Propio & DNS</strong>
+                          <p class="tool-desc">
+                            Conectá tu propio dominio personalizado (.com, .pe, etc.) con certificados SSL automáticos.
+                          </p>
                         </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Hero Principal</strong>
-                          <p class="tile-desc">Titular de impacto, bajada persuasiva, insignia y botón de llamado a la acción.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
+                      </div>
+                      <span class="tool-action-pill">Configurar Dominio &rarr;</span>
+                    </a>
 
-                      <a href={`/admin/sites/${site.id}/cards`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(234, 179, 8, 0.12); color: #facc15;">
-                          💼
+                    <!-- Analíticas & Métricas -->
+                    <a href={`/admin/sites/${site.id}/analytics`} class="management-tool-card">
+                      <div class="tool-card-left">
+                        <div class="tool-icon-box icon-analytics">📊</div>
+                        <div class="tool-content">
+                          <strong class="tool-title">Analíticas & Resultados</strong>
+                          <p class="tool-desc">
+                            Supervisá visitas reales, clics al botón de WhatsApp y conversiones sin cookies invasivas.
+                          </p>
                         </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Tarjetas de Servicios</strong>
-                          <p class="tile-desc">Destacá tus características, soluciones y diferenciales de negocio.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
+                      </div>
+                      <span class="tool-action-pill">Ver Métricas &rarr;</span>
+                    </a>
 
-                      <a href={`/admin/sites/${site.id}/promotions`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(249, 115, 22, 0.12); color: #fb923c;">
-                          🎁
+                    <!-- Campañas & Promociones -->
+                    <a href={`/admin/sites/${site.id}/campaigns`} class="management-tool-card">
+                      <div class="tool-card-left">
+                        <div class="tool-icon-box icon-campaigns">🎯</div>
+                        <div class="tool-content">
+                          <strong class="tool-title">Campañas & Promociones</strong>
+                          <p class="tool-desc">
+                            Activá promociones por tiempo limitado (Black Friday, Cyber, etc.) con banners automáticos.
+                          </p>
                         </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Promociones & Ofertas</strong>
-                          <p class="tile-desc">Banners con descuentos especiales, cupones y ofertas por tiempo limitado.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-
-                      <a href={`/admin/sites/${site.id}/contacts`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(20, 184, 166, 0.12); color: #2dd4bf;">
-                          📞
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Contacto & WhatsApp</strong>
-                          <p class="tile-desc">Canales directos: botón flotante de WhatsApp, teléfono, correo y ubicación.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-                    </div>
+                      </div>
+                      <span class="tool-action-pill">Gestionar Campañas &rarr;</span>
+                    </a>
                   </div>
-
-                  <!-- Category 3: Operaciones & Resultados -->
-                  <div class="module-category">
-                    <h3 class="category-title">
-                      <span class="cat-icon">🚀</span> Operaciones & Métricas
-                    </h3>
-                    <div class="category-cards">
-                      <a href={`/admin/sites/${site.id}/publish`} class="module-tile highlight-tile">
-                        <div class="tile-icon-box" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;">
-                          🚀
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Publicación & Versiones</strong>
-                          <p class="tile-desc">Lanzá tus borradores a producción con control inmutable y reversión segura.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-
-                      <a href={`/admin/sites/${site.id}/campaigns`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(236, 72, 153, 0.12); color: #f472b6;">
-                          🎯
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Campañas Temporales</strong>
-                          <p class="tile-desc">Activá overlays para Cyber Monday, Black Friday o lanzamientos especiales.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-
-                      <a href={`/admin/sites/${site.id}/domains`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(99, 102, 241, 0.12); color: #818cf8;">
-                          🌐
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Dominio Propio</strong>
-                          <p class="tile-desc">Conectá tu propio dominio .com o .tech con certificado SSL automático.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-
-                      <a href={`/admin/sites/${site.id}/analytics`} class="module-tile">
-                        <div class="tile-icon-box" style="background: rgba(16, 185, 129, 0.12); color: #34d399;">
-                          📊
-                        </div>
-                        <div class="tile-content">
-                          <strong class="tile-title">Analíticas & Visitas</strong>
-                          <p class="tile-desc">Consultá tráfico, visitas únicas y tasas de conversión en tiempo real.</p>
-                        </div>
-                        <span class="tile-arrow">→</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
+                </section>
               </article>
             );
           })}
@@ -380,7 +353,10 @@ const TEMPLATE_LABELS: Record<string, string> = {
     </main>
 
     <style>
-      /* Client Workspace Specific Styles */
+      /* =========================================================
+         MOBILE-FIRST ADMIN DASHBOARD STYLES
+         ========================================================= */
+
       .client-workspace-body {
         background: radial-gradient(circle at 50% 0%, #101c38 0%, #060a14 100%);
         min-height: 100vh;
@@ -388,15 +364,14 @@ const TEMPLATE_LABELS: Record<string, string> = {
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
       }
 
-      /* Header */
+      /* Solid, non-bleeding sticky header */
       .client-header {
-        background: rgba(10, 15, 30, 0.85);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+        background: #080e1d;
+        border-bottom: 1px solid #1e2e4f;
         position: sticky;
         top: 0;
-        z-index: 50;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
       }
 
       .header-inner {
@@ -554,7 +529,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
 
       /* Workspace Main */
       .workspace-main {
-        padding: 2.5rem 0 5rem;
+        padding: 2rem 0 5rem;
       }
 
       /* Welcome Section */
@@ -590,7 +565,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
       }
 
       .welcome-heading {
-        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-size: clamp(1.6rem, 3.8vw, 2.3rem);
         font-weight: 900;
         letter-spacing: -0.03em;
         margin: 0 0 0.4rem;
@@ -599,9 +574,10 @@ const TEMPLATE_LABELS: Record<string, string> = {
 
       .welcome-sub {
         color: #94a3b8;
-        font-size: 1rem;
+        font-size: 0.92rem;
         margin: 0;
         line-height: 1.5;
+        max-width: 44rem;
       }
 
       /* Site Command Center */
@@ -615,49 +591,48 @@ const TEMPLATE_LABELS: Record<string, string> = {
 
       /* Site Card Header */
       .site-card-header {
-        padding: 1.85rem 2rem;
+        padding: 1.5rem;
         background: linear-gradient(180deg, rgba(20, 32, 60, 0.8) 0%, rgba(13, 21, 39, 0.95) 100%);
         border-bottom: 1px solid rgba(56, 189, 248, 0.12);
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1.5rem;
+        flex-direction: column;
+        gap: 1.25rem;
       }
 
       .site-identity {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
+        gap: 1rem;
       }
 
       .site-icon-avatar {
-        width: 3.5rem;
-        height: 3.5rem;
-        border-radius: 1rem;
+        width: 3.2rem;
+        height: 3.2rem;
+        border-radius: 0.85rem;
         background: radial-gradient(circle at 30% 30%, #1e3a8a 0%, #0f172a 100%);
         border: 1px solid rgba(56, 189, 248, 0.4);
         display: grid;
         place-items: center;
-        font-size: 1.6rem;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+        font-size: 1.5rem;
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+        flex-shrink: 0;
       }
 
       .site-titles {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.35rem;
       }
 
       .site-title-row {
         display: flex;
         align-items: center;
-        gap: 0.85rem;
+        gap: 0.65rem;
         flex-wrap: wrap;
       }
 
       .site-name {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         font-weight: 800;
         margin: 0;
         color: #ffffff;
@@ -665,19 +640,27 @@ const TEMPLATE_LABELS: Record<string, string> = {
       }
 
       .status-badge {
-        font-size: 0.76rem;
+        font-size: 0.72rem;
         font-weight: 750;
-        padding: 0.25rem 0.75rem;
+        padding: 0.2rem 0.65rem;
         border-radius: 9999px;
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
+        gap: 0.4rem;
       }
 
       .status-badge.published {
         background: rgba(34, 197, 94, 0.15);
         color: #4ade80;
         border: 1px solid rgba(34, 197, 94, 0.35);
+      }
+
+      .status-pulse-dot {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 8px #22c55e;
       }
 
       .status-badge.draft {
@@ -689,12 +672,12 @@ const TEMPLATE_LABELS: Record<string, string> = {
       .site-url-row {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.6rem;
         flex-wrap: wrap;
       }
 
       .site-slug-label {
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         color: #64748b;
       }
 
@@ -704,11 +687,11 @@ const TEMPLATE_LABELS: Record<string, string> = {
         gap: 0.35rem;
         background: rgba(15, 23, 42, 0.8);
         border: 1px solid rgba(56, 189, 248, 0.25);
-        padding: 0.2rem 0.6rem;
-        border-radius: 0.45rem;
+        padding: 0.15rem 0.55rem;
+        border-radius: 0.4rem;
         color: #38bdf8;
         text-decoration: none;
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         transition: all 0.2s ease;
       }
 
@@ -718,65 +701,34 @@ const TEMPLATE_LABELS: Record<string, string> = {
       }
 
       .template-chip {
-        font-size: 0.76rem;
+        font-size: 0.74rem;
         color: #cbd5e1;
         background: rgba(255, 255, 255, 0.06);
-        padding: 0.2rem 0.55rem;
-        border-radius: 0.4rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 0.35rem;
       }
 
       /* Header Action Buttons */
       .header-action-buttons {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.65rem;
         flex-wrap: wrap;
-      }
-
-      .btn-action-primary {
-        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
-        color: #ffffff;
-        font-weight: 700;
-        font-size: 0.88rem;
-        padding: 0.65rem 1.15rem;
-        border-radius: 0.65rem;
-        text-decoration: none;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
-        transition: all 0.2s ease;
-      }
-
-      .btn-action-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
-      }
-
-      .btn-action-secondary {
-        background: rgba(30, 41, 59, 0.85);
-        color: #f1f5f9;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        font-weight: 600;
-        font-size: 0.88rem;
-        padding: 0.65rem 1rem;
-        border-radius: 0.65rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-      }
-
-      .btn-action-secondary:hover {
-        background: rgba(51, 65, 85, 0.9);
-        border-color: rgba(255, 255, 255, 0.3);
       }
 
       .btn-action-highlight {
         background: linear-gradient(135deg, #059669 0%, #10b981 100%);
         color: #ffffff;
-        font-weight: 750;
+        font-weight: 800;
         font-size: 0.88rem;
         padding: 0.65rem 1.15rem;
-        border-radius: 0.65rem;
+        border-radius: 0.6rem;
         text-decoration: none;
         box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
         transition: all 0.2s ease;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
       }
 
       .btn-action-highlight:hover {
@@ -784,127 +736,226 @@ const TEMPLATE_LABELS: Record<string, string> = {
         box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
       }
 
-      /* Guide Strip */
-      .onboarding-guide-strip {
-        background: rgba(56, 189, 248, 0.05);
-        border-bottom: 1px solid rgba(56, 189, 248, 0.1);
-        padding: 0.9rem 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-
-      .guide-title {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.88rem;
+      .btn-action-primary {
+        background: #1e293b;
         color: #38bdf8;
-      }
-
-      .guide-steps {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-      }
-
-      .guide-step {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
+        border: 1px solid #334155;
+        font-weight: 700;
+        font-size: 0.86rem;
+        padding: 0.65rem 1rem;
+        border-radius: 0.6rem;
         text-decoration: none;
-        font-size: 0.82rem;
-        color: #cbd5e1;
-        background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 0.3rem 0.7rem;
-        border-radius: 9999px;
         transition: all 0.2s ease;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
       }
 
-      .guide-step:hover {
-        border-color: #38bdf8;
+      .btn-action-primary:hover {
+        background: #283548;
         color: #ffffff;
       }
 
-      .step-num {
-        width: 1.1rem;
-        height: 1.1rem;
-        border-radius: 50%;
-        background: #38bdf8;
-        color: #071225;
-        font-weight: 900;
+      .btn-action-secondary {
+        background: rgba(15, 23, 42, 0.8);
+        color: #cbd5e1;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-weight: 600;
+        font-size: 0.86rem;
+        padding: 0.65rem 1rem;
+        border-radius: 0.6rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .btn-action-secondary:hover {
+        background: rgba(30, 41, 59, 0.9);
+        color: #ffffff;
+      }
+
+      /* Section Common Header */
+      .section-intro-header {
+        margin-bottom: 1.25rem;
+      }
+
+      .section-badge-pill {
+        display: inline-block;
         font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(56, 189, 248, 0.12);
+        color: #38bdf8;
+        padding: 0.2rem 0.55rem;
+        border-radius: 0.35rem;
+        margin-bottom: 0.4rem;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+      }
+
+      .section-badge-pill.tool-badge {
+        background: rgba(168, 85, 247, 0.12);
+        color: #c084fc;
+        border-color: rgba(168, 85, 247, 0.25);
+      }
+
+      .section-heading-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0 0 0.35rem;
+        letter-spacing: -0.01em;
+      }
+
+      .section-heading-desc {
+        font-size: 0.86rem;
+        color: #94a3b8;
+        margin: 0;
+        line-height: 1.45;
+        max-width: 44rem;
+      }
+
+      /* Section 1: Onboarding Guide Section */
+      .onboarding-guide-section {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+      }
+
+      .onboarding-steps-grid {
         display: grid;
-        place-items: center;
-      }
-
-      .step-connector {
-        color: #475569;
-        font-size: 0.8rem;
-      }
-
-      /* Modules Grid */
-      .modules-grid-section {
-        padding: 2rem;
-        display: grid;
-        gap: 2.2rem;
-      }
-
-      .module-category {
-        display: flex;
-        flex-direction: column;
+        grid-template-columns: 1fr;
         gap: 0.85rem;
       }
 
-      .category-title {
-        font-size: 0.95rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #94a3b8;
-        margin: 0;
+      .step-module-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid #1e2e4f;
+        border-radius: 0.75rem;
+        padding: 1rem;
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .category-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1rem;
-      }
-
-      .module-tile {
-        background: rgba(15, 23, 42, 0.65);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 0.9rem;
-        padding: 1.15rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 0.9rem;
+        flex-direction: column;
         text-decoration: none;
         color: inherit;
-        position: relative;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.2s ease;
       }
 
-      .module-tile:hover {
+      .step-module-card:hover {
         transform: translateY(-2px);
-        background: rgba(22, 36, 68, 0.7);
+        background: #142038;
+        border-color: #38bdf8;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+
+      .step-module-highlight {
+        background: linear-gradient(180deg, rgba(6, 78, 59, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%);
+        border-color: #059669;
+      }
+      .step-module-highlight:hover {
+        border-color: #10b981;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+      }
+
+      .step-module-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.6rem;
+      }
+
+      .step-order-badge {
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        background: #1e293b;
+        color: #38bdf8;
+        padding: 0.18rem 0.5rem;
+        border-radius: 0.35rem;
+      }
+
+      .step-order-badge.highlight-badge {
+        background: #064e3b;
+        color: #6ee7b7;
+      }
+
+      .step-module-icon {
+        font-size: 1.25rem;
+      }
+
+      .step-module-title {
+        font-size: 0.98rem;
+        font-weight: 750;
+        color: #f1f5f9;
+        margin-bottom: 0.3rem;
+      }
+
+      .step-module-title.highlight-title {
+        color: #6ee7b7;
+      }
+
+      .step-module-desc {
+        font-size: 0.82rem;
+        color: #94a3b8;
+        line-height: 1.4;
+        margin: 0 0 0.75rem;
+        flex: 1;
+      }
+
+      .step-module-action {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #38bdf8;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-top: auto;
+      }
+
+      .step-module-action.highlight-action {
+        color: #34d399;
+      }
+
+      /* Section 2: Management Tools Section (Dominios, Analítica, Campañas) */
+      .management-tools-section {
+        padding: 1.5rem;
+        background: rgba(6, 10, 20, 0.4);
+      }
+
+      .management-tools-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+      }
+
+      .management-tool-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid #1e2e4f;
+        border-radius: 0.85rem;
+        padding: 1.15rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+        gap: 0.85rem;
+      }
+
+      .management-tool-card:hover {
+        transform: translateY(-2px);
+        background: #142038;
         border-color: rgba(56, 189, 248, 0.35);
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
       }
 
-      .module-tile.highlight-tile {
-        border-color: rgba(56, 189, 248, 0.28);
-        background: rgba(14, 28, 54, 0.8);
+      .tool-card-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
       }
 
-      .tile-icon-box {
+      .tool-icon-box {
         width: 2.6rem;
         height: 2.6rem;
         border-radius: 0.65rem;
@@ -914,11 +965,26 @@ const TEMPLATE_LABELS: Record<string, string> = {
         flex-shrink: 0;
       }
 
-      .tile-content {
+      .tool-icon-box.icon-domain {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+      }
+
+      .tool-icon-box.icon-analytics {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+      }
+
+      .tool-icon-box.icon-campaigns {
+        background: rgba(236, 72, 153, 0.15);
+        color: #f472b6;
+      }
+
+      .tool-content {
         flex: 1;
       }
 
-      .tile-title {
+      .tool-title {
         display: block;
         font-size: 0.98rem;
         font-weight: 750;
@@ -926,22 +992,30 @@ const TEMPLATE_LABELS: Record<string, string> = {
         margin-bottom: 0.25rem;
       }
 
-      .tile-desc {
+      .tool-desc {
         font-size: 0.82rem;
         color: #94a3b8;
         line-height: 1.45;
         margin: 0;
       }
 
-      .tile-arrow {
-        color: #475569;
-        font-size: 1.1rem;
-        transition: transform 0.2s ease, color 0.2s ease;
+      .tool-action-pill {
+        display: inline-flex;
+        align-self: flex-start;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #38bdf8;
+        background: #1e293b;
+        padding: 0.3rem 0.65rem;
+        border-radius: 0.4rem;
+        border: 1px solid #334155;
+        transition: all 0.2s ease;
       }
 
-      .module-tile:hover .tile-arrow {
-        color: #38bdf8;
-        transform: translateX(3px);
+      .management-tool-card:hover .tool-action-pill {
+        background: #0284c7;
+        color: #ffffff;
+        border-color: #0284c7;
       }
 
       /* Alerts & Empty states */
@@ -967,8 +1041,46 @@ const TEMPLATE_LABELS: Record<string, string> = {
         margin-bottom: 1rem;
       }
 
-      /* Responsiveness */
-      @media (max-width: 768px) {
+      /* =========================================================
+         DESKTOP ADAPTATIONS (min-width: 768px & 1024px)
+         ========================================================= */
+
+      @media (min-width: 768px) {
+        .site-card-header {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.85rem 2rem;
+        }
+
+        .header-action-buttons {
+          flex-direction: row;
+        }
+
+        .onboarding-guide-section {
+          padding: 2rem;
+        }
+
+        .onboarding-steps-grid {
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          gap: 1rem;
+        }
+
+        .management-tools-section {
+          padding: 2rem;
+        }
+
+        .management-tools-grid {
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.15rem;
+        }
+
+        .management-tool-card {
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 767px) {
         .header-inner {
           flex-direction: column;
           align-items: flex-start;
@@ -987,27 +1099,18 @@ const TEMPLATE_LABELS: Record<string, string> = {
           justify-content: space-between;
         }
 
-        .site-card-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
         .header-action-buttons {
           width: 100%;
           flex-direction: column;
         }
 
-        .btn-action-primary, .btn-action-secondary, .btn-action-highlight {
+        .btn-action-highlight, .btn-action-primary, .btn-action-secondary {
           width: 100%;
           text-align: center;
         }
 
-        .modules-grid-section {
-          padding: 1.25rem;
-        }
-
-        .category-cards {
-          grid-template-columns: 1fr;
+        .management-tool-card {
+          flex-direction: column;
         }
       }
     </style>
