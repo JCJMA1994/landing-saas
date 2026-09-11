@@ -29,8 +29,12 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Cyber Telemetry Top Bar */}
   <header class="cyber-header">
     <div class="cyber-container cyber-header-content">
-      <div class="cyber-brand">
-        <span class="cyber-neon-flash">⚡</span>
+      <div class="cyber-brand" style="display: flex; align-items: center; gap: 0.5rem;">
+        {theme?.logoUrl ? (
+          <img src={theme.logoUrl} alt={siteName} class="cyber-brand-logo" style="height: 26px; width: auto; object-fit: contain; max-width: 130px; border-radius: 3px;" />
+        ) : (
+          <span class="cyber-neon-flash">⚡</span>
+        )}
         <span>{siteName}</span>
       </div>
       <div class="cyber-header-actions">

@@ -32,6 +32,7 @@ export class SupabaseThemeRepository implements ThemeRepository {
         buttonVariant: record["button_variant"] as ThemeButtonVariant,
         cardVariant: record["card_variant"] as ThemeCardVariant,
         faviconUrl: typeof record["favicon_url"] === "string" ? record["favicon_url"] : undefined,
+        logoUrl: typeof record["logo_url"] === "string" ? record["logo_url"] : undefined,
         updatedAt: typeof record["updated_at"] === "string" ? record["updated_at"] : undefined,
       };
     } catch {
@@ -55,6 +56,7 @@ export class SupabaseThemeRepository implements ThemeRepository {
           button_variant: theme.buttonVariant,
           card_variant: theme.cardVariant,
           favicon_url: theme.faviconUrl ?? null,
+          logo_url: theme.logoUrl ?? null,
           updated_at: new Date().toISOString(),
         });
 

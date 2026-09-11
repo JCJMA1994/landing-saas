@@ -22,6 +22,7 @@ export interface SiteTheme {
   buttonVariant: ThemeButtonVariant;
   cardVariant: ThemeCardVariant;
   faviconUrl?: string | undefined;
+  logoUrl?: string | undefined;
   updatedAt?: string | undefined;
 }
 

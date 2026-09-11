@@ -240,6 +240,8 @@ export const server = {
       radiusKey: z.enum(THEME_RADII),
       buttonVariant: z.enum(THEME_BUTTON_VARIANTS),
       cardVariant: z.enum(THEME_CARD_VARIANTS),
+      faviconUrl: z.string().url().or(z.literal("")).nullish(),
+      logoUrl: z.string().url().or(z.literal("")).nullish(),
     }),
     handler: async (input, context) => {
       if (!context.locals.user) return { ok: false, error: "Authentication required." };
@@ -252,7 +254,11 @@ export const server = {
         await saveSiteThemeUseCase(
           context.locals.user,
           input.tenantId,
-          input,
+          {
+            ...input,
+            faviconUrl: input.faviconUrl ? input.faviconUrl.trim() : undefined,
+            logoUrl: input.logoUrl ? input.logoUrl.trim() : undefined,
+          },
           role,
           themeRepo,
           auditGateway,

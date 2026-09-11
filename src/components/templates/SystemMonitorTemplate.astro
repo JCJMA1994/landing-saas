@@ -29,8 +29,12 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Terminal Status Bar */}
   <header class="mon-header">
     <div class="mon-container mon-header-wrap">
-      <div class="mon-prompt">
-        <span class="mon-cursor">&gt;</span>
+      <div class="mon-prompt" style="display: flex; align-items: center; gap: 0.5rem;">
+        {theme?.logoUrl ? (
+          <img src={theme.logoUrl} alt={siteName} class="mon-brand-logo" style="height: 24px; width: auto; object-fit: contain; max-width: 120px; border-radius: 3px;" />
+        ) : (
+          <span class="mon-cursor">&gt;</span>
+        )}
         <span class="mon-cmd">monitor --cluster="{siteName}" --estado=activo</span>
       </div>
       <div class="mon-header-actions">

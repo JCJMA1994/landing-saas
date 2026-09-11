@@ -29,7 +29,10 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Editorial Masthead */}
   <header class="edit-masthead">
     <div class="edit-container edit-masthead-wrap">
-      <div class="edit-pub-title">
+      <div class="edit-pub-title" style="display: flex; align-items: center; gap: 0.6rem;">
+        {theme?.logoUrl && (
+          <img src={theme.logoUrl} alt={siteName} class="edit-brand-logo" style="height: 28px; width: auto; object-fit: contain; max-width: 130px;" />
+        )}
         <span>{siteName}</span>
       </div>
       <div class="edit-header-actions">

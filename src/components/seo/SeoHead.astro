@@ -39,9 +39,9 @@ const jsonLdString = JSON.stringify(schemaOrg);
 <meta name="robots" content={seo.robots} />
 {seo.themeColor && <meta name="theme-color" content={seo.themeColor} />}
 
-<!-- Favicon & App Icons -->
-<link rel="icon" href={snapshot.theme?.faviconUrl || snapshot.hero?.imageUrl || "/favicon.svg"} />
-<link rel="apple-touch-icon" href={snapshot.theme?.faviconUrl || snapshot.hero?.imageUrl || "/favicon.svg"} />
+<!-- Favicon & App Icons (Marca / Logo) -->
+<link rel="icon" href={snapshot.theme?.faviconUrl || snapshot.theme?.logoUrl || "/favicon.svg"} />
+<link rel="apple-touch-icon" href={snapshot.theme?.faviconUrl || snapshot.theme?.logoUrl || "/favicon.svg"} />
 
 
 <!-- Open Graph / Facebook / WhatsApp -->

@@ -30,7 +30,11 @@ const activePromotions = promotions.filter((p) => p.isActive);
   <header class="diag-header-bar">
     <div class="diag-container diag-header-content">
       <div class="diag-brand">
-        <Icon name="cpu" size={20} />
+        {theme?.logoUrl ? (
+          <img src={theme.logoUrl} alt={siteName} class="diag-brand-logo" style="height: 28px; width: auto; object-fit: contain; max-width: 140px; border-radius: 4px;" />
+        ) : (
+          <Icon name="cpu" size={20} />
+        )}
         <span class="diag-brand-title">{siteName}</span>
       </div>
       <div class="diag-header-actions">
