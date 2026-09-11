@@ -130,82 +130,87 @@ const actionError = publishResult && !publishResult.data?.ok
         hasPendingChanges={hasPendingChanges}
       />
 
-      <div style="margin-bottom: 2rem;">
-        <p class="eyebrow" style="color: #38bdf8;">Paso 7 de 7 &bull; Lanzamiento</p>
-        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0.25rem 0 0.5rem;">{siteData.name} &mdash; Publicar y Estado del Sitio</h1>
-        <p class="muted" style="max-width: 48rem; margin: 0;">
-          Publica las novedades de tu sitio en internet con un solo clic. Cada versión queda respaldada de forma segura para que puedas volver atrás cuando quieras.
+      <div class="publish-page-intro">
+        <h1 class="publish-main-heading">Publicar y Estado del Sitio</h1>
+        <p class="publish-main-subheading">
+          Lanza las novedades de tu sitio a internet con un solo clic. Cada versión queda respaldada de forma inmutable para que puedas auditarla o restaurarla cuando quieras.
         </p>
       </div>
 
       {actionSuccess && (
-        <p class="badge" style="background: #1e4620; color: #a3e9a4; padding: .75rem 1rem; display: block; margin-bottom: 1.5rem;" role="status">
-          {actionSuccess}
-        </p>
+        <div class="alert-banner alert-success" role="status">
+          <span class="alert-icon">✓</span>
+          <span>{actionSuccess}</span>
+        </div>
       )}
-      {actionError && <p class="error" role="alert">{actionError}</p>}
+      {actionError && (
+        <div class="alert-banner alert-error" role="alert">
+          <span class="alert-icon">⚠️</span>
+          <span>{actionError}</span>
+        </div>
+      )}
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 2rem; margin-bottom: 3rem; align-items: start;">
+      <div class="publish-cards-grid">
         <!-- Status Card -->
-        <section class="panel" style="width: 100%;">
-          <h2 style="margin-top: 0; font-size: 1.25rem;">Estado de Publicación</h2>
+        <section class="publish-card">
+          <div class="publish-card-header">
+            <h2 class="publish-card-title">Estado de Publicación</h2>
+          </div>
           
-          <div style="margin: 1.5rem 0; display: flex; flex-direction: column; gap: 1rem;">
-            <div>
-              <span class="muted" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">
-                Versión en Vivo
-              </span>
+          <div class="publish-card-body">
+            <div class="status-indicator-box">
+              <span class="status-field-label">Versión en Vivo</span>
               {activePublication ? (
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                  <span style="font-size: 1.5rem; font-weight: 800; color: #a3e9a4;">
-                    v{activePublication.version}
-                  </span>
-                  <span class="badge" style="background: #1e4620; color: #a3e9a4;">ACTIVA EN VIVO</span>
+                <div class="status-live-row">
+                  <span class="version-live-tag">v{activePublication.version}</span>
+                  <span class="badge-status-active">ACTIVA EN VIVO</span>
                 </div>
               ) : (
-                <span class="badge" style="background: #431d2a; color: #ffd9df;">SIN PUBLICAR (En Construcción)</span>
+                <span class="badge-status-draft">SIN PUBLICAR (En Construcción)</span>
               )}
             </div>
 
             {activePublication && (
-              <>
-                <div>
-                  <span class="muted" style="font-size: 0.85rem; display: block;">Fecha de publicación:</span>
-                  <strong style="color: #f5f7ff;">
+              <div class="status-meta-group">
+                <div class="status-meta-row">
+                  <span class="status-field-label">Fecha de publicación:</span>
+                  <strong class="status-date-value">
                     {new Date(activePublication.publishedAt).toLocaleString()}
                   </strong>
                 </div>
-                <details style="margin-top: 0.25rem; font-size: 0.85rem; color: #8292b3;">
-                  <summary style="cursor: pointer; user-select: none;">
-                    <span style="color: #6ee7b7; font-weight: 600;">✓ Versión verificada</span> &bull; <span style="text-decoration: underline;">Ver detalles de seguridad</span>
+                <details class="security-details">
+                  <summary class="security-summary">
+                    <span class="security-check-label">✓ Versión verificada</span> &bull; <span class="security-link">Ver detalles SHA-256</span>
                   </summary>
-                  <code style="display: block; margin-top: 0.4rem; background: #091225; padding: 0.4rem 0.6rem; border-radius: 0.4rem; font-size: 0.78rem; color: #91b7ff; word-break: break-all;">
+                  <code class="security-checksum-code">
                     {activePublication.checksum}
                   </code>
                 </details>
-              </>
+              </div>
             )}
 
-            <div style="padding-top: 1rem; border-top: 1px solid #293958;">
-              <span class="muted" style="font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Sincronización con la web:</span>
+            <div class="sync-status-box">
+              <span class="status-field-label">Sincronización con la web:</span>
               {hasPendingChanges ? (
-                <div style="padding: 0.75rem 1rem; background: #2f2512; border-left: 3px solid #ffd57a; border-radius: 0.4rem; color: #ffe8b3; font-size: 0.9rem;">
-                  ⚠️ Tienes cambios guardados que aún no son visibles para el público. Haz clic en "Publicar Cambios en Vivo" para lanzarlos.
+                <div class="sync-banner sync-pending">
+                  <span class="sync-icon">⚠️</span>
+                  <span>Tienes cambios guardados que aún no son visibles para el público. Haz clic en "Publicar Cambios en Vivo" para lanzarlos.</span>
                 </div>
               ) : (
-                <div style="padding: 0.75rem 1rem; background: #12281a; border-left: 3px solid #4ade80; border-radius: 0.4rem; color: #bbf7d0; font-size: 0.9rem;">
-                  ✓ Tu sitio web está completamente al día. La versión pública coincide 100% con tu borrador.
+                <div class="sync-banner sync-synced">
+                  <span class="sync-icon">✓</span>
+                  <span>Tu sitio web está completamente al día. La versión pública coincide 100% con tu borrador.</span>
                 </div>
               )}
             </div>
           </div>
 
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
-            <a href={`/preview/${siteId}`} target="_blank" class="button" style="background: #233e66; color: #91b7ff; text-decoration: none; text-align: center; display: inline-block;">
+          <div class="publish-card-actions">
+            <a href={`/preview/${siteId}`} target="_blank" class="btn-action btn-preview">
               Ver Preview de Borrador ↗
             </a>
             {activePublication && (
-              <a href={liveUrl} target="_blank" class="button" style="background: #1e4620; color: #a3e9a4; text-decoration: none; text-align: center; display: inline-block;">
+              <a href={liveUrl} target="_blank" class="btn-action btn-live">
                 Ver Sitio en Vivo ↗
               </a>
             )}
@@ -213,124 +218,810 @@ const actionError = publishResult && !publishResult.data?.ok
         </section>
 
         <!-- Publish Action Card -->
-        <section class="panel" style="width: 100%;">
-          <h2 style="margin-top: 0; font-size: 1.25rem;">Lanzar Nueva Versión</h2>
-          <p class="muted" style="font-size: 0.9rem;">
-            Al publicar, los cambios que editaste (diseño, contenidos, medios y contacto) se aplicarán inmediatamente a tu sitio web en internet.
-          </p>
+        <section class="publish-card">
+          <div class="publish-card-header">
+            <h2 class="publish-card-title">Lanzar Nueva Versión</h2>
+          </div>
+          <div class="publish-card-body">
+            <p class="publish-explanation">
+              Al publicar, todos los cambios que editaste (diseño, contenidos, imágenes, redes y contacto) se aplicarán inmediatamente a tu sitio web en internet.
+            </p>
 
-          <form method="POST" action={actions.publishSite} style="margin-top: 2rem;">
-            <input type="hidden" name="siteId" value={siteId} />
-            <input type="hidden" name="tenantId" value={siteData.tenant_id} />
-            
-            <div style="margin-bottom: 1.5rem; background: #091225; padding: 1rem; border-radius: 0.65rem; border: 1px solid #293958;">
-              <span style="display: block; font-size: 0.85rem; color: #b8c3dc; margin-bottom: 0.25rem;">Próxima versión a publicar:</span>
-              <strong style="font-size: 1.4rem; color: #91b7ff;">v{nextVersion}</strong>
-              <span style="display: block; font-size: 0.8rem; color: #8292b3; margin-top: 0.25rem;">Plantilla seleccionada: {templateKey}</span>
-            </div>
+            <form method="POST" action={actions.publishSite} class="publish-form">
+              <input type="hidden" name="siteId" value={siteId} />
+              <input type="hidden" name="tenantId" value={siteData.tenant_id} />
+              
+              <div class="next-version-box">
+                <span class="status-field-label">Próxima versión a publicar:</span>
+                <div class="next-version-row">
+                  <strong class="next-version-tag">v{nextVersion}</strong>
+                  <span class="template-pill-badge">{templateKey}</span>
+                </div>
+                <span class="next-version-hint">Se creará un respaldo inmutable con verificación criptográfica SHA-256.</span>
+              </div>
 
-            <button
-              type="submit"
-              class="button"
-              style="width: 100%; font-size: 1.05rem; padding: 1rem; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);"
-            >
-              🚀 Publicar Cambios en Vivo (v{nextVersion})
-            </button>
-          </form>
+              <button type="submit" class="btn-publish-submit">
+                🚀 Publicar Cambios en Vivo (v{nextVersion})
+              </button>
+            </form>
+          </div>
         </section>
       </div>
 
-      <!-- History Table Section -->
-      <section>
-        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-          <h2 style="margin: 0; font-size: 1.4rem;">Historial de Versiones Publicadas</h2>
-          <span class="muted" style="font-size: 0.9rem;">Total de versiones: {history.length}</span>
+      <!-- History Section -->
+      <section class="history-section">
+        <div class="history-header">
+          <div>
+            <h2 class="history-title">Historial de Versiones Publicadas</h2>
+            <p class="history-subtitle">
+              Cada publicación genera un respaldo automático. Puedes restaurar cualquier versión previa con un solo clic.
+            </p>
+          </div>
+          <span class="history-counter-badge">Total: {history.length} {history.length === 1 ? 'versión' : 'versiones'}</span>
         </div>
-        <p class="muted" style="margin-top: 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
-          Cada vez que publicas tu sitio se guarda una copia de respaldo automática. Si hiciste cambios y quieres volver a cómo se veía antes, puedes restaurar cualquier versión con un solo clic.
-        </p>
 
         {history.length === 0 ? (
-          <div class="empty">
-            No se han publicado versiones de este sitio aún. Realiza tu primera publicación arriba.
+          <div class="empty-history-card">
+            No se han publicado versiones de este sitio aún. Realiza tu primera publicación en el panel superior.
           </div>
         ) : (
-          <div style="overflow-x: auto;">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Versión</th>
-                  <th>Estado</th>
-                  <th>Fecha de Publicación</th>
-                  <th>Plantilla</th>
-                  <th>Seguridad</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((pub) => {
-                  const isCurrentActive = activePublication?.id === pub.id;
-                  const pubTemplate = (pub.snapshot as any)?.templateKey || "tech-diagnostic";
-                  return (
-                    <tr>
-                      <td>
-                        <strong style="font-size: 1.05rem; color: #f5f7ff;">v{pub.version}</strong>
-                      </td>
-                      <td>
+          <>
+            <!-- Mobile Version Cards (< 768px) -->
+            <div class="history-mobile-cards">
+              {history.map((pub) => {
+                const isCurrentActive = activePublication?.id === pub.id;
+                const pubTemplate = (pub.snapshot as any)?.templateKey || "tech-diagnostic";
+                return (
+                  <article class={`version-card ${isCurrentActive ? 'version-card-active' : ''}`}>
+                    <div class="version-card-top">
+                      <div class="version-card-tag-group">
+                        <strong class="version-badge">v{pub.version}</strong>
                         {isCurrentActive ? (
-                          <span class="badge" style="background: #1e4620; color: #a3e9a4;">ACTIVA</span>
+                          <span class="badge-status-active">ACTIVA</span>
                         ) : (
-                          <span class="badge" style="background: #1b263b; color: #8292b3;">Histórica</span>
+                          <span class="badge-status-history">Histórica</span>
                         )}
-                      </td>
-                      <td>{new Date(pub.publishedAt).toLocaleString()}</td>
-                      <td>
-                        <span class="badge" style="background: #233e66; color: #91b7ff;">{pubTemplate}</span>
-                      </td>
-                      <td>
-                        <span
-                          title={`Checksum SHA-256: ${pub.checksum}`}
-                          style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; color: #6ee7b7; background: #064e3b; padding: 0.2rem 0.5rem; border-radius: 0.35rem; cursor: help;"
-                        >
-                          ✓ Verificada
-                        </span>
-                      </td>
-                      <td>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                          <a
-                            href={`/preview/${siteId}?version=${pub.version}`}
-                            target="_blank"
-                            class="button"
-                            style="padding: 0.4rem 0.75rem; font-size: 0.85rem; background: #233e66; color: #91b7ff; text-decoration: none;"
-                          >
-                            Ver Snapshot ↗
-                          </a>
+                      </div>
+                      <span
+                        class="security-pill"
+                        title={`Checksum SHA-256: ${pub.checksum}`}
+                      >
+                        ✓ Verificada
+                      </span>
+                    </div>
 
-                          {!isCurrentActive && (
-                            <form method="POST" action={actions.rollbackSite} style="margin: 0;">
-                              <input type="hidden" name="siteId" value={siteId} />
-                              <input type="hidden" name="tenantId" value={siteData.tenant_id} />
-                              <input type="hidden" name="targetVersion" value={pub.version} />
-                              <button
-                                type="submit"
-                                class="button"
-                                style="padding: 0.4rem 0.75rem; font-size: 0.85rem; background: #4a3818; color: #ffd57a;"
-                                onclick="return confirm('¿Confirmas que deseas restaurar la versión v' + this.form.targetVersion.value + '? Tu sitio volverá a verse exactamente como en esa fecha.');"
-                              >
-                                Restaurar v{pub.version}
-                              </button>
-                            </form>
+                    <div class="version-card-meta">
+                      <div class="meta-item">
+                        <span class="meta-label">Publicada:</span>
+                        <span class="meta-value">{new Date(pub.publishedAt).toLocaleString()}</span>
+                      </div>
+                      <div class="meta-item">
+                        <span class="meta-label">Plantilla:</span>
+                        <span class="meta-template-tag">{pubTemplate}</span>
+                      </div>
+                    </div>
+
+                    <div class="version-card-actions">
+                      <a
+                        href={`/preview/${siteId}?version=${pub.version}`}
+                        target="_blank"
+                        class="btn-version-snapshot"
+                      >
+                        Ver Snapshot ↗
+                      </a>
+
+                      {!isCurrentActive && (
+                        <form method="POST" action={actions.rollbackSite} class="rollback-form">
+                          <input type="hidden" name="siteId" value={siteId} />
+                          <input type="hidden" name="tenantId" value={siteData.tenant_id} />
+                          <input type="hidden" name="targetVersion" value={pub.version} />
+                          <button
+                            type="submit"
+                            class="btn-version-rollback"
+                            onclick="return confirm('¿Confirmas que deseas restaurar la versión v' + this.form.targetVersion.value + '? Tu sitio volverá a verse exactamente como en esa fecha.');"
+                          >
+                            Restaurar v{pub.version}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <!-- Desktop Version Table (>= 768px) -->
+            <div class="history-table-wrapper">
+              <table class="desktop-data-table">
+                <thead>
+                  <tr>
+                    <th>Versión</th>
+                    <th>Estado</th>
+                    <th>Fecha de Publicación</th>
+                    <th>Plantilla</th>
+                    <th>Seguridad</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((pub) => {
+                    const isCurrentActive = activePublication?.id === pub.id;
+                    const pubTemplate = (pub.snapshot as any)?.templateKey || "tech-diagnostic";
+                    return (
+                      <tr class={isCurrentActive ? 'row-active' : ''}>
+                        <td>
+                          <strong class="table-version-num">v{pub.version}</strong>
+                        </td>
+                        <td>
+                          {isCurrentActive ? (
+                            <span class="badge-status-active">ACTIVA</span>
+                          ) : (
+                            <span class="badge-status-history">Histórica</span>
                           )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td class="table-date-cell">{new Date(pub.publishedAt).toLocaleString()}</td>
+                        <td>
+                          <span class="meta-template-tag">{pubTemplate}</span>
+                        </td>
+                        <td>
+                          <span
+                            class="security-pill"
+                            title={`Checksum SHA-256: ${pub.checksum}`}
+                          >
+                            ✓ Verificada
+                          </span>
+                        </td>
+                        <td>
+                          <div class="table-actions-cell">
+                            <a
+                              href={`/preview/${siteId}?version=${pub.version}`}
+                              target="_blank"
+                              class="btn-version-snapshot"
+                            >
+                              Ver Snapshot ↗
+                            </a>
+
+                            {!isCurrentActive && (
+                              <form method="POST" action={actions.rollbackSite} class="rollback-form">
+                                <input type="hidden" name="siteId" value={siteId} />
+                                <input type="hidden" name="tenantId" value={siteData.tenant_id} />
+                                <input type="hidden" name="targetVersion" value={pub.version} />
+                                <button
+                                  type="submit"
+                                  class="btn-version-rollback"
+                                  onclick="return confirm('¿Confirmas que deseas restaurar la versión v' + this.form.targetVersion.value + '? Tu sitio volverá a verse exactamente como en esa fecha.');"
+                                >
+                                  Restaurar v{pub.version}
+                                </button>
+                              </form>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
     </main>
   </body>
 </html>
+
+<style>
+  /* =========================================================
+     MOBILE-FIRST PUBLISH PAGE STYLING
+     ========================================================= */
+
+  .publish-page-intro {
+    margin-bottom: 1.5rem;
+  }
+
+  .publish-main-heading {
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .publish-main-subheading {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    max-width: 44rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Alerts */
+  .alert-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.65rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+  .alert-success {
+    background: #064e3b;
+    color: #a7f3d0;
+    border: 1px solid #059669;
+  }
+  .alert-error {
+    background: #450a0a;
+    color: #fecaca;
+    border: 1px solid #dc2626;
+  }
+  .alert-icon {
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+
+  /* Cards Grid (Mobile 1 column, Desktop 2 columns) */
+  .publish-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .publish-card {
+    background: #0d1527;
+    border: 1px solid #1e2e4f;
+    border-radius: 0.85rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .publish-card-header {
+    margin-bottom: 1rem;
+  }
+
+  .publish-card-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 750;
+    color: #f1f5f9;
+    letter-spacing: -0.01em;
+  }
+
+  .publish-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .status-field-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .status-live-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .version-live-tag {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #4ade80;
+  }
+
+  .badge-status-active {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 0.35rem;
+    background: #064e3b;
+    color: #6ee7b7;
+    border: 1px solid #059669;
+  }
+
+  .badge-status-history {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 0.35rem;
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+  }
+
+  .badge-status-draft {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 750;
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.4rem;
+    background: #450a0a;
+    color: #fca5a5;
+    border: 1px solid #b91c1c;
+  }
+
+  .status-meta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .status-meta-row {
+    font-size: 0.85rem;
+  }
+
+  .status-date-value {
+    color: #e2e8f0;
+    font-size: 0.88rem;
+  }
+
+  .security-details {
+    font-size: 0.82rem;
+    margin-top: 0.25rem;
+  }
+
+  .security-summary {
+    cursor: pointer;
+    color: #94a3b8;
+    user-select: none;
+  }
+
+  .security-check-label {
+    color: #34d399;
+    font-weight: 600;
+  }
+
+  .security-link {
+    text-decoration: underline;
+  }
+
+  .security-checksum-code {
+    display: block;
+    margin-top: 0.4rem;
+    background: #090f1d;
+    border: 1px solid #1e2e4f;
+    padding: 0.45rem 0.65rem;
+    border-radius: 0.4rem;
+    font-size: 0.75rem;
+    color: #38bdf8;
+    word-break: break-all;
+    font-family: ui-monospace, monospace;
+  }
+
+  /* Sync status banner */
+  .sync-status-box {
+    margin-top: 0.25rem;
+  }
+
+  .sync-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .sync-pending {
+    background: rgba(120, 53, 15, 0.25);
+    border-left: 3px solid #f59e0b;
+    color: #fde68a;
+  }
+
+  .sync-synced {
+    background: rgba(6, 78, 59, 0.25);
+    border-left: 3px solid #10b981;
+    color: #a7f3d0;
+  }
+
+  .sync-icon {
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  /* Card action buttons */
+  .publish-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #1e2e4f;
+  }
+
+  .btn-action {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    border-radius: 0.55rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+
+  .btn-preview {
+    background: #1e293b;
+    color: #38bdf8;
+    border: 1px solid #334155;
+  }
+  .btn-preview:hover {
+    background: #283548;
+    color: #7dd3fc;
+  }
+
+  .btn-live {
+    background: #064e3b;
+    color: #6ee7b7;
+    border: 1px solid #059669;
+  }
+  .btn-live:hover {
+    background: #047857;
+    color: #ffffff;
+  }
+
+  /* Publish form & next version box */
+  .publish-explanation {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .publish-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .next-version-box {
+    background: #090f1d;
+    border: 1px solid #1e2e4f;
+    border-radius: 0.65rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .next-version-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0.25rem 0 0.35rem;
+  }
+
+  .next-version-tag {
+    font-size: 1.4rem;
+    color: #38bdf8;
+    font-weight: 800;
+  }
+
+  .template-pill-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.35rem;
+    background: #1e3a5f;
+    color: #93c5fd;
+    border: 1px solid #2563eb;
+    text-transform: lowercase;
+  }
+
+  .next-version-hint {
+    font-size: 0.74rem;
+    color: #64748b;
+    display: block;
+    line-height: 1.35;
+  }
+
+  .btn-publish-submit {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    border: none;
+    border-radius: 0.65rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+    transition: all 0.15s ease;
+  }
+  .btn-publish-submit:hover {
+    background: linear-gradient(135deg, #0369a1, #1d4ed8);
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+    transform: translateY(-1px);
+  }
+
+  /* History Section */
+  .history-section {
+    margin-top: 1rem;
+  }
+
+  .history-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .history-title {
+    font-size: 1.25rem;
+    font-weight: 750;
+    color: #f1f5f9;
+    margin: 0;
+  }
+
+  .history-subtitle {
+    font-size: 0.84rem;
+    color: #94a3b8;
+    margin: 0.25rem 0 0;
+    line-height: 1.4;
+  }
+
+  .history-counter-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: #1e293b;
+    color: #94a3b8;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.4rem;
+    align-self: flex-start;
+  }
+
+  .empty-history-card {
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed #334155;
+    border-radius: 0.85rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    background: #0d1527;
+  }
+
+  /* Mobile Version Cards (< 768px) */
+  .history-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .version-card {
+    background: #0d1527;
+    border: 1px solid #1e2e4f;
+    border-radius: 0.75rem;
+    padding: 0.95rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .version-card-active {
+    border-color: #059669;
+    background: linear-gradient(180deg, rgba(6, 78, 59, 0.15) 0%, #0d1527 100%);
+  }
+
+  .version-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .version-card-tag-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .version-badge {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #f8fafc;
+  }
+
+  .security-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.72rem;
+    color: #6ee7b7;
+    background: #064e3b;
+    border: 1px solid #059669;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.35rem;
+    font-weight: 600;
+  }
+
+  .version-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid #1e2e4f;
+    border-bottom: 1px solid #1e2e4f;
+  }
+
+  .meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+
+  .meta-label {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .meta-value {
+    color: #cbd5e1;
+  }
+
+  .meta-template-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.35rem;
+    background: #1e293b;
+    color: #38bdf8;
+    border: 1px solid #334155;
+  }
+
+  .version-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn-version-snapshot {
+    flex: 1;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: #1e293b;
+    color: #38bdf8;
+    border: 1px solid #334155;
+    border-radius: 0.45rem;
+    text-decoration: none;
+    text-align: center;
+  }
+  .btn-version-snapshot:hover {
+    background: #283548;
+  }
+
+  .rollback-form {
+    flex: 1;
+    margin: 0;
+  }
+
+  .btn-version-rollback {
+    width: 100%;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: #3b2a0c;
+    color: #fde68a;
+    border: 1px solid #78350f;
+    border-radius: 0.45rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-version-rollback:hover {
+    background: #523a10;
+    color: #ffffff;
+  }
+
+  /* Desktop Table wrapper (hidden on mobile) */
+  .history-table-wrapper {
+    display: none;
+  }
+
+  /* =========================================================
+     DESKTOP ADAPTATIONS (min-width: 768px & 860px)
+     ========================================================= */
+
+  @media (min-width: 768px) {
+    .publish-card-actions {
+      flex-direction: row;
+    }
+    .btn-action {
+      flex: 1;
+    }
+
+    .history-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .history-counter-badge {
+      align-self: auto;
+    }
+
+    /* Hide mobile cards, show table */
+    .history-mobile-cards {
+      display: none;
+    }
+    .history-table-wrapper {
+      display: block;
+      overflow-x: auto;
+      background: #0d1527;
+      border: 1px solid #1e2e4f;
+      border-radius: 0.85rem;
+      padding: 0.5rem;
+    }
+
+    .desktop-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .desktop-data-table th {
+      color: #64748b;
+      font-size: 0.75rem;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #1e2e4f;
+    }
+
+    .desktop-data-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #142038;
+      font-size: 0.85rem;
+      vertical-align: middle;
+    }
+
+    .row-active {
+      background: rgba(6, 78, 59, 0.1);
+    }
+
+    .table-version-num {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+
+    .table-date-cell {
+      color: #cbd5e1;
+    }
+
+    .table-actions-cell {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+    }
+  }
+
+  @media (min-width: 860px) {
+    .publish-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+</style>

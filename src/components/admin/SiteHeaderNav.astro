@@ -31,20 +31,20 @@ const wizardSteps = [
   {
     number: 1,
     id: "design",
-    label: "Diseño & Estilo",
-    sublabel: "Plantilla y Colores",
+    label: "Plantilla & Estilo",
+    shortLabel: "Plantilla",
     path: `/admin/sites/${siteId}/template`,
     activeMatches: ["template", "theme"],
     subtabs: [
-      { id: "template", label: "Plantilla", path: `/admin/sites/${siteId}/template` },
-      { id: "theme", label: "Colores y Tipografía", path: `/admin/sites/${siteId}/theme` },
+      { id: "template", label: "Plantilla Visual", path: `/admin/sites/${siteId}/template` },
+      { id: "theme", label: "Colores y Estilo", path: `/admin/sites/${siteId}/theme` },
     ],
   },
   {
     number: 2,
     id: "hero",
     label: "Encabezado",
-    sublabel: "Título y Llamada",
+    shortLabel: "Hero",
     path: `/admin/sites/${siteId}/hero`,
     activeMatches: ["hero"],
   },
@@ -52,7 +52,7 @@ const wizardSteps = [
     number: 3,
     id: "cards",
     label: "Servicios",
-    sublabel: "Tarjetas y Beneficios",
+    shortLabel: "Servicios",
     path: `/admin/sites/${siteId}/cards`,
     activeMatches: ["cards"],
   },
@@ -60,7 +60,7 @@ const wizardSteps = [
     number: 4,
     id: "media",
     label: "Identidad",
-    sublabel: "Logos y Medios",
+    shortLabel: "Medios",
     path: `/admin/sites/${siteId}/media`,
     activeMatches: ["media"],
   },
@@ -68,7 +68,7 @@ const wizardSteps = [
     number: 5,
     id: "contacts",
     label: "Contacto",
-    sublabel: "WhatsApp y Redes",
+    shortLabel: "Contacto",
     path: `/admin/sites/${siteId}/contacts`,
     activeMatches: ["contacts"],
   },
@@ -76,7 +76,7 @@ const wizardSteps = [
     number: 6,
     id: "marketing",
     label: "Promociones",
-    sublabel: "Ofertas (Opcional)",
+    shortLabel: "Promos",
     path: `/admin/sites/${siteId}/promotions`,
     activeMatches: ["promotions", "campaigns"],
     isOptional: true,
@@ -89,7 +89,7 @@ const wizardSteps = [
     number: 7,
     id: "publish",
     label: "Publicar",
-    sublabel: "Revisar y Lanzar",
+    shortLabel: "Publicar",
     path: `/admin/sites/${siteId}/publish`,
     activeMatches: ["publish"],
   },
@@ -104,68 +104,70 @@ const prevStep = currentStepIndex > 0 ? wizardSteps[currentStepIndex - 1] : null
 const nextStep = currentStepIndex >= 0 && currentStepIndex < wizardSteps.length - 1
   ? wizardSteps[currentStepIndex + 1]
   : null;
+
+const progressPercent = currentStepIndex >= 0 
+  ? Math.round(((currentStepIndex + 1) / wizardSteps.length) * 100)
+  : 100;
 ---
 
-<nav class="site-header-nav" aria-label="Navegación del sitio y asistente">
-  <!-- Top Bar: Contexto del sitio y Acceso a Gestión Separada -->
+<nav class="site-header-nav" aria-label="Navegación y Asistente de Edición">
+  <!-- 1. BARRA SUPERIOR: Identidad del Sitio + Herramientas de Gestión -->
   <div class="site-nav-topbar">
-    <div class="site-nav-brand">
-      <a href="/admin" class="site-nav-back" title="Volver a la lista de sitios">
+    <div class="site-nav-identity">
+      <a href="/admin" class="site-nav-back" title="Volver a Sitios">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
-        <span>Sitios</span>
+        <span class="back-label">Sitios</span>
       </a>
-      <span class="site-nav-separator">/</span>
-      <div class="site-nav-title-group">
-        <span class="site-nav-sitename">{siteName}</span>
-        {hasPendingChanges ? (
-          <span class="site-nav-chip chip-pending" title="Hay cambios en borrador listos para publicar">
-            ● Cambios pendientes
-          </span>
-        ) : status === "published" ? (
-          <span class="site-nav-chip chip-live" title="Sitio activo en internet">
-            ● En vivo
-          </span>
-        ) : (
-          <span class="site-nav-chip chip-draft" title="Sitio en borrador">
-            ● Borrador
-          </span>
-        )}
-      </div>
+      <span class="nav-divider">/</span>
+      <span class="site-title" title={siteName}>{siteName}</span>
+      {hasPendingChanges ? (
+        <span class="status-chip chip-pending" title="Cambios en borrador listos para publicar">
+          ● Pendiente
+        </span>
+      ) : status === "published" ? (
+        <span class="status-chip chip-live" title="Sitio en vivo">
+          ● En vivo
+        </span>
+      ) : (
+        <span class="status-chip chip-draft" title="Sitio en borrador">
+          ● Borrador
+        </span>
+      )}
     </div>
 
-    <!-- Gestión del Sitio (Dominios y Analíticas) Separados del Contenido -->
-    <div class="site-nav-management">
-      <div class="management-group" aria-label="Herramientas de gestión y métricas">
+    <!-- Herramientas de Gestión (Apartadas del Asistente de Contenido) -->
+    <div class="site-nav-tools">
+      <div class="tools-segmented">
         <a
           href={`/admin/sites/${siteId}/domains`}
-          class:list={["management-link", { active: activeTab === "domains" }]}
-          title="Configurar dominio personalizado y DNS"
+          class:list={["tool-item", { active: activeTab === "domains" }]}
+          title="Configurar dominio web y DNS"
         >
-          <span class="m-icon">🌐</span>
-          <span>Dominios</span>
+          <span class="t-icon">🌐</span>
+          <span class="t-text">Dominios</span>
         </a>
         <a
           href={`/admin/sites/${siteId}/analytics`}
-          class:list={["management-link", { active: activeTab === "analytics" }]}
-          title="Ver métricas de visitas y conversiones de WhatsApp"
+          class:list={["tool-item", { active: activeTab === "analytics" }]}
+          title="Ver estadísticas y conversiones"
         >
-          <span class="m-icon">📊</span>
-          <span>Analíticas</span>
+          <span class="t-icon">📊</span>
+          <span class="t-text">Métricas</span>
         </a>
       </div>
 
-      <div class="actions-group">
+      <div class="tools-actions">
         <a
           href={`/preview/${siteId}`}
           target="_blank"
           rel="noopener noreferrer"
-          class="preview-link"
-          title="Abrir vista previa del borrador en nueva pestaña"
+          class="action-preview-btn"
+          title="Abrir vista previa del borrador"
         >
           <span>Vista Previa</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
             <polyline points="15 3 21 3 21 9"></polyline>
             <line x1="10" y1="14" x2="21" y2="3"></line>
@@ -174,8 +176,8 @@ const nextStep = currentStepIndex >= 0 && currentStepIndex < wizardSteps.length 
         {activeTab !== "publish" && (
           <a
             href={`/admin/sites/${siteId}/publish`}
-            class="quick-publish-btn"
-            title="Ir directo a publicar el sitio"
+            class="action-publish-btn"
+            title="Ir a publicar cambios"
           >
             🚀 Publicar
           </a>
@@ -184,90 +186,98 @@ const nextStep = currentStepIndex >= 0 && currentStepIndex < wizardSteps.length 
     </div>
   </div>
 
+  <!-- 2. BANNER DE GESTIÓN O ASISTENTE ONBOARDING -->
   {isManagementTab ? (
-    <div class="management-context-banner">
-      <div class="m-banner-info">
-        <span class="m-banner-badge">HERRAMIENTA DE GESTIÓN</span>
-        <span class="m-banner-text">
-          {activeTab === "domains" 
-            ? "Configura tu dominio web personalizado (.com, .pe) y certificados SSL." 
-            : "Consulta el rendimiento, visitas y conversiones de clientes en tiempo real."}
+    <div class="management-banner">
+      <div class="mb-info">
+        <span class="mb-tag">GESTIÓN DEL SITIO</span>
+        <span class="mb-desc">
+          {activeTab === "domains"
+            ? "Conecta tu propio dominio (.com, .pe) y certificados SSL con resolución automática."
+            : "Monitorea el tráfico de visitantes, clics a WhatsApp y rendimiento comercial sin cookies."}
         </span>
       </div>
-      <a href={`/admin/sites/${siteId}/template`} class="m-banner-back-btn">
+      <a href={`/admin/sites/${siteId}/template`} class="mb-return-btn">
         ← Volver al Asistente de Contenido
       </a>
     </div>
   ) : (
-    <div class="wizard-container">
-      <div class="wizard-header">
-        <div class="wizard-progress-info">
-          <span class="wizard-step-counter">
-            PASO {currentStep ? currentStep.number : 1} DE 7
-          </span>
-          <span class="wizard-step-name">
-            {currentStep ? currentStep.label : "Asistente"}
-          </span>
-          {currentStep?.isOptional && (
-            <span class="wizard-optional-badge">Opcional</span>
-          )}
+    <div class="stepper-card">
+      <!-- Barra de progreso e información activa (Mobile & Desktop) -->
+      <div class="stepper-header">
+        <div class="stepper-progress-meta">
+          <div class="step-badge-group">
+            <span class="step-counter">PASO {currentStep ? currentStep.number : 1} DE 7</span>
+            <strong class="step-active-name">{currentStep ? currentStep.label : ""}</strong>
+            {currentStep?.isOptional && <span class="step-opt-badge">Opcional</span>}
+          </div>
+          <!-- Barra de progreso fluida -->
+          <div class="progress-bar-track" title={`Progreso: ${progressPercent}%`}>
+            <div class="progress-bar-fill" style={`width: ${progressPercent}%`}></div>
+          </div>
         </div>
 
-        <div class="wizard-quick-actions">
+        <!-- Controles rápidos de avance (Touch Friendly) -->
+        <div class="stepper-nav-actions">
           {prevStep && (
-            <a href={prevStep.path} class="flow-btn flow-prev">
+            <a href={prevStep.path} class="step-btn btn-prev" title="Ir al paso anterior">
               ← Anterior
             </a>
           )}
           {nextStep && (
-            <a href={nextStep.path} class="flow-btn flow-next">
-              {currentStep?.isOptional ? "Omitir paso" : "Siguiente"} →
+            <a href={nextStep.path} class="step-btn btn-next" title="Ir al paso siguiente">
+              {currentStep?.isOptional ? "Omitir paso →" : "Siguiente →"}
             </a>
           )}
           {activeTab !== "publish" && (
-            <a href={`/admin/sites/${siteId}/publish`} class="flow-btn flow-direct">
+            <a href={`/admin/sites/${siteId}/publish`} class="step-btn btn-skip-publish" title="Publicar directamente">
               Saltar a Publicar 🚀
             </a>
           )}
         </div>
       </div>
 
-      <ol class="wizard-steps-list">
-        {wizardSteps.map((step, idx) => {
-          const isCurrent = step.activeMatches.includes(activeTab);
-          const isCompleted = currentStepIndex > idx;
+      <!-- Steps List: Mobile Touch Carousel horizontal / Desktop Clean Connected Strip -->
+      <div class="steps-carousel-container">
+        <ol class="steps-list">
+          {wizardSteps.map((step, idx) => {
+            const isCurrent = step.activeMatches.includes(activeTab);
+            const isCompleted = currentStepIndex > idx;
 
-          return (
-            <li class:list={["wizard-step-item", { current: isCurrent, completed: isCompleted }]}>
-              <a href={step.path} class="step-link" title={`${step.label}: ${step.sublabel}`}>
-                <div class="step-indicator">
-                  {isCompleted ? (
-                    <span class="check-icon">✓</span>
-                  ) : (
-                    <span class="step-num">{step.number}</span>
-                  )}
-                </div>
-                <div class="step-meta">
-                  <span class="step-label">{step.label}</span>
-                  <span class="step-sublabel">{step.sublabel}</span>
-                </div>
-              </a>
-            </li>
-          );
-        })}
-      </ol>
+            return (
+              <li class:list={["step-item", { current: isCurrent, completed: isCompleted }]}>
+                <a href={step.path} class="step-anchor" title={`Paso ${step.number}: ${step.label}`}>
+                  <span class="step-circle">
+                    {isCompleted ? (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    ) : (
+                      step.number
+                    )}
+                  </span>
+                  <span class="step-name-text">{step.label}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
 
+      <!-- Sub-tabs en caso de tener alternativas secundarias (ej: Plantilla vs Colores) -->
       {currentStep?.subtabs && (
-        <div class="wizard-subtabs">
-          <span class="subtabs-label">Apartados:</span>
-          {currentStep.subtabs.map((sub) => (
-            <a
-              href={sub.path}
-              class:list={["subtab-link", { active: activeTab === sub.id }]}
-            >
-              {sub.label}
-            </a>
-          ))}
+        <div class="stepper-subtabs-row">
+          <span class="subtabs-caption">Sección:</span>
+          <div class="subtabs-pills">
+            {currentStep.subtabs.map((sub) => (
+              <a
+                href={sub.path}
+                class:list={["subtab-chip", { active: activeTab === sub.id }]}
+              >
+                {sub.label}
+              </a>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -275,43 +285,49 @@ const nextStep = currentStepIndex >= 0 && currentStepIndex < wizardSteps.length 
 </nav>
 
 <style>
+  /* =========================================================
+     MOBILE-FIRST CSS (Base styles are optimized for phones)
+     ========================================================= */
+
   .site-header-nav {
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.85rem;
+    width: 100%;
   }
 
-  /* Topbar */
+  /* 1. TOPBAR */
   .site-nav-topbar {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.25rem;
-    padding: 0.9rem 1.25rem;
-    background: #0d1527;
-    border: 1px solid #1f2e4d;
-    border-radius: 1rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #0b1326;
+    border: 1px solid #1e293b;
+    border-radius: 0.85rem;
+    backdrop-filter: blur(8px);
   }
 
-  .site-nav-brand {
+  .site-nav-identity {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
   }
 
   .site-nav-back {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
     color: #94a3b8;
     text-decoration: none;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    padding: 0.35rem 0.65rem;
-    border-radius: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.4rem;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #334155;
     transition: all 0.15s ease;
   }
   .site-nav-back:hover {
@@ -319,444 +335,477 @@ const nextStep = currentStepIndex >= 0 && currentStepIndex < wizardSteps.length 
     background: #1e293b;
   }
 
-  .site-nav-separator {
+  .nav-divider {
     color: #475569;
     font-weight: 300;
   }
 
-  .site-nav-title-group {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-
-  .site-nav-sitename {
-    font-size: 1.05rem;
+  .site-title {
+    font-size: 0.95rem;
     font-weight: 800;
     color: #f8fafc;
-    letter-spacing: -0.01em;
+    max-width: 16rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .site-nav-chip {
-    font-size: 0.72rem;
+  .status-chip {
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 0.2rem 0.55rem;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
     border-radius: 9999px;
   }
-
   .chip-pending {
     background: #451a03;
     color: #fcd34d;
     border: 1px solid #b45309;
   }
-
   .chip-live {
     background: #064e3b;
     color: #6ee7b7;
     border: 1px solid #059669;
   }
-
   .chip-draft {
     background: #1e293b;
     color: #94a3b8;
     border: 1px solid #334155;
   }
 
-  /* Management & Preview links */
-  .site-nav-management {
+  /* Tools row */
+  .site-nav-tools {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
   }
 
-  .management-group {
+  .tools-segmented {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    background: #131d31;
-    padding: 0.25rem;
-    border-radius: 0.65rem;
-    border: 1px solid #233454;
+    gap: 0.25rem;
+    background: #111b33;
+    padding: 0.2rem;
+    border-radius: 0.55rem;
+    border: 1px solid #1e2e4f;
   }
 
-  .management-link {
+  .tool-item {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.85rem;
-    border-radius: 0.5rem;
-    font-size: 0.84rem;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.45rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #94a3b8;
     text-decoration: none;
     transition: all 0.15s ease;
   }
-  .management-link:hover {
-    color: #f8fafc;
+  .tool-item:hover {
+    color: #ffffff;
     background: #1e2d4a;
   }
-  .management-link.active {
+  .tool-item.active {
     background: #2563eb;
     color: #ffffff;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
   }
 
-  .m-icon {
-    font-size: 0.95rem;
+  .t-icon {
+    font-size: 0.85rem;
   }
 
-  .actions-group {
+  .tools-actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
-  .preview-link {
+  .action-preview-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.85rem;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
     border-radius: 0.5rem;
     background: #1e293b;
     color: #fcd34d;
-    font-size: 0.84rem;
+    font-size: 0.8rem;
     font-weight: 700;
     text-decoration: none;
     border: 1px solid #334155;
     transition: all 0.15s ease;
   }
-  .preview-link:hover {
+  .action-preview-btn:hover {
     background: #283548;
     border-color: #fcd34d;
   }
 
-  .quick-publish-btn {
+  .action-publish-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.95rem;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
     border-radius: 0.5rem;
     background: linear-gradient(135deg, #2563eb, #1d4ed8);
     color: #ffffff;
-    font-size: 0.84rem;
+    font-size: 0.8rem;
     font-weight: 700;
     text-decoration: none;
-    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     transition: all 0.15s ease;
   }
-  .quick-publish-btn:hover {
+  .action-publish-btn:hover {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
-    transform: translateY(-1px);
   }
 
-  /* Management Context Banner */
-  .management-context-banner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.25rem;
-    background: #111d33;
-    border: 1px solid #233557;
-    border-radius: 0.85rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .m-banner-info {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    flex-wrap: wrap;
-  }
-
-  .m-banner-badge {
-    background: #1e3a8a;
-    color: #93c5fd;
-    font-size: 0.72rem;
-    font-weight: 800;
-    padding: 0.25rem 0.6rem;
-    border-radius: 0.4rem;
-    letter-spacing: 0.05em;
-  }
-
-  .m-banner-text {
-    font-size: 0.9rem;
-    color: #cbd5e1;
-  }
-
-  .m-banner-back-btn {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #38bdf8;
-    text-decoration: none;
-    padding: 0.45rem 0.85rem;
-    border: 1px solid #0284c7;
-    border-radius: 0.5rem;
-    transition: all 0.15s ease;
-  }
-  .m-banner-back-btn:hover {
-    background: rgba(56, 189, 248, 0.12);
-  }
-
-  /* Onboarding Stepper Container */
-  .wizard-container {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 1.1rem;
-    padding: 1.25rem;
+  /* 2. MANAGEMENT BANNER */
+  .management-banner {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    gap: 0.75rem;
+    padding: 0.9rem 1.1rem;
+    background: #0f1c36;
+    border: 1px solid #23375f;
+    border-radius: 0.85rem;
   }
 
-  .wizard-header {
+  .mb-info {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #1e293b;
-    padding-bottom: 0.9rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
-  .wizard-progress-info {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-
-  .wizard-step-counter {
-    background: #1e293b;
-    color: #38bdf8;
-    font-size: 0.72rem;
+  .mb-tag {
+    font-size: 0.68rem;
     font-weight: 800;
-    padding: 0.25rem 0.6rem;
-    border-radius: 0.4rem;
     letter-spacing: 0.08em;
+    color: #38bdf8;
   }
 
-  .wizard-step-name {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #f8fafc;
-  }
-
-  .wizard-optional-badge {
-    font-size: 0.7rem;
-    background: #334155;
+  .mb-desc {
+    font-size: 0.86rem;
     color: #cbd5e1;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.35rem;
-    font-weight: 600;
+    line-height: 1.4;
   }
 
-  .wizard-quick-actions {
+  .mb-return-btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 0.5rem;
+    text-decoration: none;
+  }
+
+  /* 3. STEPPER CARD (MOBILE-FIRST) */
+  .stepper-card {
+    background: #0d1527;
+    border: 1px solid #1e2e4f;
+    border-radius: 0.95rem;
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  }
+
+  .stepper-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .stepper-progress-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .step-badge-group {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
   }
 
-  .flow-btn {
+  .step-counter {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    background: #1e293b;
+    color: #38bdf8;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.35rem;
+  }
+
+  .step-active-name {
+    font-size: 0.98rem;
+    font-weight: 750;
+    color: #f8fafc;
+  }
+
+  .step-opt-badge {
+    font-size: 0.68rem;
+    background: #334155;
+    color: #cbd5e1;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.35rem;
+  }
+
+  /* Progress track bar */
+  .progress-bar-track {
+    width: 100%;
+    height: 4px;
+    background: #1e293b;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #3b82f6);
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+  }
+
+  /* Touch-friendly navigation buttons */
+  .stepper-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .step-btn {
     display: inline-flex;
     align-items: center;
-    padding: 0.45rem 0.85rem;
+    padding: 0.45rem 0.8rem;
     border-radius: 0.5rem;
-    font-size: 0.84rem;
+    font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.15s ease;
   }
 
-  .flow-prev {
+  .btn-prev {
     background: #1e293b;
-    color: #94a3b8;
+    color: #cbd5e1;
     border: 1px solid #334155;
   }
-  .flow-prev:hover {
-    color: #f8fafc;
+  .btn-prev:hover {
     background: #283548;
+    color: #ffffff;
   }
 
-  .flow-next {
+  .btn-next {
     background: #0284c7;
     color: #ffffff;
     font-weight: 700;
   }
-  .flow-next:hover {
+  .btn-next:hover {
     background: #0369a1;
   }
 
-  .flow-direct {
+  .btn-skip-publish {
     background: transparent;
     color: #fcd34d;
     border: 1px dashed #78350f;
+    font-size: 0.78rem;
+    margin-left: auto;
   }
-  .flow-direct:hover {
+  .btn-skip-publish:hover {
     background: rgba(245, 158, 11, 0.1);
     border-color: #f59e0b;
   }
 
-  /* Stepper List */
-  .wizard-steps-list {
+  /* Steps list (Touch-scrollable on mobile) */
+  .steps-carousel-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0.25rem 0;
+  }
+  .steps-carousel-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .steps-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
+    display: flex;
+    gap: 0.4rem;
+    min-width: max-content;
   }
 
-  .wizard-step-item {
+  .step-item {
     display: flex;
   }
 
-  .step-link {
-    display: flex;
+  .step-anchor {
+    display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
-    padding: 0.65rem 0.75rem;
-    border-radius: 0.65rem;
-    background: #131d31;
-    border: 1px solid #1f2e4d;
+    gap: 0.45rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 0.55rem;
+    background: #111b30;
+    border: 1px solid #1e2e4f;
     text-decoration: none;
-    width: 100%;
     transition: all 0.15s ease;
   }
-  .step-link:hover {
-    background: #18253f;
+  .step-anchor:hover {
+    background: #172442;
     border-color: #334a75;
   }
 
-  .step-indicator {
-    width: 1.8rem;
-    height: 1.8rem;
+  .step-circle {
+    width: 1.45rem;
+    height: 1.45rem;
     border-radius: 50%;
     display: grid;
     place-items: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 800;
     background: #1e293b;
     color: #64748b;
     flex-shrink: 0;
   }
 
-  .step-meta {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .step-label {
-    font-size: 0.82rem;
-    font-weight: 700;
+  .step-name-text {
+    font-size: 0.78rem;
+    font-weight: 600;
     color: #94a3b8;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  .step-sublabel {
-    font-size: 0.7rem;
-    color: #64748b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Completed step state */
-  .wizard-step-item.completed .step-link {
+  /* Completed step */
+  .step-item.completed .step-anchor {
     border-color: #1e3a5f;
+    background: rgba(17, 27, 48, 0.6);
   }
-  .wizard-step-item.completed .step-indicator {
+  .step-item.completed .step-circle {
     background: #064e3b;
     color: #6ee7b7;
   }
-  .wizard-step-item.completed .step-label {
+  .step-item.completed .step-name-text {
     color: #cbd5e1;
   }
 
-  /* Current step state */
-  .wizard-step-item.current .step-link {
+  /* Current step */
+  .step-item.current .step-anchor {
     background: #172554;
     border-color: #3b82f6;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
   }
-  .wizard-step-item.current .step-indicator {
+  .step-item.current .step-circle {
     background: #2563eb;
     color: #ffffff;
   }
-  .wizard-step-item.current .step-label {
+  .step-item.current .step-name-text {
     color: #60a5fa;
-  }
-  .wizard-step-item.current .step-sublabel {
-    color: #93c5fd;
+    font-weight: 750;
   }
 
-  /* Subtabs */
-  .wizard-subtabs {
+  /* Subtabs Row */
+  .stepper-subtabs-row {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    padding-top: 0.5rem;
-    border-top: 1px dashed #1e293b;
+    gap: 0.5rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed #1e2e4f;
     flex-wrap: wrap;
   }
 
-  .subtabs-label {
-    font-size: 0.75rem;
+  .subtabs-caption {
+    font-size: 0.72rem;
     font-weight: 700;
     color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  .subtab-link {
-    font-size: 0.8rem;
+  .subtabs-pills {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .subtab-chip {
+    font-size: 0.78rem;
     font-weight: 600;
-    padding: 0.35rem 0.75rem;
-    border-radius: 0.45rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 0.4rem;
     color: #94a3b8;
     text-decoration: none;
     background: #1e293b;
     border: 1px solid #334155;
     transition: all 0.15s ease;
   }
-  .subtab-link:hover {
+  .subtab-chip:hover {
     color: #f8fafc;
     background: #283548;
   }
-  .subtab-link.active {
+  .subtab-chip.active {
     background: #3b82f6;
     color: #ffffff;
     border-color: #3b82f6;
   }
 
-  /* Responsive */
-  @media (max-width: 64rem) {
-    .wizard-steps-list {
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  /* =========================================================
+     DESKTOP ADAPTATIONS (min-width: 768px & 1024px)
+     ========================================================= */
+
+  @media (min-width: 768px) {
+    .site-nav-topbar {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.25rem;
+    }
+
+    .management-banner {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stepper-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stepper-progress-meta {
+      max-width: 24rem;
     }
   }
 
-  @media (max-width: 42rem) {
-    .site-nav-topbar {
-      flex-direction: column;
-      align-items: stretch;
+  @media (min-width: 1024px) {
+    .steps-list {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      min-width: 0;
     }
-    .site-nav-management {
-      justify-content: space-between;
+
+    .step-anchor {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 0.55rem 0.65rem;
     }
-    .wizard-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .step-sublabel {
-      display: none;
+
+    .step-name-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 </style>
