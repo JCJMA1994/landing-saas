@@ -94,20 +94,25 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </div>
   </header>
 
-  {/* Active Promotion Ticket Voucher */}
+  {/* Active Promotion Carousel Ticker */}
   {activePromotions.length > 0 && (
-    <div class="work-voucher-ribbon">
-      <div class="work-container work-voucher-content">
-        <Badge variant="warning" size="md">CUPÓN DE TALLER</Badge>
-        <span class="work-voucher-title">{activePromotions[0]?.title}</span>
-        {activePromotions[0]?.discountLabel && (
-          <span class="work-voucher-discount">{activePromotions[0]?.discountLabel}</span>
-        )}
-        {activePromotions[0]?.couponCode && (
-          <span class="work-voucher-code">CÓDIGO: {activePromotions[0]?.couponCode}</span>
-        )}
+    <aside class="work-voucher-ribbon" aria-label="Cupones y Promociones Activas">
+      <div class="work-promo-track">
+        {Array.from({ length: 4 }).flatMap(() => activePromotions).map((promo) => (
+          <div class="work-promo-item">
+            <span class="work-promo-badge">CUPÓN DE TALLER</span>
+            <span class="work-promo-title">{promo.title}</span>
+            {promo.discountLabel && (
+              <span class="work-promo-discount">{promo.discountLabel}</span>
+            )}
+            {promo.couponCode && (
+              <code class="work-promo-code">CÓDIGO: {promo.couponCode}</code>
+            )}
+            <span class="work-promo-sep" aria-hidden="true">✦</span>
+          </div>
+        ))}
       </div>
-    </div>
+    </aside>
   )}
 
   {/* Hero: Workbench Intake Sheet */}
@@ -115,7 +120,6 @@ const activePromotions = promotions.filter((p) => p.isActive);
     <section class="work-intake-section">
       <div class="work-container">
         <div class="work-intake-card">
-          <div class="work-card-stamp" aria-hidden="true">VERIFICADO</div>
           <div class="work-intake-grid">
             <div class="work-intake-copy">
               <span class="work-intake-label">{hero.badgeText || "SERVICIO ESPECIALIZADO Y DIAGNÓSTICO"}</span>
@@ -161,6 +165,39 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
     </section>
   )}
+
+  {/* Workshop Operational Protocol & Guarantees */}
+  <section class="work-protocol-ribbon" aria-label="Compromisos y Garantías de Taller">
+    <div class="work-container work-protocol-grid">
+      <div class="work-protocol-box">
+        <div class="work-protocol-icon">
+          <Icon name="check-circle" size={24} />
+        </div>
+        <div>
+          <strong class="work-protocol-heading">Repuestos 100% Genuinos</strong>
+          <p class="work-protocol-text">Trazabilidad oficial de fabricante y componentes homologados de alta durabilidad.</p>
+        </div>
+      </div>
+      <div class="work-protocol-box">
+        <div class="work-protocol-icon">
+          <Icon name="clock" size={24} />
+        </div>
+        <div>
+          <strong class="work-protocol-heading">Diagnóstico en 24 Horas</strong>
+          <p class="work-protocol-text">Evaluación computarizada protocolizada con informe detallado de fallas.</p>
+        </div>
+      </div>
+      <div class="work-protocol-box">
+        <div class="work-protocol-icon">
+          <Icon name="shield" size={24} />
+        </div>
+        <div>
+          <strong class="work-protocol-heading">Garantía Certificada</strong>
+          <p class="work-protocol-text">Respaldo total sobre mano de obra especializada e intervenciones electrónicas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Cards: Workshop Modular Services */}
   {cards.length > 0 && (
@@ -362,34 +399,134 @@ const activePromotions = promotions.filter((p) => p.isActive);
   }
 
   .work-voucher-ribbon {
-    background: rgba(245, 158, 11, 0.15);
-    border-bottom: 1px solid rgba(245, 158, 11, 0.35);
-    padding: var(--ds-space-2, 0.5rem) 0;
+    background: rgba(245, 158, 11, 0.12);
+    border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+    overflow: hidden;
+    padding: 0.5rem 0;
+    white-space: nowrap;
   }
 
-  .work-voucher-content {
+  .work-promo-track {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-3, 0.75rem);
-    flex-wrap: wrap;
-    font-size: var(--ds-text-xs, 0.75rem);
+    gap: 2rem;
+    width: max-content;
+    animation: workTicker 30s linear infinite;
   }
 
-  .work-voucher-title {
+  .work-voucher-ribbon:hover .work-promo-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes workTicker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .work-promo-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .work-promo-badge {
+    background: #e5a93c;
+    color: #1c1103;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .work-promo-title {
     font-weight: 600;
   }
 
-  .work-voucher-discount {
+  .work-promo-discount {
     color: var(--ds-color-accent, #f59e0b);
     font-weight: 700;
   }
 
-  .work-voucher-code {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 0.1rem 0.5rem;
+  .work-promo-code {
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffd57a;
+    padding: 0.15rem 0.5rem;
     border-radius: 3px;
     border: 1px solid rgba(245, 158, 11, 0.4);
     font-weight: 700;
+  }
+
+  .work-promo-sep {
+    color: rgba(245, 158, 11, 0.5);
+    margin-left: 0.5rem;
+  }
+
+  .work-protocol-ribbon {
+    padding: 2.5rem 0 1.5rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .work-protocol-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .work-protocol-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .work-protocol-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 1.25rem;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+
+  .work-protocol-box:hover {
+    transform: translateY(-3px);
+    border-color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-protocol-icon {
+    color: var(--ds-color-accent, #f59e0b);
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 6px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .work-protocol-heading {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 0.3rem;
+  }
+
+  .work-protocol-text {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin: 0;
   }
 
   .work-intake-section {
@@ -403,21 +540,6 @@ const activePromotions = promotions.filter((p) => p.isActive);
     padding: var(--ds-space-8, 2rem);
     position: relative;
     box-shadow: var(--ds-elevation-subtle);
-  }
-
-  .work-card-stamp {
-    position: absolute;
-    top: 16px;
-    right: 20px;
-    border: 2px solid #10b981;
-    color: #10b981;
-    font-size: 0.75rem;
-    font-weight: 900;
-    padding: 4px 10px;
-    transform: rotate(6deg);
-    border-radius: 4px;
-    letter-spacing: 0.1em;
-    opacity: 0.85;
   }
 
   .work-intake-grid {
@@ -533,6 +655,13 @@ const activePromotions = promotions.filter((p) => p.isActive);
     display: flex;
     flex-direction: column;
     border-top: 3px solid var(--ds-color-secondary, #64748b);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-top-color 0.3s ease;
+  }
+
+  .work-card-piece:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6), 0 0 24px -6px var(--ds-color-accent, #f59e0b);
+    border-top-color: var(--ds-color-accent, #f59e0b);
   }
 
   .work-piece-id {

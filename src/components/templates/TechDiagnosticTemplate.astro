@@ -624,6 +624,13 @@ const activePromotions = promotions.filter((p) => p.isActive);
     display: flex;
     flex-direction: column;
     border-left: 3px solid var(--ds-color-primary, #3b82f6);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-left-color 0.3s ease;
+  }
+
+  .diag-card-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6), 0 0 20px -5px var(--ds-color-primary, rgba(59, 130, 246, 0.3));
+    border-left-color: var(--ds-color-accent, #f59e0b);
   }
 
   .diag-card-header {

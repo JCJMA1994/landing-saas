@@ -94,20 +94,25 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </div>
   </header>
 
-  {/* Active Promotion: Welcome Benefit Card */}
+  {/* Active Promotion: Smooth Carousel Ticker */}
   {activePromotions.length > 0 && (
-    <div class="friendly-perk-banner">
-      <div class="friendly-container friendly-perk-flex">
-        <Badge variant="accent" size="md">BENEFICIO ESPECIAL</Badge>
-        <span class="friendly-perk-title">{activePromotions[0]?.title}</span>
-        {activePromotions[0]?.discountLabel && (
-          <span class="friendly-perk-badge">{activePromotions[0]?.discountLabel}</span>
-        )}
-        {activePromotions[0]?.couponCode && (
-          <span class="friendly-perk-coupon">Menciona el código <strong>{activePromotions[0]?.couponCode}</strong></span>
-        )}
+    <aside class="friendly-perk-ribbon" aria-label="Beneficios y Promociones">
+      <div class="friendly-promo-track">
+        {Array.from({ length: 4 }).flatMap(() => activePromotions).map((promo) => (
+          <div class="friendly-promo-item">
+            <span class="friendly-promo-badge">BENEFICIO EXCLUSIVO</span>
+            <span class="friendly-promo-title">{promo.title}</span>
+            {promo.discountLabel && (
+              <span class="friendly-promo-discount">{promo.discountLabel}</span>
+            )}
+            {promo.couponCode && (
+              <code class="friendly-promo-code">CÓDIGO: {promo.couponCode}</code>
+            )}
+            <span class="friendly-promo-sep" aria-hidden="true">♥</span>
+          </div>
+        ))}
       </div>
-    </div>
+    </aside>
   )}
 
   {/* Hero: Warm and Approachable */}
@@ -157,6 +162,35 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
     </section>
   )}
+
+  {/* Friendly Experience: 3 Simple Steps */}
+  <section class="friendly-steps-section" aria-label="Cómo te ayudamos">
+    <div class="friendly-container">
+      <div class="friendly-steps-header">
+        <span class="friendly-steps-eyebrow">EXPERIENCIA SENCILLA</span>
+        <h2 class="friendly-steps-title">Te acompañamos en 3 simples pasos</h2>
+        <p class="friendly-steps-desc">Procesos claros pensados para que tengas total tranquilidad de principio a fin.</p>
+      </div>
+
+      <div class="friendly-steps-grid">
+        <div class="friendly-step-card">
+          <div class="friendly-step-number">01</div>
+          <h3 class="friendly-step-heading">Consulta Inicial Sin Cargo</h3>
+          <p class="friendly-step-text">Nos contás tu inquietud de forma directa y te respondemos de persona a persona.</p>
+        </div>
+        <div class="friendly-step-card">
+          <div class="friendly-step-number">02</div>
+          <h3 class="friendly-step-heading">Presupuesto Transparente</h3>
+          <p class="friendly-step-text">Te detallamos cada punto con claridad total, sin letra chica ni costos ocultos.</p>
+        </div>
+        <div class="friendly-step-card">
+          <div class="friendly-step-number">03</div>
+          <h3 class="friendly-step-heading">Entrega y Acompañamiento</h3>
+          <p class="friendly-step-text">Solución garantizada con seguimiento posventa para que sientas respaldo continuo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Cards: Approachable Solutions */}
   {cards.length > 0 && (
@@ -363,27 +397,159 @@ const activePromotions = promotions.filter((p) => p.isActive);
     color: var(--ds-color-muted, #94a3b8);
   }
 
-  .friendly-perk-banner {
-    background: rgba(59, 130, 246, 0.1);
-    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-    padding: var(--ds-space-3, 0.75rem) 0;
+  .friendly-perk-ribbon {
+    background: rgba(59, 130, 246, 0.12);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.25);
+    overflow: hidden;
+    padding: 0.6rem 0;
+    white-space: nowrap;
   }
 
-  .friendly-perk-flex {
+  .friendly-promo-track {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-3, 0.75rem);
-    flex-wrap: wrap;
-    font-size: var(--ds-text-sm, 0.875rem);
+    gap: 2.5rem;
+    width: max-content;
+    animation: friendlyTicker 32s linear infinite;
   }
 
-  .friendly-perk-badge {
-    color: var(--ds-color-primary, #60a5fa);
+  .friendly-perk-ribbon:hover .friendly-promo-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes friendlyTicker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .friendly-promo-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .friendly-promo-badge {
+    background: var(--ds-color-primary, #3b82f6);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    letter-spacing: 0.03em;
+  }
+
+  .friendly-promo-title {
+    font-weight: 600;
+  }
+
+  .friendly-promo-discount {
+    color: var(--ds-color-accent, #f59e0b);
     font-weight: 700;
   }
 
-  .friendly-perk-coupon strong {
-    color: #ffffff;
+  .friendly-promo-code {
+    background: rgba(0, 0, 0, 0.5);
+    color: #93c5fd;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    font-weight: 700;
+  }
+
+  .friendly-promo-sep {
+    color: var(--ds-color-primary, #3b82f6);
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* 3-Step Friendly Workflow */
+  .friendly-steps-section {
+    padding: 3rem 0;
+    background: rgba(255, 255, 255, 0.015);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .friendly-steps-header {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .friendly-steps-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ds-color-primary, #60a5fa);
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .friendly-steps-title {
+    font-size: var(--ds-text-2xl, 1.75rem);
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .friendly-steps-desc {
+    color: var(--ds-color-muted, #94a3b8);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .friendly-steps-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .friendly-steps-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .friendly-step-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.75rem;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  }
+
+  .friendly-step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 30px -10px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .friendly-step-number {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--ds-color-primary, #3b82f6);
+    opacity: 0.4;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+
+  .friendly-step-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem 0;
+    color: #f8fafc;
+  }
+
+  .friendly-step-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
   }
 
   .friendly-hero-section {
@@ -518,6 +684,12 @@ const activePromotions = promotions.filter((p) => p.isActive);
     padding: var(--ds-space-6, 1.5rem);
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  }
+
+  .friendly-card-bubble:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 36px -10px rgba(59, 130, 246, 0.25);
   }
 
   .friendly-card-icon-bubble {

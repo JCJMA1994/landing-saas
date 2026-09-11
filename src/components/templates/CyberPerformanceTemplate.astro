@@ -94,20 +94,25 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </div>
   </header>
 
-  {/* Active Promotion: Turbo Boost Ribbon */}
+  {/* Active Promotion: Kinetic Turbo Ticker */}
   {activePromotions.length > 0 && (
-    <div class="cyber-boost-bar">
-      <div class="cyber-container cyber-boost-content">
-        <Badge variant="accent" size="sm">TURBO BOOST</Badge>
-        <span class="cyber-boost-title">{activePromotions[0]?.title}</span>
-        {activePromotions[0]?.discountLabel && (
-          <span class="cyber-boost-discount">[{activePromotions[0]?.discountLabel}]</span>
-        )}
-        {activePromotions[0]?.couponCode && (
-          <code class="cyber-boost-code">CÓDIGO: {activePromotions[0]?.couponCode}</code>
-        )}
+    <aside class="cyber-boost-bar" aria-label="Aceleraciones y Promociones">
+      <div class="cyber-boost-track">
+        {Array.from({ length: 4 }).flatMap(() => activePromotions).map((promo) => (
+          <div class="cyber-boost-item">
+            <span class="cyber-boost-badge">TURBO BOOST // ON</span>
+            <span class="cyber-boost-title">{promo.title}</span>
+            {promo.discountLabel && (
+              <span class="cyber-boost-discount">[{promo.discountLabel}]</span>
+            )}
+            {promo.couponCode && (
+              <code class="cyber-boost-code">CÓDIGO: {promo.couponCode}</code>
+            )}
+            <span class="cyber-boost-sep" aria-hidden="true">⚡</span>
+          </div>
+        ))}
       </div>
-    </div>
+    </aside>
   )}
 
   {/* Hero: High Kinetic Cyber Chamber */}
@@ -158,6 +163,29 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
     </section>
   )}
+
+  {/* High-Octane Performance Stats Bar */}
+  <section class="cyber-stats-bar" aria-label="Métricas de Rendimiento Extremo">
+    <div class="cyber-container">
+      <div class="cyber-stats-grid">
+        <div class="cyber-stat-node">
+          <span class="cyber-stat-indicator">SPEED // 01</span>
+          <strong class="cyber-stat-val">+45% Overclock</strong>
+          <span class="cyber-stat-lbl">Aceleración cinemática sostenida</span>
+        </div>
+        <div class="cyber-stat-node">
+          <span class="cyber-stat-indicator">THERMAL // 02</span>
+          <strong class="cyber-stat-val">Disipación Fría</strong>
+          <span class="cyber-stat-lbl">Control térmico de grado industrial</span>
+        </div>
+        <div class="cyber-stat-node">
+          <span class="cyber-stat-indicator">LATENCY // 03</span>
+          <strong class="cyber-stat-val">&lt; 0.8ms</strong>
+          <span class="cyber-stat-lbl">Respuesta táctil instantánea</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Cards: Overclocked Performance Matrix */}
   {cards.length > 0 && (
@@ -363,29 +391,132 @@ const activePromotions = promotions.filter((p) => p.isActive);
   }
 
   .cyber-boost-bar {
-    background: linear-gradient(90deg, rgba(236, 72, 153, 0.2), rgba(59, 130, 246, 0.2));
-    border-bottom: 1px solid rgba(236, 72, 153, 0.4);
-    padding: var(--ds-space-2, 0.5rem) 0;
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.15), rgba(59, 130, 246, 0.15));
+    border-bottom: 1px solid rgba(236, 72, 153, 0.35);
+    overflow: hidden;
+    padding: 0.5rem 0;
+    white-space: nowrap;
+    font-family: var(--ds-font-mono);
   }
 
-  .cyber-boost-content {
+  .cyber-boost-track {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-3, 0.75rem);
-    flex-wrap: wrap;
-    font-size: var(--ds-text-xs, 0.75rem);
+    gap: 2.5rem;
+    width: max-content;
+    animation: cyberTicker 24s linear infinite;
+  }
+
+  .cyber-boost-bar:hover .cyber-boost-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes cyberTicker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .cyber-boost-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .cyber-boost-badge {
+    background: #ec4899;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .cyber-boost-title {
+    color: #f8fafc;
+    font-weight: 600;
   }
 
   .cyber-boost-discount {
-    color: #ec4899;
+    color: #38bdf8;
     font-weight: 700;
   }
 
   .cyber-boost-code {
-    background: #000;
-    padding: 2px 6px;
+    background: #020617;
+    color: #f472b6;
+    padding: 0.15rem 0.5rem;
     border-radius: 2px;
-    border: 1px solid #ec4899;
+    border: 1px solid rgba(236, 72, 153, 0.5);
+    font-weight: 700;
+  }
+
+  .cyber-boost-sep {
+    color: #ec4899;
+    font-size: 0.75rem;
+  }
+
+  /* High-Octane Performance Stats Bar */
+  .cyber-stats-bar {
+    padding: 2.5rem 0 1.5rem;
+    background: rgba(10, 5, 20, 0.6);
+    border-top: 1px solid rgba(236, 72, 153, 0.15);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+    font-family: var(--ds-font-mono);
+  }
+
+  .cyber-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .cyber-stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .cyber-stat-node {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(236, 72, 153, 0.2);
+    border-left: 3px solid #ec4899;
+    padding: 1.25rem;
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  }
+
+  .cyber-stat-node:hover {
+    transform: translateY(-3px);
+    border-color: #38bdf8;
+    border-left-color: #38bdf8;
+    box-shadow: 0 0 20px -5px rgba(56, 189, 248, 0.3);
+  }
+
+  .cyber-stat-indicator {
+    display: block;
+    font-size: 0.68rem;
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+  }
+
+  .cyber-stat-val {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #f8fafc;
+    margin-bottom: 0.2rem;
+  }
+
+  .cyber-stat-lbl {
+    font-size: 0.78rem;
+    color: #64748b;
   }
 
   .cyber-hero-section {
@@ -540,6 +671,13 @@ const activePromotions = promotions.filter((p) => p.isActive);
     flex-direction: column;
     border-top: 2px solid #ec4899;
     background: rgba(15, 10, 25, 0.7);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .cyber-card-module:hover {
+    transform: translateY(-6px);
+    border-top-color: #38bdf8;
+    box-shadow: 0 16px 36px -10px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(236, 72, 153, 0.15);
   }
 
   .cyber-card-top {

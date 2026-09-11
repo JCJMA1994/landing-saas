@@ -98,20 +98,25 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </div>
   </header>
 
-  {/* Active Promotion Broadcast */}
+  {/* Active Promotion Broadcast: Animated Telemetry Ticker */}
   {activePromotions.length > 0 && (
-    <div class="mon-broadcast-bar">
-      <div class="mon-container mon-broadcast-content">
-        <Badge variant="success" size="sm">EVENTO // ACTIVO</Badge>
-        <span class="mon-broadcast-title">{activePromotions[0]?.title}</span>
-        {activePromotions[0]?.discountLabel && (
-          <span class="mon-broadcast-discount">[{activePromotions[0]?.discountLabel}]</span>
-        )}
-        {activePromotions[0]?.couponCode && (
-          <code class="mon-broadcast-code">${activePromotions[0]?.couponCode}</code>
-        )}
+    <aside class="mon-broadcast-bar" aria-label="Alertas y Eventos del Sistema">
+      <div class="mon-broadcast-track">
+        {Array.from({ length: 4 }).flatMap(() => activePromotions).map((promo) => (
+          <div class="mon-broadcast-item">
+            <span class="mon-broadcast-badge">BROADCAST // EVENTO</span>
+            <span class="mon-broadcast-title">{promo.title}</span>
+            {promo.discountLabel && (
+              <span class="mon-broadcast-discount">[{promo.discountLabel}]</span>
+            )}
+            {promo.couponCode && (
+              <code class="mon-broadcast-code">${promo.couponCode}</code>
+            )}
+            <span class="mon-broadcast-sep" aria-hidden="true">■</span>
+          </div>
+        ))}
       </div>
-    </div>
+    </aside>
   )}
 
   {/* Hero Section: Monitoring Console */}
@@ -172,6 +177,38 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
     </section>
   )}
+
+  {/* Live Telemetry Clusters & Health Matrix */}
+  <section class="mon-clusters-section" aria-label="Telemetría de Servidores y Nodos">
+    <div class="mon-container">
+      <div class="mon-clusters-grid">
+        <div class="mon-cluster-card">
+          <div class="mon-cluster-header">
+            <span class="mon-status-indicator pulse-green" aria-hidden="true"></span>
+            <span class="mon-cluster-name">CLÚSTER ALPHA // NÚCLEO</span>
+          </div>
+          <div class="mon-cluster-stat">99.99%</div>
+          <span class="mon-cluster-meta">Disponibilidad operativa sin caídas</span>
+        </div>
+        <div class="mon-cluster-card">
+          <div class="mon-cluster-header">
+            <span class="mon-status-indicator pulse-green" aria-hidden="true"></span>
+            <span class="mon-cluster-name">GATEWAY TELEMÉTRICO</span>
+          </div>
+          <div class="mon-cluster-stat">12ms</div>
+          <span class="mon-cluster-meta">Tiempo de respuesta y latencia nominal</span>
+        </div>
+        <div class="mon-cluster-card">
+          <div class="mon-cluster-header">
+            <span class="mon-status-indicator pulse-cyan" aria-hidden="true"></span>
+            <span class="mon-cluster-name">PROTOCOLO DE ENCRIPTACIÓN</span>
+          </div>
+          <div class="mon-cluster-stat">ACTIVE</div>
+          <span class="mon-cluster-meta">Aislamiento de seguridad multi-capa</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Cards: Monitored Services & Metrics */}
   {cards.length > 0 && (
@@ -395,27 +432,162 @@ const activePromotions = promotions.filter((p) => p.isActive);
   .mon-broadcast-bar {
     background: rgba(16, 185, 129, 0.1);
     border-bottom: 1px solid rgba(16, 185, 129, 0.25);
-    padding: var(--ds-space-2, 0.5rem) 0;
+    overflow: hidden;
+    padding: 0.5rem 0;
+    white-space: nowrap;
+    font-family: var(--ds-font-mono);
   }
 
-  .mon-broadcast-content {
+  .mon-broadcast-track {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-3, 0.75rem);
-    flex-wrap: wrap;
-    font-size: var(--ds-text-xs, 0.75rem);
+    gap: 2.5rem;
+    width: max-content;
+    animation: monTicker 26s linear infinite;
+  }
+
+  .mon-broadcast-bar:hover .mon-broadcast-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes monTicker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .mon-broadcast-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .mon-broadcast-badge {
+    background: #10b981;
+    color: #022c22;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .mon-broadcast-title {
+    color: #f8fafc;
+    font-weight: 600;
   }
 
   .mon-broadcast-discount {
-    color: #10b981;
+    color: #34d399;
     font-weight: 700;
   }
 
   .mon-broadcast-code {
-    background: #000;
-    padding: 2px 6px;
+    background: #020617;
+    color: #6ee7b7;
+    padding: 0.15rem 0.5rem;
     border-radius: 3px;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    font-weight: 700;
+  }
+
+  .mon-broadcast-sep {
+    color: #059669;
+    font-size: 0.6rem;
+  }
+
+  /* Live Clusters Section */
+  .mon-clusters-section {
+    padding: 2.5rem 0 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.4);
+    font-family: var(--ds-font-mono);
+  }
+
+  .mon-clusters-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .mon-clusters-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .mon-cluster-card {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 1.25rem;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+
+  .mon-cluster-card:hover {
+    border-color: #10b981;
+    transform: translateY(-3px);
+  }
+
+  .mon-cluster-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .mon-status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .pulse-green {
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: monPulse 2s infinite;
+  }
+
+  .pulse-cyan {
+    background: #06b6d4;
+    box-shadow: 0 0 8px #06b6d4;
+    animation: monPulse 2s infinite 0.5s;
+  }
+
+  @keyframes monPulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(0.85);
+    }
+  }
+
+  .mon-cluster-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+  }
+
+  .mon-cluster-stat {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #10b981;
+    margin-bottom: 0.25rem;
+  }
+
+  .mon-cluster-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+    display: block;
   }
 
   .mon-hero-section {
@@ -595,6 +767,13 @@ const activePromotions = promotions.filter((p) => p.isActive);
     display: flex;
     flex-direction: column;
     border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .mon-card-node:hover {
+    transform: translateY(-5px);
+    border-color: #10b981;
+    box-shadow: 0 14px 30px -8px rgba(16, 185, 129, 0.3);
   }
 
   .mon-node-header {

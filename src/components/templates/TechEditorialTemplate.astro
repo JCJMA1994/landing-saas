@@ -92,18 +92,23 @@ const activePromotions = promotions.filter((p) => p.isActive);
     </div>
   </header>
 
-  {/* Active Promotion: Curated Highlight */}
+  {/* Active Promotion: Editorial Wire Ticker */}
   {activePromotions.length > 0 && (
-    <aside class="edit-curated-notice">
-      <div class="edit-container edit-curated-flex">
-        <Badge variant="neutral" size="sm">DESTACADO DE TEMPORADA</Badge>
-        <span class="edit-curated-title">{activePromotions[0]?.title}</span>
-        {activePromotions[0]?.discountLabel && (
-          <span class="edit-curated-benefit">— {activePromotions[0]?.discountLabel}</span>
-        )}
-        {activePromotions[0]?.couponCode && (
-          <span class="edit-curated-code">Usa el código {activePromotions[0]?.couponCode}</span>
-        )}
+    <aside class="edit-curated-notice" aria-label="Destacados y Promociones de Temporada">
+      <div class="edit-curated-track">
+        {Array.from({ length: 4 }).flatMap(() => activePromotions).map((promo) => (
+          <div class="edit-curated-item">
+            <span class="edit-curated-badge">EDICIÓN ESPECIAL</span>
+            <span class="edit-curated-title">{promo.title}</span>
+            {promo.discountLabel && (
+              <span class="edit-curated-benefit">— {promo.discountLabel}</span>
+            )}
+            {promo.couponCode && (
+              <span class="edit-curated-code">Código: {promo.couponCode}</span>
+            )}
+            <span class="edit-curated-sep" aria-hidden="true">/</span>
+          </div>
+        ))}
       </div>
     </aside>
   )}
@@ -145,6 +150,29 @@ const activePromotions = promotions.filter((p) => p.isActive);
       </div>
     </section>
   )}
+
+  {/* Editorial Indices & Value Manifesto */}
+  <section class="edit-manifesto-section" aria-label="Compromisos Editoriales de Excelencia">
+    <div class="edit-container">
+      <div class="edit-manifesto-grid">
+        <div class="edit-manifesto-column">
+          <span class="edit-manifesto-num">I.</span>
+          <h3 class="edit-manifesto-title">Excelencia Operativa</h3>
+          <p class="edit-manifesto-p">Cada proceso es supervisado con estándares rigurosos de precisión y consistencia técnica.</p>
+        </div>
+        <div class="edit-manifesto-column">
+          <span class="edit-manifesto-num">II.</span>
+          <h3 class="edit-manifesto-title">Atención Personalizada</h3>
+          <p class="edit-manifesto-p">Asesoramiento profesional directo y cercano, sin intermediarios impersonales.</p>
+        </div>
+        <div class="edit-manifesto-column">
+          <span class="edit-manifesto-num">III.</span>
+          <h3 class="edit-manifesto-title">Garantía Verificable</h3>
+          <p class="edit-manifesto-p">Trazabilidad documentada y respaldo formal en cada servicio prestado.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* Cards: In-depth Editorial Features */}
   {cards.length > 0 && (
@@ -332,17 +360,54 @@ const activePromotions = promotions.filter((p) => p.isActive);
   }
 
   .edit-curated-notice {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.02);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--ds-space-3, 0.75rem) 0;
+    overflow: hidden;
+    padding: 0.5rem 0;
+    white-space: nowrap;
   }
 
-  .edit-curated-flex {
+  .edit-curated-track {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-3, 0.75rem);
-    flex-wrap: wrap;
-    font-size: var(--ds-text-xs, 0.75rem);
+    gap: 2.5rem;
+    width: max-content;
+    animation: editTicker 32s linear infinite;
+  }
+
+  .edit-curated-notice:hover .edit-curated-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes editTicker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .edit-curated-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .edit-curated-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  .edit-curated-title {
+    font-weight: 600;
+    color: #e2e8f0;
   }
 
   .edit-curated-benefit {
@@ -352,7 +417,65 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .edit-curated-code {
     font-style: italic;
-    color: var(--ds-color-muted, #94a3b8);
+    color: #94a3b8;
+  }
+
+  .edit-curated-sep {
+    color: #475569;
+    font-weight: 300;
+  }
+
+  /* Editorial Manifesto Section */
+  .edit-manifesto-section {
+    padding: 3rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.01);
+  }
+
+  .edit-manifesto-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .edit-manifesto-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .edit-manifesto-column {
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    padding-left: 1.5rem;
+    transition: border-left-color 0.25s, transform 0.25s;
+  }
+
+  .edit-manifesto-column:hover {
+    border-left-color: var(--ds-color-primary, #60a5fa);
+    transform: translateX(4px);
+  }
+
+  .edit-manifesto-num {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--ds-color-primary, #60a5fa);
+    margin-bottom: 0.4rem;
+    font-family: serif;
+  }
+
+  .edit-manifesto-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem 0;
+    color: #f8fafc;
+  }
+
+  .edit-manifesto-p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0;
   }
 
   .edit-hero-section {
@@ -464,8 +587,17 @@ const activePromotions = promotions.filter((p) => p.isActive);
   .edit-feature-column {
     display: flex;
     gap: var(--ds-space-4, 1rem);
-    padding: 0;
-    background: transparent;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .edit-feature-column:hover {
+    transform: translateY(-5px);
+    border-color: var(--ds-color-primary, #60a5fa);
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .edit-column-num {

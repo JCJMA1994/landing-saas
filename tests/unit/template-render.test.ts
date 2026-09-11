@@ -30,8 +30,7 @@ describe("Phase 2 Visual Direction Templates", () => {
         expect(content).toContain("diag-hud-overlay");
       } else if (key === "repair-workshop") {
         expect(content).toContain("template-workshop");
-        expect(content).toContain("BANCO DE SERVICIO TÉCNICO");
-        expect(content).toContain("work-card-stamp");
+        expect(content).toContain("work-protocol-ribbon");
       } else if (key === "system-monitor") {
         expect(content).toContain("template-monitor");
         expect(content).toContain("DISPONIBILIDAD: 99.98%");
