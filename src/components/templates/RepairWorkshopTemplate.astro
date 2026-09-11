@@ -29,25 +29,33 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Workshop Service Header */}
   <header class="work-header">
     <div class="work-container work-header-flex">
-      <div class="work-station-badge">
+      <div class="work-brand">
         {theme?.logoUrl ? (
-          <img src={theme.logoUrl} alt={siteName} class="work-brand-logo" style="height: 26px; width: auto; object-fit: contain; max-width: 140px; border-radius: 4px;" />
+          <img src={theme.logoUrl} alt={siteName} class="work-brand-logo" />
         ) : (
           <Icon name="wrench" size={20} />
         )}
-        <span class="work-station-name">{siteName} // BANCO DE SERVICIO TÉCNICO</span>
+        <span class="work-brand-title">{siteName}</span>
       </div>
+
+      <nav class="work-nav" aria-label="Navegación principal">
+        <a href="#inicio" class="work-nav-link">Inicio</a>
+        <a href="#garantias" class="work-nav-link">Garantías</a>
+        <a href="#servicios" class="work-nav-link">Servicios</a>
+        <a href="#contacto" class="work-nav-link">Contacto</a>
+      </nav>
+
       <div class="work-header-actions">
         {contacts?.whatsappNumber && (
           <a
             href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
             target="_blank"
             rel="noopener noreferrer"
-            class="work-header-social"
+            class="work-header-cta"
             title="WhatsApp"
-            aria-label="WhatsApp"
           >
-            <Icon name="whatsapp" size={16} />
+            <Icon name="whatsapp" size={15} />
+            <span>WhatsApp</span>
           </a>
         )}
         {contacts?.instagramHandle && (
@@ -117,7 +125,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Hero: Workbench Intake Sheet */}
   {hero && (
-    <section class="work-intake-section">
+    <section id="inicio" class="work-intake-section">
       <div class="work-container">
         <div class="work-intake-card">
           <div class="work-intake-grid">
@@ -167,7 +175,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
   )}
 
   {/* Workshop Operational Protocol & Guarantees */}
-  <section class="work-protocol-ribbon" aria-label="Compromisos y Garantías de Taller">
+  <section id="garantias" class="work-protocol-ribbon" aria-label="Compromisos y Garantías de Taller">
     <div class="work-container work-protocol-grid">
       <div class="work-protocol-box">
         <div class="work-protocol-icon">
@@ -201,7 +209,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Cards: Workshop Modular Services */}
   {cards.length > 0 && (
-    <section class="work-services-section">
+    <section id="servicios" class="work-services-section">
       <div class="work-container">
         <div class="work-section-title-wrap">
           <h2 class="work-section-title">Especialidades y Procedimientos de Taller</h2>
@@ -239,7 +247,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Contacts: Workshop Direct Intake */}
   {contacts && (
-    <section class="work-contact-section">
+    <section id="contacto" class="work-contact-section">
       <div class="work-container">
         <div class="work-contact-box">
           <div class="work-contact-text">
@@ -290,59 +298,92 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Footer */}
   <footer class="work-footer">
-    <div class="work-container work-footer-wrap">
-      <span>© {new Date().getFullYear()} {siteName} - Servicio Técnico y Reparaciones</span>
-      {contacts && (
-        <div class="work-footer-socials">
-          {contacts.whatsappNumber && (
-            <a
-              href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="work-footer-social"
-              title="WhatsApp"
-              aria-label="WhatsApp"
-            >
-              <Icon name="whatsapp" size={16} />
-            </a>
-          )}
-          {contacts.instagramHandle && (
-            <a
-              href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="work-footer-social"
-              title="Instagram"
-              aria-label="Instagram"
-            >
-              <Icon name="instagram" size={16} />
-            </a>
-          )}
-          {contacts.facebookUrl && (
-            <a
-              href={contacts.facebookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="work-footer-social"
-              title="Facebook"
-              aria-label="Facebook"
-            >
-              <Icon name="facebook" size={16} />
-            </a>
-          )}
-          {contacts.email && (
-            <a
-              href={`mailto:${contacts.email}`}
-              class="work-footer-social"
-              title="Correo"
-              aria-label="Correo"
-            >
-              <Icon name="email" size={16} />
-            </a>
-          )}
+    <div class="work-container">
+      <div class="work-footer-grid">
+        <div class="work-footer-brand-col">
+          <div class="work-footer-brand">
+            {theme?.logoUrl ? (
+              <img src={theme.logoUrl} alt={siteName} class="work-footer-logo" />
+            ) : (
+              <Icon name="wrench" size={20} />
+            )}
+            <span class="work-footer-title">{siteName}</span>
+          </div>
+          <p class="work-footer-desc">Taller y servicio técnico especializado. Diagnóstico preciso, repuestos trazables y garantía escrita.</p>
         </div>
-      )}
-      <span>GARANTÍA EN MANO DE OBRA Y REPUESTOS</span>
+
+        <div class="work-footer-nav-col">
+          <span class="work-footer-heading">SECCIONES</span>
+          <nav class="work-footer-nav" aria-label="Navegación pie de página">
+            <a href="#inicio" class="work-footer-link">Inicio</a>
+            <a href="#garantias" class="work-footer-link">Garantías</a>
+            <a href="#servicios" class="work-footer-link">Servicios</a>
+            <a href="#contacto" class="work-footer-link">Contacto</a>
+          </nav>
+        </div>
+
+        {contacts && (
+          <div class="work-footer-contact-col">
+            <span class="work-footer-heading">ATENCIÓN DIRECTA</span>
+            <div class="work-footer-contact-list">
+              {contacts.phone && (
+                <a href={`tel:${contacts.phone}`} class="work-footer-contact-link">
+                  <Icon name="phone" size={14} />
+                  <span>{contacts.phone}</span>
+                </a>
+              )}
+              {contacts.email && (
+                <a href={`mailto:${contacts.email}`} class="work-footer-contact-link">
+                  <Icon name="email" size={14} />
+                  <span>{contacts.email}</span>
+                </a>
+              )}
+            </div>
+            <div class="work-footer-socials">
+              {contacts.whatsappNumber && (
+                <a
+                  href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="work-footer-social"
+                  title="WhatsApp"
+                  aria-label="WhatsApp"
+                >
+                  <Icon name="whatsapp" size={16} />
+                </a>
+              )}
+              {contacts.instagramHandle && (
+                <a
+                  href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="work-footer-social"
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <Icon name="instagram" size={16} />
+                </a>
+              )}
+              {contacts.facebookUrl && (
+                <a
+                  href={contacts.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="work-footer-social"
+                  title="Facebook"
+                  aria-label="Facebook"
+                >
+                  <Icon name="facebook" size={16} />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="work-footer-bottom">
+        <span>© {new Date().getFullYear()} {siteName}. Todos los derechos reservados.</span>
+      </div>
     </div>
   </footer>
 </div>
@@ -377,25 +418,73 @@ const activePromotions = promotions.filter((p) => p.isActive);
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: var(--ds-space-3, 0.75rem);
   }
 
-  .work-station-badge {
+  .work-brand {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-2, 0.5rem);
-    font-weight: 700;
-    font-size: var(--ds-text-sm, 0.875rem);
+    gap: 0.5rem;
     color: var(--ds-color-accent, #f59e0b);
   }
 
-  .work-ticket-stamp {
-    font-size: 0.7rem;
+  .work-brand-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    max-width: 140px;
+    border-radius: 4px;
+  }
+
+  .work-brand-title {
     font-weight: 700;
-    border: 1px dashed var(--ds-color-border, rgba(255, 255, 255, 0.2));
-    padding: 0.2rem 0.6rem;
-    border-radius: 2px;
-    letter-spacing: 0.05em;
+    font-size: 0.95rem;
+    color: #ffffff;
+    letter-spacing: 0.02em;
+  }
+
+  .work-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .work-nav {
+      gap: 0.75rem;
+    }
+  }
+
+  .work-nav-link {
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.15s ease;
+  }
+
+  .work-nav-link:hover {
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: var(--ds-color-accent, #f59e0b);
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.15s ease;
+  }
+
+  .work-header-cta:hover {
+    background: var(--ds-color-accent, #f59e0b);
+    color: #000000;
   }
 
   .work-voucher-ribbon {
@@ -825,10 +914,106 @@ const activePromotions = promotions.filter((p) => p.isActive);
     color: var(--ds-color-accent, #f59e0b);
   }
 
+  .work-footer {
+    border-top: 2px solid rgba(255, 255, 255, 0.08);
+    background: #0d0f14;
+    padding: var(--ds-space-8, 2.5rem) 0 var(--ds-space-4, 1rem);
+    font-size: 0.8rem;
+    color: var(--ds-color-muted, #94a3b8);
+  }
+
+  .work-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .work-footer-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .work-footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-footer-logo {
+    height: 26px;
+    width: auto;
+    object-fit: contain;
+    max-width: 120px;
+  }
+
+  .work-footer-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #ffffff;
+  }
+
+  .work-footer-desc {
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 360px;
+    font-size: 0.8rem;
+  }
+
+  .work-footer-heading {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ds-color-accent, #f59e0b);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .work-footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .work-footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .work-footer-link:hover {
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .work-footer-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .work-footer-contact-link:hover {
+    color: var(--ds-color-accent, #f59e0b);
+  }
+
   .work-footer-socials {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .work-footer-social {
@@ -840,5 +1025,13 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .work-footer-social:hover {
     color: var(--ds-color-accent, #f59e0b);
+  }
+
+  .work-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.75rem;
   }
 </style>

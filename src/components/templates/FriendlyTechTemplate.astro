@@ -37,17 +37,25 @@ const activePromotions = promotions.filter((p) => p.isActive);
         )}
         <span class="friendly-brand-text">{siteName}</span>
       </div>
+
+      <nav class="friendly-nav" aria-label="Navegación principal">
+        <a href="#inicio" class="friendly-nav-link">Inicio</a>
+        <a href="#proceso" class="friendly-nav-link">Cómo Funciona</a>
+        <a href="#servicios" class="friendly-nav-link">Servicios</a>
+        <a href="#contacto" class="friendly-nav-link">Contacto</a>
+      </nav>
+
       <div class="friendly-header-actions">
         {contacts?.whatsappNumber && (
           <a
             href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
             target="_blank"
             rel="noopener noreferrer"
-            class="friendly-header-social"
+            class="friendly-header-cta"
             title="WhatsApp"
-            aria-label="WhatsApp"
           >
-            <Icon name="whatsapp" size={16} />
+            <Icon name="whatsapp" size={15} />
+            <span>WhatsApp</span>
           </a>
         )}
         {contacts?.instagramHandle && (
@@ -117,7 +125,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Hero: Warm and Approachable */}
   {hero && (
-    <section class="friendly-hero-section">
+    <section id="inicio" class="friendly-hero-section">
       <div class="friendly-container friendly-hero-grid">
         <div class="friendly-hero-copy">
           <div class="friendly-pill-tag">
@@ -164,7 +172,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
   )}
 
   {/* Friendly Experience: 3 Simple Steps */}
-  <section class="friendly-steps-section" aria-label="Cómo te ayudamos">
+  <section id="proceso" class="friendly-steps-section" aria-label="Cómo te ayudamos">
     <div class="friendly-container">
       <div class="friendly-steps-header">
         <span class="friendly-steps-eyebrow">EXPERIENCIA SENCILLA</span>
@@ -194,7 +202,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Cards: Approachable Solutions */}
   {cards.length > 0 && (
-    <section class="friendly-cards-section">
+    <section id="servicios" class="friendly-cards-section">
       <div class="friendly-container">
         <div class="friendly-section-heading">
           <h2 class="friendly-section-title">¿Cómo podemos ayudarte hoy?</h2>
@@ -231,7 +239,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Contacts: Friendly Invitation */}
   {contacts && (
-    <section class="friendly-contact-section">
+    <section id="contacto" class="friendly-contact-section">
       <div class="friendly-container">
         <div class="friendly-contact-card">
           <div class="friendly-contact-content">
@@ -288,59 +296,92 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Footer */}
   <footer class="friendly-footer">
-    <div class="friendly-container friendly-footer-row">
-      <span>© {new Date().getFullYear()} {siteName}. Hecho con calidez humana.</span>
-      {contacts && (
-        <div class="friendly-footer-socials">
-          {contacts.whatsappNumber && (
-            <a
-              href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="friendly-footer-social"
-              title="WhatsApp"
-              aria-label="WhatsApp"
-            >
-              <Icon name="whatsapp" size={16} />
-            </a>
-          )}
-          {contacts.instagramHandle && (
-            <a
-              href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="friendly-footer-social"
-              title="Instagram"
-              aria-label="Instagram"
-            >
-              <Icon name="instagram" size={16} />
-            </a>
-          )}
-          {contacts.facebookUrl && (
-            <a
-              href={contacts.facebookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="friendly-footer-social"
-              title="Facebook"
-              aria-label="Facebook"
-            >
-              <Icon name="facebook" size={16} />
-            </a>
-          )}
-          {contacts.email && (
-            <a
-              href={`mailto:${contacts.email}`}
-              class="friendly-footer-social"
-              title="Correo"
-              aria-label="Correo"
-            >
-              <Icon name="email" size={16} />
-            </a>
-          )}
+    <div class="friendly-container">
+      <div class="friendly-footer-grid">
+        <div class="friendly-footer-brand-col">
+          <div class="friendly-footer-brand">
+            {theme?.logoUrl ? (
+              <img src={theme.logoUrl} alt={siteName} class="friendly-footer-logo" />
+            ) : (
+              <Icon name="heart" size={22} class="friendly-heart-icon" />
+            )}
+            <span class="friendly-footer-title">{siteName}</span>
+          </div>
+          <p class="friendly-footer-desc">Soluciones claras, asesoramiento cercano y atención personalizada con calidez humana.</p>
         </div>
-      )}
-      <span>ATENCIÓN TRANSPARENTE</span>
+
+        <div class="friendly-footer-nav-col">
+          <span class="friendly-footer-heading">SECCIONES</span>
+          <nav class="friendly-footer-nav" aria-label="Navegación pie de página">
+            <a href="#inicio" class="friendly-footer-link">Inicio</a>
+            <a href="#proceso" class="friendly-footer-link">Cómo Funciona</a>
+            <a href="#servicios" class="friendly-footer-link">Servicios</a>
+            <a href="#contacto" class="friendly-footer-link">Contacto</a>
+          </nav>
+        </div>
+
+        {contacts && (
+          <div class="friendly-footer-contact-col">
+            <span class="friendly-footer-heading">CONTACTO</span>
+            <div class="friendly-footer-contact-list">
+              {contacts.phone && (
+                <a href={`tel:${contacts.phone}`} class="friendly-footer-contact-link">
+                  <Icon name="phone" size={14} />
+                  <span>{contacts.phone}</span>
+                </a>
+              )}
+              {contacts.email && (
+                <a href={`mailto:${contacts.email}`} class="friendly-footer-contact-link">
+                  <Icon name="email" size={14} />
+                  <span>{contacts.email}</span>
+                </a>
+              )}
+            </div>
+            <div class="friendly-footer-socials">
+              {contacts.whatsappNumber && (
+                <a
+                  href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="friendly-footer-social"
+                  title="WhatsApp"
+                  aria-label="WhatsApp"
+                >
+                  <Icon name="whatsapp" size={16} />
+                </a>
+              )}
+              {contacts.instagramHandle && (
+                <a
+                  href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="friendly-footer-social"
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <Icon name="instagram" size={16} />
+                </a>
+              )}
+              {contacts.facebookUrl && (
+                <a
+                  href={contacts.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="friendly-footer-social"
+                  title="Facebook"
+                  aria-label="Facebook"
+                >
+                  <Icon name="facebook" size={16} />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="friendly-footer-bottom">
+        <span>© {new Date().getFullYear()} {siteName}. Hecho con dedicación y calidez humana.</span>
+      </div>
     </div>
   </footer>
 </div>
@@ -374,13 +415,70 @@ const activePromotions = promotions.filter((p) => p.isActive);
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: var(--ds-space-3, 0.75rem);
   }
 
   .friendly-brand {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: 0.5rem;
+  }
+
+  .friendly-brand-logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+    max-width: 140px;
+    border-radius: 4px;
+  }
+
+  .friendly-brand-text {
+    font-size: var(--ds-text-lg, 1.125rem);
+    font-weight: 700;
+  }
+
+  .friendly-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .friendly-nav {
+      gap: 0.75rem;
+    }
+  }
+
+  .friendly-nav-link {
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.15s ease;
+  }
+
+  .friendly-nav-link:hover {
+    color: var(--ds-color-primary, #60a5fa);
+  }
+
+  .friendly-header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: var(--ds-color-primary, #60a5fa);
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+
+  .friendly-header-cta:hover {
+    background: var(--ds-color-primary, #3b82f6);
+    color: #ffffff;
   }
 
   .friendly-heart-icon {
@@ -790,17 +888,105 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .friendly-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--ds-space-6, 1.5rem) 0;
-    font-size: 0.75rem;
-    color: var(--ds-color-muted, #64748b);
+    background: #080c17;
+    padding: var(--ds-space-8, 2.5rem) 0 var(--ds-space-4, 1rem);
+    font-size: 0.85rem;
+    color: var(--ds-color-muted, #94a3b8);
   }
 
-  .friendly-footer-row {
+  .friendly-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .friendly-footer-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .friendly-footer-brand {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .friendly-footer-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    max-width: 120px;
+  }
+
+  .friendly-footer-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #ffffff;
+  }
+
+  .friendly-footer-desc {
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 360px;
+    font-size: 0.85rem;
+  }
+
+  .friendly-footer-heading {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ds-color-primary, #60a5fa);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .friendly-footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .friendly-footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .friendly-footer-link:hover {
+    color: var(--ds-color-primary, #60a5fa);
+  }
+
+  .friendly-footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .friendly-footer-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .friendly-footer-contact-link:hover {
+    color: var(--ds-color-primary, #60a5fa);
+  }
+
+  .friendly-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.75rem;
   }
 
   .friendly-hero-img-wrap {

@@ -26,28 +26,36 @@ const activePromotions = promotions.filter((p) => p.isActive);
 ---
 
 <div class="template-monitor" style={cssVars} data-theme-root>
-  {/* Terminal Status Bar */}
+  {/* Main Navigation Header */}
   <header class="mon-header">
     <div class="mon-container mon-header-wrap">
-      <div class="mon-prompt" style="display: flex; align-items: center; gap: 0.5rem;">
+      <div class="mon-brand">
         {theme?.logoUrl ? (
-          <img src={theme.logoUrl} alt={siteName} class="mon-brand-logo" style="height: 24px; width: auto; object-fit: contain; max-width: 120px; border-radius: 3px;" />
+          <img src={theme.logoUrl} alt={siteName} class="mon-brand-logo" />
         ) : (
           <span class="mon-cursor">&gt;</span>
         )}
-        <span class="mon-cmd">monitor --cluster="{siteName}" --estado=activo</span>
+        <span class="mon-brand-title">{siteName}</span>
       </div>
+
+      <nav class="mon-nav" aria-label="Navegación principal">
+        <a href="#inicio" class="mon-nav-link">Inicio</a>
+        <a href="#servicios" class="mon-nav-link">Servicios</a>
+        <a href="#infraestructura" class="mon-nav-link">Infraestructura</a>
+        <a href="#contacto" class="mon-nav-link">Contacto</a>
+      </nav>
+
       <div class="mon-header-actions">
         {contacts?.whatsappNumber && (
           <a
             href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
             target="_blank"
             rel="noopener noreferrer"
-            class="mon-header-social"
+            class="mon-header-cta"
             title="WhatsApp"
-            aria-label="WhatsApp"
           >
-            <Icon name="whatsapp" size={15} />
+            <Icon name="whatsapp" size={14} />
+            <span>WhatsApp</span>
           </a>
         )}
         {contacts?.instagramHandle && (
@@ -91,10 +99,6 @@ const activePromotions = promotions.filter((p) => p.isActive);
           </a>
         )}
       </div>
-      <div class="mon-uptime">
-        <span class="mon-ping-dot" aria-hidden="true"></span>
-        <span>LATENCIA: 18ms // DISPONIBILIDAD: 99.98%</span>
-      </div>
     </div>
   </header>
 
@@ -121,7 +125,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Hero Section: Monitoring Console */}
   {hero && (
-    <section class="mon-hero-section">
+    <section id="inicio" class="mon-hero-section">
       <div class="mon-container">
         <div class="mon-terminal-window">
           <div class="mon-window-titlebar">
@@ -179,7 +183,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
   )}
 
   {/* Live Telemetry Clusters & Health Matrix */}
-  <section class="mon-clusters-section" aria-label="Telemetría de Servidores y Nodos">
+  <section id="infraestructura" class="mon-clusters-section" aria-label="Telemetría de Servidores y Nodos">
     <div class="mon-container">
       <div class="mon-clusters-grid">
         <div class="mon-cluster-card">
@@ -187,8 +191,8 @@ const activePromotions = promotions.filter((p) => p.isActive);
             <span class="mon-status-indicator pulse-green" aria-hidden="true"></span>
             <span class="mon-cluster-name">CLÚSTER ALPHA // NÚCLEO</span>
           </div>
-          <div class="mon-cluster-stat">99.99%</div>
-          <span class="mon-cluster-meta">Disponibilidad operativa sin caídas</span>
+          <div class="mon-cluster-stat">99.98%</div>
+          <span class="mon-cluster-meta">DISPONIBILIDAD: 99.98% operativa sin caídas</span>
         </div>
         <div class="mon-cluster-card">
           <div class="mon-cluster-header">
@@ -212,7 +216,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Cards: Monitored Services & Metrics */}
   {cards.length > 0 && (
-    <section class="mon-metrics-section">
+    <section id="servicios" class="mon-metrics-section">
       <div class="mon-container">
         <div class="mon-section-heading">
           <span class="mon-section-sub">LÍNEAS Y SERVICIOS MONITORIZADOS</span>
@@ -253,7 +257,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Contacts: Escalation & Emergency NOC Hotline */}
   {contacts && (
-    <section class="mon-escalation-section">
+    <section id="contacto" class="mon-escalation-section">
       <div class="mon-container">
         <div class="mon-escalation-panel">
           <div class="mon-escalation-info">
@@ -308,59 +312,92 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Footer */}
   <footer class="mon-footer">
-    <div class="mon-container mon-footer-flex">
-      <span>© {new Date().getFullYear()} {siteName} // PLATAFORMA DE MONITORIZACIÓN NOC</span>
-      {contacts && (
-        <div class="mon-footer-socials">
-          {contacts.whatsappNumber && (
-            <a
-              href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mon-footer-social"
-              title="WhatsApp"
-              aria-label="WhatsApp"
-            >
-              <Icon name="whatsapp" size={16} />
-            </a>
-          )}
-          {contacts.instagramHandle && (
-            <a
-              href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mon-footer-social"
-              title="Instagram"
-              aria-label="Instagram"
-            >
-              <Icon name="instagram" size={16} />
-            </a>
-          )}
-          {contacts.facebookUrl && (
-            <a
-              href={contacts.facebookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mon-footer-social"
-              title="Facebook"
-              aria-label="Facebook"
-            >
-              <Icon name="facebook" size={16} />
-            </a>
-          )}
-          {contacts.email && (
-            <a
-              href={`mailto:${contacts.email}`}
-              class="mon-footer-social"
-              title="Correo"
-              aria-label="Correo"
-            >
-              <Icon name="email" size={16} />
-            </a>
-          )}
+    <div class="mon-container">
+      <div class="mon-footer-grid">
+        <div class="mon-footer-brand-col">
+          <div class="mon-footer-brand">
+            {theme?.logoUrl ? (
+              <img src={theme.logoUrl} alt={siteName} class="mon-footer-logo" />
+            ) : (
+              <span class="mon-cursor">&gt;</span>
+            )}
+            <span class="mon-footer-title">{siteName}</span>
+          </div>
+          <p class="mon-footer-desc">Infraestructura tecnológica, soporte de alta disponibilidad y soluciones a medida.</p>
         </div>
-      )}
-      <span>TELEMETRÍA CERTIFICADA ISO 27001</span>
+
+        <div class="mon-footer-nav-col">
+          <span class="mon-footer-heading">SECCIONES</span>
+          <nav class="mon-footer-nav" aria-label="Navegación pie de página">
+            <a href="#inicio" class="mon-footer-link">Inicio</a>
+            <a href="#servicios" class="mon-footer-link">Servicios</a>
+            <a href="#infraestructura" class="mon-footer-link">Infraestructura</a>
+            <a href="#contacto" class="mon-footer-link">Contacto</a>
+          </nav>
+        </div>
+
+        {contacts && (
+          <div class="mon-footer-contact-col">
+            <span class="mon-footer-heading">ATENCIÓN DIRECTA</span>
+            <div class="mon-footer-contact-list">
+              {contacts.phone && (
+                <a href={`tel:${contacts.phone}`} class="mon-footer-contact-link">
+                  <Icon name="phone" size={14} />
+                  <span>{contacts.phone}</span>
+                </a>
+              )}
+              {contacts.email && (
+                <a href={`mailto:${contacts.email}`} class="mon-footer-contact-link">
+                  <Icon name="email" size={14} />
+                  <span>{contacts.email}</span>
+                </a>
+              )}
+            </div>
+            <div class="mon-footer-socials">
+              {contacts.whatsappNumber && (
+                <a
+                  href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mon-footer-social"
+                  title="WhatsApp"
+                  aria-label="WhatsApp"
+                >
+                  <Icon name="whatsapp" size={15} />
+                </a>
+              )}
+              {contacts.instagramHandle && (
+                <a
+                  href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mon-footer-social"
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <Icon name="instagram" size={15} />
+                </a>
+              )}
+              {contacts.facebookUrl && (
+                <a
+                  href={contacts.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mon-footer-social"
+                  title="Facebook"
+                  aria-label="Facebook"
+                >
+                  <Icon name="facebook" size={15} />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="mon-footer-bottom">
+        <span>© {new Date().getFullYear()} {siteName}. Todos los derechos reservados.</span>
+      </div>
     </div>
   </footer>
 </div>
@@ -396,17 +433,33 @@ const activePromotions = promotions.filter((p) => p.isActive);
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: var(--ds-space-3, 0.75rem);
   }
 
-  .mon-prompt {
+  .mon-brand {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-2, 0.5rem);
-    color: #10b981;
+    gap: 0.5rem;
+  }
+
+  .mon-brand-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    max-width: 140px;
+    border-radius: 3px;
+  }
+
+  .mon-brand-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #ffffff;
+    letter-spacing: 0.03em;
   }
 
   .mon-cursor {
+    color: #10b981;
+    font-weight: 700;
     animation: mon-blink 1s step-end infinite;
   }
 
@@ -414,19 +467,48 @@ const activePromotions = promotions.filter((p) => p.isActive);
     50% { opacity: 0; }
   }
 
-  .mon-uptime {
+  .mon-nav {
     display: flex;
     align-items: center;
-    gap: var(--ds-space-2, 0.5rem);
-    color: var(--ds-color-muted, #94a3b8);
-    font-size: 0.7rem;
+    gap: 1.25rem;
   }
 
-  .mon-ping-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: #10b981;
+  @media (max-width: 640px) {
+    .mon-nav {
+      gap: 0.75rem;
+    }
+  }
+
+  .mon-nav-link {
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: color 0.15s ease;
+  }
+
+  .mon-nav-link:hover {
+    color: #10b981;
+  }
+
+  .mon-header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #10b981;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+
+  .mon-header-cta:hover {
+    background: #10b981;
+    color: #000000;
   }
 
   .mon-broadcast-bar {
@@ -906,18 +988,106 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .mon-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--ds-space-4, 1rem) 0;
-    font-size: 0.7rem;
+    background: #020409;
+    padding: var(--ds-space-8, 2.5rem) 0 var(--ds-space-4, 1rem);
+    font-size: 0.75rem;
     font-family: var(--ds-font-mono);
     color: var(--ds-color-muted, #64748b);
   }
 
-  .mon-footer-flex {
+  .mon-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .mon-footer-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .mon-footer-brand {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .mon-footer-logo {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+    max-width: 120px;
+  }
+
+  .mon-footer-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #ffffff;
+  }
+
+  .mon-footer-desc {
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 380px;
+    font-size: 0.75rem;
+  }
+
+  .mon-footer-heading {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #10b981;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .mon-footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mon-footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .mon-footer-link:hover {
+    color: #10b981;
+  }
+
+  .mon-footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .mon-footer-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .mon-footer-contact-link:hover {
+    color: #60a5fa;
+  }
+
+  .mon-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.7rem;
   }
 
   .mon-hero-img-wrap {

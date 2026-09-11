@@ -29,25 +29,33 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Cyber Telemetry Top Bar */}
   <header class="cyber-header">
     <div class="cyber-container cyber-header-content">
-      <div class="cyber-brand" style="display: flex; align-items: center; gap: 0.5rem;">
+      <div class="cyber-brand">
         {theme?.logoUrl ? (
-          <img src={theme.logoUrl} alt={siteName} class="cyber-brand-logo" style="height: 26px; width: auto; object-fit: contain; max-width: 130px; border-radius: 3px;" />
+          <img src={theme.logoUrl} alt={siteName} class="cyber-brand-logo" />
         ) : (
           <span class="cyber-neon-flash">⚡</span>
         )}
-        <span>{siteName}</span>
+        <span class="cyber-brand-title">{siteName}</span>
       </div>
+
+      <nav class="cyber-nav" aria-label="Navegación principal">
+        <a href="#inicio" class="cyber-nav-link">Inicio</a>
+        <a href="#rendimiento" class="cyber-nav-link">Rendimiento</a>
+        <a href="#servicios" class="cyber-nav-link">Servicios</a>
+        <a href="#contacto" class="cyber-nav-link">Contacto</a>
+      </nav>
+
       <div class="cyber-header-actions">
         {contacts?.whatsappNumber && (
           <a
             href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
             target="_blank"
             rel="noopener noreferrer"
-            class="cyber-header-social"
+            class="cyber-header-cta"
             title="WhatsApp"
-            aria-label="WhatsApp"
           >
-            <Icon name="whatsapp" size={15} />
+            <Icon name="whatsapp" size={14} />
+            <span>WhatsApp</span>
           </a>
         )}
         {contacts?.instagramHandle && (
@@ -117,7 +125,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Hero: High Kinetic Cyber Chamber */}
   {hero && (
-    <section class="cyber-hero-section">
+    <section id="inicio" class="cyber-hero-section">
       <div class="cyber-container cyber-hero-grid">
         <div class="cyber-hero-copy">
           <div class="cyber-lane-tag">
@@ -165,7 +173,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
   )}
 
   {/* High-Octane Performance Stats Bar */}
-  <section class="cyber-stats-bar" aria-label="Métricas de Rendimiento Extremo">
+  <section id="rendimiento" class="cyber-stats-bar" aria-label="Métricas de Rendimiento Extremo">
     <div class="cyber-container">
       <div class="cyber-stats-grid">
         <div class="cyber-stat-node">
@@ -189,7 +197,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Cards: Overclocked Performance Matrix */}
   {cards.length > 0 && (
-    <section class="cyber-cards-section">
+    <section id="servicios" class="cyber-cards-section">
       <div class="cyber-container">
         <div class="cyber-section-header">
           <span class="cyber-lane-tag">// MÓDULOS DE RENDIMIENTO</span>
@@ -227,7 +235,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Contacts: Kinetic Dispatch */}
   {contacts && (
-    <section class="cyber-contact-section">
+    <section id="contacto" class="cyber-contact-section">
       <div class="cyber-container">
         <div class="cyber-contact-box">
           <div class="cyber-contact-info">
@@ -279,59 +287,92 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Footer */}
   <footer class="cyber-footer">
-    <div class="cyber-container cyber-footer-row">
-      <span>© {new Date().getFullYear()} {siteName} // ARQUITECTURA CIBERNÉTICA CINÉTICA</span>
-      {contacts && (
-        <div class="cyber-footer-socials">
-          {contacts.whatsappNumber && (
-            <a
-              href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="cyber-footer-social"
-              title="WhatsApp"
-              aria-label="WhatsApp"
-            >
-              <Icon name="whatsapp" size={16} />
-            </a>
-          )}
-          {contacts.instagramHandle && (
-            <a
-              href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="cyber-footer-social"
-              title="Instagram"
-              aria-label="Instagram"
-            >
-              <Icon name="instagram" size={16} />
-            </a>
-          )}
-          {contacts.facebookUrl && (
-            <a
-              href={contacts.facebookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="cyber-footer-social"
-              title="Facebook"
-              aria-label="Facebook"
-            >
-              <Icon name="facebook" size={16} />
-            </a>
-          )}
-          {contacts.email && (
-            <a
-              href={`mailto:${contacts.email}`}
-              class="cyber-footer-social"
-              title="Correo"
-              aria-label="Correo"
-            >
-              <Icon name="email" size={16} />
-            </a>
-          )}
+    <div class="cyber-container">
+      <div class="cyber-footer-grid">
+        <div class="cyber-footer-brand-col">
+          <div class="cyber-footer-brand">
+            {theme?.logoUrl ? (
+              <img src={theme.logoUrl} alt={siteName} class="cyber-footer-logo" />
+            ) : (
+              <span class="cyber-neon-flash">⚡</span>
+            )}
+            <span class="cyber-footer-title">{siteName}</span>
+          </div>
+          <p class="cyber-footer-desc">Arquitectura cinética de máximo desempeño, optimización de hardware y soporte de alto rendimiento.</p>
         </div>
-      )}
-      <span>MÁXIMO NIVEL DE RENDIMIENTO</span>
+
+        <div class="cyber-footer-nav-col">
+          <span class="cyber-footer-heading">SECCIONES</span>
+          <nav class="cyber-footer-nav" aria-label="Navegación pie de página">
+            <a href="#inicio" class="cyber-footer-link">Inicio</a>
+            <a href="#rendimiento" class="cyber-footer-link">Rendimiento</a>
+            <a href="#servicios" class="cyber-footer-link">Servicios</a>
+            <a href="#contacto" class="cyber-footer-link">Contacto</a>
+          </nav>
+        </div>
+
+        {contacts && (
+          <div class="cyber-footer-contact-col">
+            <span class="cyber-footer-heading">CONEXIÓN DIRECTA</span>
+            <div class="cyber-footer-contact-list">
+              {contacts.phone && (
+                <a href={`tel:${contacts.phone}`} class="cyber-footer-contact-link">
+                  <Icon name="phone" size={14} />
+                  <span>{contacts.phone}</span>
+                </a>
+              )}
+              {contacts.email && (
+                <a href={`mailto:${contacts.email}`} class="cyber-footer-contact-link">
+                  <Icon name="email" size={14} />
+                  <span>{contacts.email}</span>
+                </a>
+              )}
+            </div>
+            <div class="cyber-footer-socials">
+              {contacts.whatsappNumber && (
+                <a
+                  href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="cyber-footer-social"
+                  title="WhatsApp"
+                  aria-label="WhatsApp"
+                >
+                  <Icon name="whatsapp" size={15} />
+                </a>
+              )}
+              {contacts.instagramHandle && (
+                <a
+                  href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="cyber-footer-social"
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <Icon name="instagram" size={15} />
+                </a>
+              )}
+              {contacts.facebookUrl && (
+                <a
+                  href={contacts.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="cyber-footer-social"
+                  title="Facebook"
+                  aria-label="Facebook"
+                >
+                  <Icon name="facebook" size={15} />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="cyber-footer-bottom">
+        <span>© {new Date().getFullYear()} {siteName}. Todos los derechos reservados.</span>
+      </div>
     </div>
   </footer>
 </div>
@@ -368,21 +409,73 @@ const activePromotions = promotions.filter((p) => p.isActive);
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
-  }
-
-  .cyber-badge-boost {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-space-2, 0.5rem);
-    color: #ec4899;
-    font-weight: 700;
+    gap: var(--ds-space-3, 0.75rem);
   }
 
   .cyber-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  .cyber-brand-logo {
+    height: 26px;
+    width: auto;
+    object-fit: contain;
+    max-width: 130px;
+    border-radius: 3px;
+  }
+
+  .cyber-brand-title {
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .cyber-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .cyber-nav {
+      gap: 0.75rem;
+    }
+  }
+
+  .cyber-nav-link {
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: color 0.15s ease;
+  }
+
+  .cyber-nav-link:hover {
+    color: #ec4899;
+  }
+
+  .cyber-header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(236, 72, 153, 0.15);
+    border: 1px solid rgba(236, 72, 153, 0.4);
+    color: #ec4899;
+    padding: 0.25rem 0.65rem;
+    border-radius: 3px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.15s ease;
+  }
+
+  .cyber-header-cta:hover {
+    background: #ec4899;
+    color: #ffffff;
   }
 
   .cyber-thermal {
@@ -785,18 +878,107 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   .cyber-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--ds-space-4, 1rem) 0;
-    font-size: 0.7rem;
+    background: #030308;
+    padding: var(--ds-space-8, 2.5rem) 0 var(--ds-space-4, 1rem);
+    font-size: 0.75rem;
     font-family: var(--ds-font-mono);
     color: var(--ds-color-muted, #64748b);
   }
 
-  .cyber-footer-row {
+  .cyber-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .cyber-footer-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .cyber-footer-brand {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cyber-footer-logo {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+    max-width: 120px;
+  }
+
+  .cyber-footer-title {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #ffffff;
+    letter-spacing: 0.05em;
+  }
+
+  .cyber-footer-desc {
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 360px;
+    font-size: 0.75rem;
+  }
+
+  .cyber-footer-heading {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #ec4899;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .cyber-footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cyber-footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .cyber-footer-link:hover {
+    color: #ec4899;
+  }
+
+  .cyber-footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cyber-footer-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .cyber-footer-contact-link:hover {
+    color: #ec4899;
+  }
+
+  .cyber-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.7rem;
   }
 
   .cyber-hero-img-wrap {

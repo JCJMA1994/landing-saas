@@ -29,23 +29,31 @@ const activePromotions = promotions.filter((p) => p.isActive);
   {/* Editorial Masthead */}
   <header class="edit-masthead">
     <div class="edit-container edit-masthead-wrap">
-      <div class="edit-pub-title" style="display: flex; align-items: center; gap: 0.6rem;">
+      <div class="edit-pub-brand">
         {theme?.logoUrl && (
-          <img src={theme.logoUrl} alt={siteName} class="edit-brand-logo" style="height: 28px; width: auto; object-fit: contain; max-width: 130px;" />
+          <img src={theme.logoUrl} alt={siteName} class="edit-brand-logo" />
         )}
-        <span>{siteName}</span>
+        <span class="edit-brand-title">{siteName}</span>
       </div>
+
+      <nav class="edit-nav" aria-label="Navegación principal">
+        <a href="#inicio" class="edit-nav-link">Inicio</a>
+        <a href="#manifiesto" class="edit-nav-link">Manifiesto</a>
+        <a href="#servicios" class="edit-nav-link">Servicios</a>
+        <a href="#contacto" class="edit-nav-link">Contacto</a>
+      </nav>
+
       <div class="edit-header-actions">
         {contacts?.whatsappNumber && (
           <a
             href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
             target="_blank"
             rel="noopener noreferrer"
-            class="edit-header-social"
+            class="edit-header-cta"
             title="WhatsApp"
-            aria-label="WhatsApp"
           >
-            <Icon name="whatsapp" size={15} />
+            <Icon name="whatsapp" size={14} />
+            <span>WhatsApp</span>
           </a>
         )}
         {contacts?.instagramHandle && (
@@ -115,7 +123,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Hero: Asymmetrical Editorial Spread */}
   {hero && (
-    <section class="edit-hero-section">
+    <section id="inicio" class="edit-hero-section">
       <div class="edit-container">
         <div class="edit-hero-layout">
           <div class="edit-hero-main">
@@ -152,7 +160,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
   )}
 
   {/* Editorial Indices & Value Manifesto */}
-  <section class="edit-manifesto-section" aria-label="Compromisos Editoriales de Excelencia">
+  <section id="manifiesto" class="edit-manifesto-section" aria-label="Compromisos Editoriales de Excelencia">
     <div class="edit-container">
       <div class="edit-manifesto-grid">
         <div class="edit-manifesto-column">
@@ -176,7 +184,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Cards: In-depth Editorial Features */}
   {cards.length > 0 && (
-    <section class="edit-features-section">
+    <section id="servicios" class="edit-features-section">
       <div class="edit-container">
         <div class="edit-section-header">
           <span class="edit-kicker">PROPUESTA DE VALOR</span>
@@ -216,7 +224,7 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Contacts: Bespoke Correspondence Column */}
   {contacts && (
-    <section class="edit-contact-section">
+    <section id="contacto" class="edit-contact-section">
       <div class="edit-container">
         <div class="edit-contact-spread">
           <div class="edit-contact-copy">
@@ -257,59 +265,84 @@ const activePromotions = promotions.filter((p) => p.isActive);
 
   {/* Colophon Footer */}
   <footer class="edit-footer">
-    <div class="edit-container edit-footer-wrap">
-      <span>© {new Date().getFullYear()} {siteName}. Todos los derechos reservados.</span>
-      {contacts && (
-        <div class="edit-footer-socials">
-          {contacts.whatsappNumber && (
-            <a
-              href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="edit-footer-social"
-              title="WhatsApp"
-              aria-label="WhatsApp"
-            >
-              <Icon name="whatsapp" size={16} />
-            </a>
-          )}
-          {contacts.instagramHandle && (
-            <a
-              href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="edit-footer-social"
-              title="Instagram"
-              aria-label="Instagram"
-            >
-              <Icon name="instagram" size={16} />
-            </a>
-          )}
-          {contacts.facebookUrl && (
-            <a
-              href={contacts.facebookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="edit-footer-social"
-              title="Facebook"
-              aria-label="Facebook"
-            >
-              <Icon name="facebook" size={16} />
-            </a>
-          )}
-          {contacts.email && (
-            <a
-              href={`mailto:${contacts.email}`}
-              class="edit-footer-social"
-              title="Correo"
-              aria-label="Correo"
-            >
-              <Icon name="email" size={16} />
-            </a>
-          )}
+    <div class="edit-container">
+      <div class="edit-footer-grid">
+        <div class="edit-footer-brand-col">
+          <div class="edit-footer-brand">
+            {theme?.logoUrl && (
+              <img src={theme.logoUrl} alt={siteName} class="edit-footer-logo" />
+            )}
+            <span class="edit-footer-title">{siteName}</span>
+          </div>
+          <p class="edit-footer-desc">Publicación técnica especializada y servicios profesionales con rigor operativo y estándares de excelencia.</p>
         </div>
-      )}
-      <span>DISEÑO EDITORIAL TIPOGRÁFICO</span>
+
+        <div class="edit-footer-nav-col">
+          <span class="edit-footer-heading">SECCIONES</span>
+          <nav class="edit-footer-nav" aria-label="Navegación pie de página">
+            <a href="#inicio" class="edit-footer-link">Inicio</a>
+            <a href="#manifiesto" class="edit-footer-link">Manifiesto</a>
+            <a href="#servicios" class="edit-footer-link">Servicios</a>
+            <a href="#contacto" class="edit-footer-link">Contacto</a>
+          </nav>
+        </div>
+
+        {contacts && (
+          <div class="edit-footer-contact-col">
+            <span class="edit-footer-heading">CORRESPONDENCIA</span>
+            <div class="edit-footer-contact-list">
+              {contacts.phone && (
+                <p class="edit-footer-contact-text">Línea directa: {contacts.phone}</p>
+              )}
+              {contacts.email && (
+                <p class="edit-footer-contact-text">Correo: {contacts.email}</p>
+              )}
+            </div>
+            <div class="edit-footer-socials">
+              {contacts.whatsappNumber && (
+                <a
+                  href={generateWhatsAppUrl(contacts.whatsappNumber, contacts.whatsappMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="edit-footer-social"
+                  title="WhatsApp"
+                  aria-label="WhatsApp"
+                >
+                  <Icon name="whatsapp" size={16} />
+                </a>
+              )}
+              {contacts.instagramHandle && (
+                <a
+                  href={`https://instagram.com/${contacts.instagramHandle.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="edit-footer-social"
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <Icon name="instagram" size={16} />
+                </a>
+              )}
+              {contacts.facebookUrl && (
+                <a
+                  href={contacts.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="edit-footer-social"
+                  title="Facebook"
+                  aria-label="Facebook"
+                >
+                  <Icon name="facebook" size={16} />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="edit-footer-bottom">
+        <span>© {new Date().getFullYear()} {siteName}. Todos los derechos reservados.</span>
+      </div>
     </div>
   </footer>
 </div>
@@ -342,21 +375,74 @@ const activePromotions = promotions.filter((p) => p.isActive);
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: var(--ds-space-3, 0.75rem);
   }
 
-  .edit-issue-tag, .edit-colophon {
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    color: var(--ds-color-muted, #94a3b8);
-    text-transform: uppercase;
+  .edit-pub-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
   }
 
-  .edit-pub-title {
+  .edit-brand-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    max-width: 130px;
+  }
+
+  .edit-brand-title {
     font-size: var(--ds-text-lg, 1.125rem);
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+    color: #ffffff;
+  }
+
+  .edit-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .edit-nav {
+      gap: 0.75rem;
+    }
+  }
+
+  .edit-nav-link {
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.15s ease;
+  }
+
+  .edit-nav-link:hover {
+    color: #ffffff;
+  }
+
+  .edit-header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 0.25rem 0.65rem;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.15s ease;
+  }
+
+  .edit-header-cta:hover {
+    background: #ffffff;
+    color: #000000;
   }
 
   .edit-curated-notice {
@@ -702,18 +788,102 @@ const activePromotions = promotions.filter((p) => p.isActive);
   }
 
   .edit-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--ds-space-6, 1.5rem) 0;
-    font-size: 0.75rem;
-    color: var(--ds-color-muted, #64748b);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #080d19;
+    padding: var(--ds-space-8, 2.5rem) 0 var(--ds-space-4, 1rem);
+    font-size: 0.85rem;
+    color: var(--ds-color-muted, #94a3b8);
   }
 
-  .edit-footer-wrap {
+  .edit-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .edit-footer-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .edit-footer-brand {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: var(--ds-space-2, 0.5rem);
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .edit-footer-logo {
+    height: 26px;
+    width: auto;
+    object-fit: contain;
+    max-width: 120px;
+  }
+
+  .edit-footer-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+
+  .edit-footer-desc {
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 360px;
+    font-size: 0.85rem;
+  }
+
+  .edit-footer-heading {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+  }
+
+  .edit-footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .edit-footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .edit-footer-link:hover {
+    color: #ffffff;
+  }
+
+  .edit-footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .edit-footer-contact-text {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.85rem;
+  }
+
+  .edit-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.75rem;
   }
 
   .edit-hero-img-wrap {
