@@ -10,6 +10,8 @@ import type { TenantMember } from "../../application/members/member-repository";
 import type { AuditLogEntry } from "../../application/audit/audit-gateway";
 import { canManageMembers, type TenantRole } from "../../domain/tenant/roles";
 import { SupabaseSubscriptionRepository } from "../../infrastructure/supabase/subscription-repository";
+import { createAdminClient } from "../../infrastructure/supabase/server";
+import { parseServerEnv } from "../../infrastructure/config/env";
 import "../../styles/admin.css";
 
 const logoutResult = Astro.getActionResult(actions.logout);
@@ -39,6 +41,7 @@ const isManager = userRole ? canManageMembers(userRole) : false;
 let members: TenantMember[] = [];
 let recentAuditLogs: AuditLogEntry[] = [];
 let loadError: string | null = null;
+const userEmailMap = new Map<string, string>();
 
 if (tenantId && Astro.locals.user) {
   const memberRepo = new SupabaseMemberRepository(Astro.locals.supabase);
@@ -46,20 +49,107 @@ if (tenantId && Astro.locals.user) {
   try {
     members = await listMembersUseCase(Astro.locals.user, tenantId, memberRepo);
     if (isManager) {
-      recentAuditLogs = await auditGateway.listRecent(tenantId, 10);
+      recentAuditLogs = await auditGateway.listRecent(tenantId, 12);
     }
   } catch (err: unknown) {
     const error = err as MemberAuthorizationError;
     loadError = error.message || "No se pudieron cargar los miembros del workspace.";
   }
+
+  // Fetch registered user emails from Supabase Auth admin client
+  try {
+    const env = parseServerEnv(process.env, import.meta.env);
+    const adminClient = createAdminClient(env);
+    const { data: authUsers } = await adminClient.auth.admin.listUsers();
+    if (authUsers?.users) {
+      for (const u of authUsers.users) {
+        if (u.email) userEmailMap.set(u.id, u.email);
+      }
+    }
+  } catch {
+    // If adminClient is unavailable, session user is still known
+  }
+  if (Astro.locals.user.email) {
+    userEmailMap.set(Astro.locals.user.id, Astro.locals.user.email);
+  }
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  owner: "PROPIETARIO",
-  admin: "ADMINISTRADOR",
-  editor: "EDITOR",
-  viewer: "LECTOR",
+const ROLE_DETAILS: Record<string, { label: string; desc: string; icon: string; badgeClass: string }> = {
+  owner: {
+    label: "Propietario",
+    desc: "Control absoluto, facturación y titularidad legal",
+    icon: "👑",
+    badgeClass: "badge-owner",
+  },
+  admin: {
+    label: "Administrador",
+    desc: "Gestión de miembros, dominios y sitios",
+    icon: "🛡️",
+    badgeClass: "badge-admin",
+  },
+  editor: {
+    label: "Editor",
+    desc: "Edición de contenidos, temas y publicación",
+    icon: "✏️",
+    badgeClass: "badge-editor",
+  },
+  viewer: {
+    label: "Lector",
+    desc: "Visualización de métricas y analíticas",
+    icon: "👁️",
+    badgeClass: "badge-viewer",
+  },
 };
+
+function getInitials(text: string): string {
+  if (text.includes("@")) {
+    const namePart = text.split("@")[0] || "";
+    const clean = namePart.replace(/[^a-zA-Z0-9]/g, "");
+    return clean.slice(0, 2).toUpperCase() || "U";
+  }
+  return text.slice(0, 2).toUpperCase() || "U";
+}
+
+function formatAuditAction(action: string): { label: string; icon: string; cssClass: string } {
+  switch (action) {
+    case "site.published":
+      return { label: "Publicación de Sitio", icon: "🚀", cssClass: "action-publish" };
+    case "domain.added":
+      return { label: "Dominio Agregado", icon: "🌐", cssClass: "action-domain" };
+    case "domain.deleted":
+      return { label: "Dominio Eliminado", icon: "🗑️", cssClass: "action-delete" };
+    case "media.uploaded":
+      return { label: "Archivo Multimedia Subido", icon: "🖼️", cssClass: "action-media" };
+    case "card.created":
+      return { label: "Tarjeta de Contenido Creada", icon: "📋", cssClass: "action-card" };
+    case "member.added":
+      return { label: "Colaborador Asignado", icon: "👤", cssClass: "action-member" };
+    case "member.updated":
+      return { label: "Permiso de Miembro Modificado", icon: "🔄", cssClass: "action-member" };
+    case "member.removed":
+      return { label: "Colaborador Revocado", icon: "🚫", cssClass: "action-delete" };
+    default:
+      return { label: action, icon: "⚡", cssClass: "action-default" };
+  }
+}
+
+function formatAuditResource(resourceType: string, resourceId: string): string {
+  const shortId = resourceId.length > 18 ? resourceId.slice(0, 8) + "…" + resourceId.slice(-4) : resourceId;
+  switch (resourceType) {
+    case "site_publication":
+      return `Publicación (${shortId})`;
+    case "domain":
+      return `Dominio (${shortId})`;
+    case "site_card":
+      return `Tarjeta (#${shortId})`;
+    case "media_asset":
+      return `Archivo (${shortId})`;
+    case "tenant_member":
+      return `Miembro (${shortId})`;
+    default:
+      return `${resourceType}:${shortId}`;
+  }
+}
 ---
 
 <!doctype html>
@@ -67,7 +157,7 @@ const ROLE_LABELS: Record<string, string> = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Equipo & Permisos | LaunchPulse Studio</title>
+    <title>Equipo & Seguridad | LaunchPulse Studio</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="client-workspace-body">
@@ -112,7 +202,7 @@ const ROLE_LABELS: Record<string, string> = {
           <div class="user-pill">
             <span class="user-status-dot"></span>
             <span class="user-email" title={Astro.locals.user?.email}>{Astro.locals.user?.email}</span>
-            <span class="user-role-tag">{ROLE_LABELS[userRole || ""] || userRole}</span>
+            <span class="user-role-tag">{ROLE_DETAILS[userRole || ""]?.label || userRole}</span>
           </div>
 
           <form method="POST" action={actions.logout}>
@@ -126,23 +216,30 @@ const ROLE_LABELS: Record<string, string> = {
 
     <main class="shell dashboard-container">
       <div class="header-titles">
-        <p class="eyebrow-tag">CONTROL DE ACCESO & SEGURIDAD</p>
-        <h1 class="main-title">Miembros del Workspace</h1>
-        <p class="main-subtitle">Gestioná los roles, permisos de colaboradores y auditá los registros de seguridad del equipo.</p>
+        <p class="eyebrow-tag">CONTROL DE ACCESO & SEGURIDAD DEL WORKSPACE</p>
+        <h1 class="main-title">Equipo y Permisos de Colaboración</h1>
+        <p class="main-subtitle">
+          Administrá los accesos de tu equipo mediante correo electrónico, gestioná niveles de autorización y auditá el historial de cambios en tiempo real.
+        </p>
       </div>
 
       {assignResult && !assignResult.data?.ok && (
         <div class="alert-box error" role="alert">
-          {assignResult.data?.error ?? "No se pudo actualizar el miembro."}
+          <span class="alert-icon">⚠️</span>
+          <span>{assignResult.data?.error ?? "No se pudo actualizar el miembro."}</span>
         </div>
       )}
       {removeResult && !removeResult.data?.ok && (
         <div class="alert-box error" role="alert">
-          {removeResult.data?.error ?? "No se pudo remover al miembro."}
+          <span class="alert-icon">⚠️</span>
+          <span>{removeResult.data?.error ?? "No se pudo remover al miembro."}</span>
         </div>
       )}
       {loadError && (
-        <div class="alert-box error" role="alert">{loadError}</div>
+        <div class="alert-box error" role="alert">
+          <span class="alert-icon">⚠️</span>
+          <span>{loadError}</span>
+        </div>
       )}
 
       {!tenantId ? (
@@ -152,67 +249,100 @@ const ROLE_LABELS: Record<string, string> = {
           <!-- Members List Table -->
           <section class="content-panel" aria-labelledby="members-list-title">
             <div class="panel-header-row">
-              <h2 id="members-list-title" class="panel-heading">Colaboradores Actuales</h2>
-              <span class="member-count-badge">{members.length} {members.length === 1 ? "usuario" : "usuarios"}</span>
+              <div>
+                <h2 id="members-list-title" class="panel-heading">Colaboradores con Acceso Activo</h2>
+                <p class="panel-subtext">Usuarios autorizados para administrar, diseñar o supervisar este workspace.</p>
+              </div>
+              <span class="member-count-badge">
+                {members.length} {members.length === 1 ? "colaborador" : "colaboradores"}
+              </span>
             </div>
 
             {members.length === 0 ? (
-              <p class="empty-box">No se encontraron miembros en este workspace.</p>
+              <p class="empty-box">No se encontraron miembros registrados en este workspace.</p>
             ) : (
               <div class="table-responsive">
                 <table class="data-table">
                   <thead>
                     <tr>
-                      <th>Usuario / Identificador</th>
-                      <th>Rol Asignado</th>
+                      <th>Colaborador</th>
+                      <th>Rol y Autorización</th>
                       <th>Fecha de Ingreso</th>
-                      {isManager && <th class="text-right">Acciones</th>}
+                      {isManager && <th class="text-right">Acción</th>}
                     </tr>
                   </thead>
                   <tbody>
-                    {members.map((m) => (
-                      <tr>
-                        <td>
-                          <div class="user-cell">
-                            <code class="uuid-badge">{m.userId}</code>
-                            {m.userId === Astro.locals.user?.id && (
-                              <span class="badge-you">TÚ</span>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <span class={`badge-role badge-${m.role}`}>
-                            {ROLE_LABELS[m.role] || m.role}
-                          </span>
-                        </td>
-                        <td class="date-cell">
-                          {new Date(m.createdAt).toLocaleDateString("es-ES", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </td>
-                        {isManager && (
-                          <td class="text-right">
-                            {m.userId !== Astro.locals.user?.id ? (
-                              <form method="POST" action={actions.removeMember} class="inline-form">
-                                <input type="hidden" name="tenantId" value={tenantId} />
-                                <input type="hidden" name="userId" value={m.userId} />
-                                <button
-                                  type="submit"
-                                  class="btn-remove"
-                                  onclick="return confirm('¿Estás seguro de que deseas revocar el acceso a este usuario?');"
-                                >
-                                  Eliminar
-                                </button>
-                              </form>
-                            ) : (
-                              <span class="muted-action">—</span>
-                            )}
+                    {members.map((m) => {
+                      const email = userEmailMap.get(m.userId) || (m.userId === Astro.locals.user?.id ? Astro.locals.user.email : null);
+                      const isCurrentUser = m.userId === Astro.locals.user?.id;
+                      const roleInfo = ROLE_DETAILS[m.role] || {
+                        label: m.role,
+                        desc: "Permiso personalizado",
+                        icon: "👤",
+                        badgeClass: "badge-viewer",
+                      };
+                      const displayName = email || `Usuario ID: ${m.userId.slice(0, 8)}…`;
+
+                      return (
+                        <tr>
+                          <td>
+                            <div class="member-profile-cell">
+                              <div class={`avatar-circle ${isCurrentUser ? "avatar-current" : ""}`} aria-hidden="true">
+                                <span>{getInitials(displayName)}</span>
+                              </div>
+                              <div class="member-info-col">
+                                <div class="member-name-row">
+                                  <span class="member-primary-text">{displayName}</span>
+                                  {isCurrentUser && (
+                                    <span class="badge-you" title="Cuenta en sesión">TÚ / ACTUAL</span>
+                                  )}
+                                </div>
+                                <div class="member-id-meta" title={`Identificador único de base de datos: ${m.userId}`}>
+                                  <span>UUID:</span>
+                                  <code>{m.userId.slice(0, 8)}…{m.userId.slice(-6)}</code>
+                                </div>
+                              </div>
+                            </div>
                           </td>
-                        )}
-                      </tr>
-                    ))}
+                          <td>
+                            <div class="role-cell">
+                              <span class={`badge-role ${roleInfo.badgeClass}`}>
+                                <span class="role-icon">{roleInfo.icon}</span>
+                                <span class="role-name">{roleInfo.label.toUpperCase()}</span>
+                              </span>
+                              <span class="role-desc-text">{roleInfo.desc}</span>
+                            </div>
+                          </td>
+                          <td class="date-cell">
+                            {new Date(m.createdAt).toLocaleDateString("es-ES", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </td>
+                          {isManager && (
+                            <td class="text-right">
+                              {!isCurrentUser ? (
+                                <form method="POST" action={actions.removeMember} class="inline-form">
+                                  <input type="hidden" name="tenantId" value={tenantId} />
+                                  <input type="hidden" name="userId" value={m.userId} />
+                                  <button
+                                    type="submit"
+                                    class="btn-remove"
+                                    onclick="return confirm('¿Estás seguro de que deseas revocar el acceso a este colaborador?');"
+                                    title={`Revocar acceso a ${displayName}`}
+                                  >
+                                    Revocar
+                                  </button>
+                                </form>
+                              ) : (
+                                <span class="muted-action" title="No puedes revocar tu propio acceso">—</span>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -222,43 +352,92 @@ const ROLE_LABELS: Record<string, string> = {
           <!-- Add / Update Member Form -->
           {isManager && (
             <section class="content-panel form-panel" aria-labelledby="add-member-title">
-              <h2 id="add-member-title" class="panel-heading">Agregar o Modificar Miembro</h2>
-              <p class="panel-desc">
-                Ingresá el UUID del usuario registrado en el sistema y asignale su nivel de permisos dentro de este workspace.
-              </p>
+              <div class="form-panel-header">
+                <div class="form-header-icon">✉️</div>
+                <div>
+                  <h2 id="add-member-title" class="panel-heading">Invitar o Asignar Colaborador</h2>
+                  <p class="panel-desc" style="margin-bottom: 0;">
+                    Ingresá el correo electrónico de la persona que querés sumar a tu equipo y seleccioná el rol que tendrá en el workspace.
+                  </p>
+                </div>
+              </div>
 
               <form method="POST" action={actions.assignMember} class="member-form">
                 <input type="hidden" name="tenantId" value={tenantId} />
 
-                <div class="field-group">
-                  <label for="userId">Identificador de Usuario (UUID)</label>
-                  <input
-                    id="userId"
-                    name="userId"
-                    type="text"
-                    required
-                    pattern="^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-                    placeholder="00000000-0000-0000-0000-000000000000"
-                    class="form-input"
-                  />
-                  <small class="field-hint">El UUID se obtiene del registro en Supabase Auth.</small>
+                <div class="form-grid-layout">
+                  <div class="field-group">
+                    <label for="userId">
+                      Correo Electrónico del Colaborador
+                      <span class="field-required">*</span>
+                    </label>
+                    <div class="input-with-icon">
+                      <span class="input-icon">📧</span>
+                      <input
+                        id="userId"
+                        name="userId"
+                        type="text"
+                        required
+                        placeholder="ejemplo: maria.gonzalez@empresa.com"
+                        class="form-input with-icon"
+                      />
+                    </div>
+                    <small class="field-hint">
+                      💡 Si el usuario ya posee cuenta en el sistema, se le asociará inmediatamente. Si aún no está registrado, se creará su acceso para que pueda ingresar con este correo. (También acepta UUID directamente si se requiere soporte técnico).
+                    </small>
+                  </div>
+
+                  <div class="field-group">
+                    <label for="role">
+                      Nivel de Permisos / Rol Asignado
+                      <span class="field-required">*</span>
+                    </label>
+                    <div class="input-with-icon">
+                      <span class="input-icon">🛡️</span>
+                      <select id="role" name="role" required class="form-select with-icon">
+                        {userRole === "owner" && (
+                          <option value="owner">👑 Propietario (Control total, facturación y titularidad)</option>
+                        )}
+                        <option value="admin">🛡️ Administrador (Gestión de miembros, dominios y sitios)</option>
+                        <option value="editor" selected>✏️ Editor (Recomendado: Diseño, contenidos y publicación)</option>
+                        <option value="viewer">👁️ Lector (Solo lectura de analíticas y reportes)</option>
+                      </select>
+                    </div>
+                    <small class="field-hint">
+                      Podés cambiar o revocar este rol en cualquier momento desde esta misma pantalla.
+                    </small>
+                  </div>
                 </div>
 
-                <div class="field-group">
-                  <label for="role">Rol / Nivel de Permisos</label>
-                  <select id="role" name="role" required class="form-select">
-                    {userRole === "owner" && (
-                      <option value="owner">Propietario (Control total y titularidad)</option>
-                    )}
-                    <option value="admin">Administrador (Gestión de miembros y sitios)</option>
-                    <option value="editor" selected>Editor (Diseño, contenidos y temas)</option>
-                    <option value="viewer">Lector (Solo visualización de métricas)</option>
-                  </select>
+                <!-- Role Matrix Reference -->
+                <div class="role-matrix-box">
+                  <div class="matrix-title">Guía de Permisos por Rol:</div>
+                  <div class="matrix-grid">
+                    <div class="matrix-item">
+                      <strong class="role-title-owner">👑 Propietario</strong>
+                      <span>Máximo nivel: transfiere propiedad, gestiona pagos y membresías.</span>
+                    </div>
+                    <div class="matrix-item">
+                      <strong class="role-title-admin">🛡️ Administrador</strong>
+                      <span>Crea y borra sitios, configura dominios y agrega colaboradores.</span>
+                    </div>
+                    <div class="matrix-item">
+                      <strong class="role-title-editor">✏️ Editor</strong>
+                      <span>Edita textos, sube imágenes, cambia colores y publica landings.</span>
+                    </div>
+                    <div class="matrix-item">
+                      <strong class="role-title-viewer">👁️ Lector</strong>
+                      <span>Consulta estadísticas de visitas y solicitudes recibidas sin editar.</span>
+                    </div>
+                  </div>
                 </div>
 
-                <button type="submit" class="btn-save-member">
-                  Guardar Permisos del Miembro
-                </button>
+                <div class="form-action-row">
+                  <button type="submit" class="btn-save-member">
+                    <span>Otorgar Acceso al Workspace</span>
+                    <span class="btn-arrow">→</span>
+                  </button>
+                </div>
               </form>
             </section>
           )}
@@ -267,37 +446,64 @@ const ROLE_LABELS: Record<string, string> = {
           {isManager && recentAuditLogs.length > 0 && (
             <section class="content-panel audit-panel" aria-labelledby="audit-log-title">
               <div class="panel-header-row">
-                <h2 id="audit-log-title" class="panel-heading">Registro de Auditoría de Seguridad</h2>
-                <span class="audit-note">Historial Inmutable</span>
+                <div>
+                  <h2 id="audit-log-title" class="panel-heading">Registro de Auditoría de Seguridad</h2>
+                  <p class="panel-subtext">Historial inmutable con trazabilidad criptográfica de todas las acciones operativas.</p>
+                </div>
+                <span class="audit-note">Trazabilidad Inmutable</span>
               </div>
-              <p class="panel-desc">Registro criptográfico de eventos de acceso, modificaciones de permisos y cambios de membresía.</p>
 
               <div class="table-responsive">
                 <table class="data-table">
                   <thead>
                     <tr>
-                      <th>Fecha / Hora</th>
+                      <th>Fecha y Hora</th>
                       <th>Actor Responsable</th>
                       <th>Acción Ejecutada</th>
                       <th>Recurso Afectado</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {recentAuditLogs.map((log) => (
-                      <tr>
-                        <td class="date-cell">
-                          {log.createdAt
-                            ? new Date(log.createdAt).toLocaleString("es-ES", {
-                                dateStyle: "short",
-                                timeStyle: "medium",
-                              })
-                            : "Reciente"}
-                        </td>
-                        <td><code class="uuid-badge">{log.actorUserId}</code></td>
-                        <td><span class="badge-action">{log.action}</span></td>
-                        <td><code class="resource-badge">{log.resourceType}:{log.resourceId}</code></td>
-                      </tr>
-                    ))}
+                    {recentAuditLogs.map((log) => {
+                      const actorEmail = userEmailMap.get(log.actorUserId) || (log.actorUserId === Astro.locals.user?.id ? Astro.locals.user.email : null);
+                      const actorLabel = actorEmail || `ID: ${log.actorUserId.slice(0, 8)}…`;
+                      const actionInfo = formatAuditAction(log.action);
+                      const resourceLabel = formatAuditResource(log.resourceType, log.resourceId);
+
+                      return (
+                        <tr>
+                          <td class="date-cell">
+                            {log.createdAt
+                              ? new Date(log.createdAt).toLocaleString("es-ES", {
+                                  dateStyle: "short",
+                                  timeStyle: "medium",
+                                })
+                              : "Reciente"}
+                          </td>
+                          <td>
+                            <div class="actor-cell">
+                              <div class="actor-mini-avatar">
+                                {getInitials(actorLabel)}
+                              </div>
+                              <span class="actor-name" title={actorEmail || log.actorUserId}>
+                                {actorLabel}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            <span class={`badge-action ${actionInfo.cssClass}`}>
+                              <span class="action-icon">{actionInfo.icon}</span>
+                              <span>{actionInfo.label}</span>
+                            </span>
+                          </td>
+                          <td>
+                            <span class="resource-badge" title={`${log.resourceType}:${log.resourceId}`}>
+                              {resourceLabel}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -510,6 +716,7 @@ const ROLE_LABELS: Record<string, string> = {
         font-size: 1rem;
         margin: 0;
         line-height: 1.5;
+        max-width: 780px;
       }
 
       /* Grid of Panels */
@@ -522,15 +729,17 @@ const ROLE_LABELS: Record<string, string> = {
         background: #0d1527;
         border: 1px solid rgba(56, 189, 248, 0.2);
         border-radius: 1.25rem;
-        padding: 1.75rem 2rem;
+        padding: 2rem;
         box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
       }
 
       .panel-header-row {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
 
       .panel-heading {
@@ -538,31 +747,39 @@ const ROLE_LABELS: Record<string, string> = {
         font-weight: 800;
         color: #ffffff;
         letter-spacing: -0.02em;
+        margin: 0 0 0.25rem;
+      }
+
+      .panel-subtext {
+        color: #94a3b8;
+        font-size: 0.88rem;
         margin: 0;
       }
 
       .panel-desc {
         color: #94a3b8;
         font-size: 0.9rem;
-        margin: 0 0 1.5rem;
+        line-height: 1.5;
       }
 
       .member-count-badge {
         background: rgba(56, 189, 248, 0.12);
         color: #38bdf8;
-        font-size: 0.76rem;
+        font-size: 0.78rem;
         font-weight: 750;
-        padding: 0.25rem 0.65rem;
+        padding: 0.35rem 0.85rem;
         border-radius: 9999px;
+        border: 1px solid rgba(56, 189, 248, 0.25);
       }
 
       .audit-note {
         background: rgba(168, 85, 247, 0.15);
         color: #c084fc;
-        font-size: 0.76rem;
+        font-size: 0.78rem;
         font-weight: 750;
-        padding: 0.25rem 0.65rem;
+        padding: 0.35rem 0.85rem;
         border-radius: 9999px;
+        border: 1px solid rgba(168, 85, 247, 0.25);
       }
 
       /* Data Table */
@@ -587,44 +804,103 @@ const ROLE_LABELS: Record<string, string> = {
       }
 
       .data-table td {
-        padding: 1rem;
+        padding: 1.1rem 1rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         vertical-align: middle;
       }
 
-      .user-cell {
+      /* Member Profile Cell */
+      .member-profile-cell {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.85rem;
       }
 
-      .uuid-badge {
-        background: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        color: #93c5fd;
-        font-size: 0.82rem;
-        padding: 0.25rem 0.55rem;
-        border-radius: 0.4rem;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      .avatar-circle {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        color: #38bdf8;
+        font-weight: 800;
+        font-size: 0.85rem;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+
+      .avatar-circle.avatar-current {
+        background: linear-gradient(135deg, #0369a1 0%, #2563eb 100%);
+        border-color: #38bdf8;
+        color: #ffffff;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      }
+
+      .member-info-col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+
+      .member-name-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .member-primary-text {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #f8fafc;
+      }
+
+      .member-id-meta {
+        font-size: 0.72rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .member-id-meta code {
+        color: #94a3b8;
+        font-family: ui-monospace, monospace;
       }
 
       .badge-you {
-        background: #1e3a8a;
-        color: #bfdbfe;
-        font-size: 0.68rem;
+        background: rgba(56, 189, 248, 0.2);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        font-size: 0.65rem;
         font-weight: 900;
-        padding: 0.2rem 0.5rem;
+        padding: 0.15rem 0.45rem;
         border-radius: 0.35rem;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.05em;
+      }
+
+      /* Role styling */
+      .role-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
       }
 
       .badge-role {
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 800;
-        letter-spacing: 0.06em;
-        padding: 0.25rem 0.6rem;
+        letter-spacing: 0.05em;
+        padding: 0.3rem 0.65rem;
         border-radius: 0.4rem;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        width: fit-content;
+      }
+
+      .role-desc-text {
+        font-size: 0.75rem;
+        color: #94a3b8;
       }
 
       .badge-owner {
@@ -661,10 +937,10 @@ const ROLE_LABELS: Record<string, string> = {
       }
 
       .btn-remove {
-        background: rgba(239, 68, 68, 0.15);
+        background: rgba(239, 68, 68, 0.12);
         color: #fca5a5;
-        border: 1px solid rgba(239, 68, 68, 0.35);
-        padding: 0.4rem 0.85rem;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 0.45rem 0.95rem;
         border-radius: 0.5rem;
         font-size: 0.8rem;
         font-weight: 700;
@@ -673,8 +949,9 @@ const ROLE_LABELS: Record<string, string> = {
       }
 
       .btn-remove:hover {
-        background: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.25);
         color: #ffffff;
+        border-color: #ef4444;
       }
 
       .muted-action {
@@ -684,75 +961,274 @@ const ROLE_LABELS: Record<string, string> = {
 
       /* Form Panel */
       .form-panel {
-        background: #0d162a;
+        background: linear-gradient(180deg, #0d162a 0%, #080e1c 100%);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+      }
+
+      .form-panel-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-header-icon {
+        font-size: 1.8rem;
+        width: 3rem;
+        height: 3rem;
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 0.75rem;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+
+      .form-grid-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      @media (min-width: 768px) {
+        .form-grid-layout {
+          grid-template-columns: 1.2fr 1fr;
+        }
       }
 
       .field-group {
         display: flex;
         flex-direction: column;
         gap: 0.4rem;
-        margin-bottom: 1.25rem;
+        margin-bottom: 0.75rem;
       }
 
       .field-group label {
         font-size: 0.88rem;
         font-weight: 750;
         color: #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .field-required {
+        color: #ef4444;
+      }
+
+      .input-with-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .input-icon {
+        position: absolute;
+        left: 0.85rem;
+        pointer-events: none;
+        font-size: 1rem;
       }
 
       .form-input, .form-select {
-        background: #090f1f;
+        width: 100%;
+        background: #060b17;
         border: 1px solid rgba(56, 189, 248, 0.25);
         color: #ffffff;
-        padding: 0.75rem 0.95rem;
+        padding: 0.8rem 1rem;
         border-radius: 0.65rem;
         font-size: 0.9rem;
         font-family: inherit;
         outline: none;
-        transition: border-color 0.2s ease;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+      }
+
+      .form-input.with-icon, .form-select.with-icon {
+        padding-left: 2.5rem;
       }
 
       .form-input:focus, .form-select:focus {
         border-color: #38bdf8;
-        box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
       }
 
       .field-hint {
-        color: #64748b;
+        color: #94a3b8;
+        font-size: 0.78rem;
+        line-height: 1.4;
+      }
+
+      /* Role Matrix Box */
+      .role-matrix-box {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin: 1rem 0 1.5rem;
+      }
+
+      .matrix-title {
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #38bdf8;
+        margin-bottom: 0.75rem;
+      }
+
+      .matrix-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      @media (min-width: 640px) {
+        .matrix-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .matrix-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .matrix-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
         font-size: 0.76rem;
+        color: #94a3b8;
+        line-height: 1.35;
+      }
+
+      .role-title-owner { color: #facc15; }
+      .role-title-admin { color: #38bdf8; }
+      .role-title-editor { color: #c084fc; }
+      .role-title-viewer { color: #94a3b8; }
+
+      .form-action-row {
+        display: flex;
+        justify-content: flex-start;
       }
 
       .btn-save-member {
         background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
         color: #ffffff;
         border: none;
-        padding: 0.75rem 1.4rem;
+        padding: 0.85rem 1.6rem;
         border-radius: 0.65rem;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 750;
         cursor: pointer;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         transition: all 0.2s ease;
       }
 
       .btn-save-member:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+        box-shadow: 0 8px 24px rgba(2, 132, 199, 0.6);
+      }
+
+      .btn-arrow {
+        font-weight: 900;
+        transition: transform 0.2s ease;
+      }
+
+      .btn-save-member:hover .btn-arrow {
+        transform: translateX(3px);
+      }
+
+      /* Audit Actors */
+      .actor-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .actor-mini-avatar {
+        width: 1.65rem;
+        height: 1.65rem;
+        border-radius: 50%;
+        background: #1e293b;
+        color: #38bdf8;
+        font-size: 0.68rem;
+        font-weight: 800;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+      }
+
+      .actor-name {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #e2e8f0;
       }
 
       .badge-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.76rem;
+        font-weight: 750;
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.4rem;
+      }
+
+      .action-publish {
         background: rgba(34, 197, 94, 0.15);
         color: #4ade80;
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        font-size: 0.74rem;
-        font-weight: 750;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.35rem;
+        border: 1px solid rgba(34, 197, 94, 0.35);
+      }
+
+      .action-domain {
+        background: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+      }
+
+      .action-media {
+        background: rgba(234, 179, 8, 0.15);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.35);
+      }
+
+      .action-card {
+        background: rgba(168, 85, 247, 0.15);
+        color: #c084fc;
+        border: 1px solid rgba(168, 85, 247, 0.35);
+      }
+
+      .action-member {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.35);
+      }
+
+      .action-delete {
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+      }
+
+      .action-default {
+        background: rgba(100, 116, 139, 0.2);
+        color: #cbd5e1;
+        border: 1px solid rgba(100, 116, 139, 0.3);
       }
 
       .resource-badge {
         font-size: 0.78rem;
-        color: #cbd5e1;
+        color: #94a3b8;
+        font-family: ui-monospace, monospace;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.3rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
       }
 
       /* Alert & Empty */
@@ -763,6 +1239,9 @@ const ROLE_LABELS: Record<string, string> = {
         padding: 1rem 1.25rem;
         border-radius: 0.75rem;
         margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
 
       .empty-box {
@@ -790,6 +1269,11 @@ const ROLE_LABELS: Record<string, string> = {
         .header-right {
           width: 100%;
           justify-content: space-between;
+        }
+
+        .panel-header-row {
+          flex-direction: column;
+          align-items: flex-start;
         }
       }
     </style>

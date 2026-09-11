@@ -129,7 +129,7 @@ export const server = {
     accept: "form",
     input: z.object({
       tenantId: z.uuid(),
-      userId: z.uuid(),
+      userId: z.string().trim().min(3).max(254),
       role: z.enum(TENANT_ROLES),
     }),
     handler: async ({ tenantId, userId, role }, context) => {
@@ -138,11 +138,52 @@ export const server = {
       }
       const memberRepo = new SupabaseMemberRepository(context.locals.supabase);
       const auditGateway = new SupabaseAuditGateway(context.locals.supabase);
+
+      let targetUserId = userId;
+
+      // Check if input is a valid UUID or an email address
+      const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userId);
+      if (!isUuid) {
+        try {
+          const env = parseServerEnv(process.env, import.meta.env);
+          const adminClient = createAdminClient(env);
+          const cleanEmail = userId.toLowerCase().trim();
+
+          const { data: userList } = await adminClient.auth.admin.listUsers();
+          const existing = userList?.users?.find(
+            (u) => u.email?.toLowerCase().trim() === cleanEmail
+          );
+
+          if (existing) {
+            targetUserId = existing.id;
+          } else {
+            // Automatically register new user with this email so they can collaborate
+            const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
+              email: cleanEmail,
+              email_confirm: true,
+            });
+            if (createError || !newUser?.user) {
+              return {
+                ok: false,
+                error: `No se pudo encontrar ni registrar al usuario con email "${cleanEmail}": ${createError?.message || "Error al invitar"}`,
+              };
+            }
+            targetUserId = newUser.user.id;
+          }
+        } catch (err: unknown) {
+          const error = err as Error;
+          return {
+            ok: false,
+            error: error.message || "No se pudo resolver el email del usuario.",
+          };
+        }
+      }
+
       try {
         await assignMemberUseCase(
           context.locals.user,
           tenantId,
-          userId,
+          targetUserId,
           role,
           memberRepo,
           auditGateway,
@@ -152,7 +193,7 @@ export const server = {
         if (error instanceof MemberAuthorizationError || error instanceof LastOwnerProtectionError) {
           return { ok: false, error: error.message };
         }
-        return { ok: false, error: "Unable to update member. Please try again." };
+        return { ok: false, error: "No se pudo actualizar el miembro. Intente nuevamente." };
       }
     },
   }),
