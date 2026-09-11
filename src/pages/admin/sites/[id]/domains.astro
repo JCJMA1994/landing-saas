@@ -42,9 +42,13 @@ const isSuccess = Boolean(
   deleteResult?.data?.ok
 );
 
-const actionMessage = verifyResult?.data?.ok
-  ? verifyResult.data.message
-  : null;
+const actionMessage =
+  (addResult?.data?.ok && (addResult.data as any).autoVerified
+    ? "🎉 ¡Dominio verificado y activado automáticamente! El registro DNS ya estaba listo."
+    : null) ||
+  (verifyResult?.data?.ok
+    ? verifyResult.data.message
+    : null);
 
 const errorMessage =
   (addResult && !addResult.data?.ok ? addResult.data?.error : null) ||
@@ -54,6 +58,9 @@ const errorMessage =
 
 const cnameTarget = `cname.${env.appHostname}`;
 const automaticSubdomain = `${siteData.slug}.${env.appHostname}`;
+const landingSubdomainUrl = env.appHostname === "localhost"
+  ? `/sites/${siteData.slug}`
+  : `https://${automaticSubdomain}`;
 ---
 
 <!doctype html>
@@ -284,7 +291,7 @@ const automaticSubdomain = `${siteData.slug}.${env.appHostname}`;
             <strong style="font-size: 1.1rem; color: #93c5fd;">{automaticSubdomain}</strong>
             <span class="badge badge-success" style="margin-left: 0.75rem;">Activo</span>
           </div>
-          <a href={`/sites/${siteData.slug}`} target="_blank" class="btn btn-secondary">
+          <a href={landingSubdomainUrl} target="_blank" class="btn btn-secondary">
             Visitar Landing ↗
           </a>
         </div>

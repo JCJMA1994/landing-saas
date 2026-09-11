@@ -12,7 +12,10 @@ import {
 } from "../../../../domain/publication/snapshot";
 import { DEFAULT_SITE_THEME } from "../../../../domain/site/theme";
 import { isTemplateKey, type TemplateKey } from "../../../../domain/template/manifest";
+import { parseServerEnv } from "../../../../infrastructure/config/env";
 import "../../../../styles/admin.css";
+
+const env = parseServerEnv(import.meta.env, process.env);
 
 const logoutResult = Astro.getActionResult(actions.logout);
 if (logoutResult?.data?.ok) return Astro.redirect("/admin/login", 303);
@@ -32,6 +35,10 @@ const { data: siteData, error: siteError } = await Astro.locals.supabase
 if (siteError || !siteData) {
   return Astro.redirect("/admin", 303);
 }
+
+const liveUrl = env.appHostname === "localhost"
+  ? `/sites/${siteData.slug}`
+  : `https://${siteData.slug}.${env.appHostname}`;
 
 const publicationRepo = new SupabasePublicationRepository(Astro.locals.supabase);
 const themeRepo = new SupabaseThemeRepository(Astro.locals.supabase);
@@ -202,7 +209,7 @@ const actionError = publishResult && !publishResult.data?.ok
               Ver Preview de Borrador ↗
             </a>
             {activePublication && (
-              <a href={`/sites/${siteData.slug}`} target="_blank" class="button" style="background: #1e4620; color: #a3e9a4; text-decoration: none; text-align: center; display: inline-block;">
+              <a href={liveUrl} target="_blank" class="button" style="background: #1e4620; color: #a3e9a4; text-decoration: none; text-align: center; display: inline-block;">
                 Ver Sitio en Vivo ↗
               </a>
             )}

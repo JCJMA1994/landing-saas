@@ -786,7 +786,32 @@ export const server = {
           env.appHostname
         );
 
-        return { ok: true, domain: added };
+        let finalDomain = added;
+        let autoVerified = false;
+        try {
+          const cnameTarget = `cname.${env.appHostname}`;
+          const dnsGateway = new NodeDnsGateway();
+          const verifyResult = await verifySiteDomainUseCase(
+            context.locals.user,
+            tenantId,
+            siteId,
+            added.id,
+            role,
+            cnameTarget,
+            domainRepo,
+            dnsGateway,
+            auditGateway
+          );
+          if (verifyResult.verified) {
+            finalDomain = verifyResult.domain;
+            autoVerified = true;
+          }
+        } catch {
+          // Si la verificación inmediata falla (lo habitual si aún no apuntaron el DNS),
+          // queda en estado pending para que configuren el DNS o lo tome el cron.
+        }
+
+        return { ok: true, domain: finalDomain, autoVerified };
       } catch (error: any) {
         if (
           error instanceof DomainAuthorizationError ||

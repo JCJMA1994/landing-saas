@@ -58,6 +58,22 @@ export class SupabaseDomainRepository implements DomainRepository {
     }
   }
 
+  async listPendingDomains(limit = 50): Promise<SiteDomain[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from("site_domains")
+        .select("*")
+        .eq("status", "pending")
+        .order("created_at", { ascending: true })
+        .limit(limit);
+
+      if (error) throw error;
+      return (data as DbDomainRow[]).map(mapDomain);
+    } catch (err: any) {
+      throw new DomainRepositoryError(err.message);
+    }
+  }
+
   async getDomain(domainId: string): Promise<SiteDomain | null> {
     try {
       const { data, error } = await this.supabase

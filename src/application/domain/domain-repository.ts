@@ -6,6 +6,7 @@ export type SaveDomainInput = Omit<SiteDomain, "id" | "createdAt" | "updatedAt">
 
 export interface DomainRepository {
   listDomains(siteId: string): Promise<SiteDomain[]>;
+  listPendingDomains(limit?: number): Promise<SiteDomain[]>;
   getDomain(domainId: string): Promise<SiteDomain | null>;
   getDomainByName(domain: string): Promise<SiteDomain | null>;
   getVerifiedDomain(domain: string): Promise<SiteDomain | null>;

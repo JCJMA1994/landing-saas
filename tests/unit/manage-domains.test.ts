@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import {
   addSiteDomainUseCase,
   verifySiteDomainUseCase,
+  verifyPendingDomainsUseCase,
   deleteSiteDomainUseCase,
   DomainAuthorizationError,
   InvalidDomainError,
@@ -39,6 +40,7 @@ describe("Manage Domains Use Cases", () => {
 
   const mockDomainRepo: DomainRepository = {
     listDomains: vi.fn().mockResolvedValue([mockDomain]),
+    listPendingDomains: vi.fn().mockResolvedValue([mockDomain]),
     getDomain: vi.fn().mockImplementation((id) =>
       id === mockDomain.id ? Promise.resolve(mockDomain) : Promise.resolve(null)
     ),
@@ -262,6 +264,85 @@ describe("Manage Domains Use Cases", () => {
         mockAuditGateway
       )
     ).rejects.toThrow(DomainNotFoundError);
+  });
+
+  describe("verifyPendingDomainsUseCase (Cron)", () => {
+    it("verifies matching pending domains and leaves unmatched domains as pending", async () => {
+      const pendingCnameDomain: SiteDomain = {
+        id: "domain-cname",
+        tenantId: "tenant-1",
+        siteId: "site-1",
+        domain: "custom.example.com",
+        status: "pending",
+        verificationType: "cname",
+        verificationToken: "token-1",
+        sslStatus: "pending",
+        isPrimary: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const pendingTxtDomain: SiteDomain = {
+        id: "domain-txt",
+        tenantId: "tenant-1",
+        siteId: "site-1",
+        domain: "unpropagated.example.com",
+        status: "pending",
+        verificationType: "txt",
+        verificationToken: "token-expected-123",
+        sslStatus: "pending",
+        isPrimary: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const savedDomains: any[] = [];
+      const repo: DomainRepository = {
+        ...mockDomainRepo,
+        listPendingDomains: vi.fn().mockResolvedValue([pendingCnameDomain, pendingTxtDomain]),
+        saveDomain: vi.fn().mockImplementation((d) => {
+          savedDomains.push(d);
+          return Promise.resolve({ ...pendingCnameDomain, ...d });
+        }),
+      };
+
+      const dns: DnsResolverGateway = {
+        resolveCname: vi.fn().mockImplementation((d) =>
+          d === "custom.example.com" ? Promise.resolve(["cname.system-failed-tech.com"]) : Promise.resolve([])
+        ),
+        resolveTxt: vi.fn().mockResolvedValue([["wrong-token"]]),
+      };
+
+      const summary = await verifyPendingDomainsUseCase(
+        "cname.system-failed-tech.com",
+        repo,
+        dns,
+        mockAuditGateway
+      );
+
+      expect(summary.totalChecked).toBe(2);
+      expect(summary.verifiedCount).toBe(1);
+      expect(summary.results[0]?.verified).toBe(true);
+      expect(summary.results[1]?.verified).toBe(false);
+
+      // Verify domain 1 became verified with active SSL
+      const savedVerified = savedDomains.find((d) => d.id === "domain-cname");
+      expect(savedVerified.status).toBe("verified");
+      expect(savedVerified.sslStatus).toBe("active");
+
+      // Verify domain 2 remained pending with updated lastCheckedAt
+      const savedPending = savedDomains.find((d) => d.id === "domain-txt");
+      expect(savedPending.status).toBe("pending");
+      expect(savedPending.lastCheckedAt).toBeDefined();
+
+      // Audit recorded for system:cron
+      expect(mockAuditGateway.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          actorUserId: "system:cron",
+          action: "domain.verified_automatically",
+        })
+      );
+    });
   });
 });
 

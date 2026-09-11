@@ -224,3 +224,110 @@ export async function deleteSiteDomainUseCase(
     },
   });
 }
+
+export interface VerifyPendingDomainsResult {
+  totalChecked: number;
+  verifiedCount: number;
+  results: Array<{
+    domainId: string;
+    domain: string;
+    verified: boolean;
+    message: string;
+  }>;
+}
+
+export async function verifyPendingDomainsUseCase(
+  cnameTarget: string,
+  domainRepo: DomainRepository,
+  dnsGateway: DnsResolverGateway,
+  auditGateway: AuditLogGateway,
+  limit = 50
+): Promise<VerifyPendingDomainsResult> {
+  const pendingDomains = await domainRepo.listPendingDomains(limit);
+  const results: VerifyPendingDomainsResult["results"] = [];
+  let verifiedCount = 0;
+
+  for (const domain of pendingDomains) {
+    let verified = false;
+    let detail = "";
+
+    try {
+      if (domain.verificationType === "cname") {
+        const cnames = await dnsGateway.resolveCname(domain.domain);
+        const cleanTarget = cnameTarget.toLowerCase().replace(/\.$/, "");
+        verified = cnames.some((c) => c.toLowerCase().replace(/\.$/, "") === cleanTarget);
+        detail = verified
+          ? `CNAME verificado hacia ${cnameTarget}`
+          : `CNAME actual (${cnames.join(", ") || "ninguno"}) no coincide`;
+      } else {
+        const txtRecords = await dnsGateway.resolveTxt(`_saas-challenge.${domain.domain}`);
+        const flattened = txtRecords.flat();
+        verified = flattened.includes(domain.verificationToken);
+        detail = verified
+          ? "Registro TXT de desafío verificado correctamente"
+          : "Registro TXT no coincide con token esperado";
+      }
+    } catch (err: any) {
+      verified = false;
+      detail = `Error DNS: ${err.message || "registro no encontrado"}`;
+    }
+
+    const now = new Date().toISOString();
+    if (verified) {
+      verifiedCount++;
+      await domainRepo.saveDomain({
+        id: domain.id,
+        tenantId: domain.tenantId,
+        siteId: domain.siteId,
+        domain: domain.domain,
+        status: "verified",
+        verificationType: domain.verificationType,
+        verificationToken: domain.verificationToken,
+        verifiedAt: now,
+        lastCheckedAt: now,
+        sslStatus: "active",
+        isPrimary: domain.isPrimary,
+      });
+
+      await auditGateway.record({
+        tenantId: domain.tenantId,
+        actorUserId: "system:cron",
+        action: "domain.verified_automatically",
+        resourceType: "domain",
+        resourceId: domain.id,
+        metadata: {
+          domain: domain.domain,
+          method: domain.verificationType,
+          source: "cron",
+        },
+      });
+    } else {
+      await domainRepo.saveDomain({
+        id: domain.id,
+        tenantId: domain.tenantId,
+        siteId: domain.siteId,
+        domain: domain.domain,
+        status: "pending",
+        verificationType: domain.verificationType,
+        verificationToken: domain.verificationToken,
+        verifiedAt: domain.verifiedAt,
+        lastCheckedAt: now,
+        sslStatus: domain.sslStatus,
+        isPrimary: domain.isPrimary,
+      });
+    }
+
+    results.push({
+      domainId: domain.id,
+      domain: domain.domain,
+      verified,
+      message: detail,
+    });
+  }
+
+  return {
+    totalChecked: pendingDomains.length,
+    verifiedCount,
+    results,
+  };
+}
