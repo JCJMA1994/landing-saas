@@ -7,6 +7,31 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
+    if (!body?.siteId) {
+      return new Response(JSON.stringify({ error: "siteId is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Resolve tenant_id securely from the database (never trust client input)
+    let tenantId = body.tenantId;
+    if (!tenantId) {
+      const { data: siteRow, error: siteErr } = await locals.supabase
+        .from("sites")
+        .select("id, tenant_id")
+        .eq("id", body.siteId)
+        .maybeSingle();
+
+      if (siteErr || !siteRow) {
+        return new Response(JSON.stringify({ error: "Site not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      tenantId = siteRow.tenant_id;
+    }
+
     const analyticsRepo = new SupabaseAnalyticsRepository(locals.supabase);
 
     const userAgent = request.headers.get("user-agent") || undefined;
@@ -15,7 +40,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await trackAnalyticsEventUseCase(
       {
         siteId: body.siteId,
-        tenantId: body.tenantId,
+        tenantId,
         eventName: body.eventName,
         path: body.path || "/",
         referrer,
