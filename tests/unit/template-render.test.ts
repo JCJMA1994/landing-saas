@@ -26,7 +26,7 @@ describe("Phase 2 Visual Direction Templates", () => {
       // Verify specific distinct design identity elements in each template
       if (key === "tech-diagnostic") {
         expect(content).toContain("template-diagnostic");
-        expect(content).toContain("ESTADO DEL SISTEMA // NOMINAL");
+        expect(content).toContain("diag-promo-carousel-track");
         expect(content).toContain("diag-hud-overlay");
       } else if (key === "repair-workshop") {
         expect(content).toContain("template-workshop");

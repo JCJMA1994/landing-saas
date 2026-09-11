@@ -26,35 +26,39 @@ const activePromotions = promotions.filter((p) => p.isActive);
 ---
 
 <div class="template-diagnostic" style={cssVars} data-theme-root>
-  {/* Telemetry Header Strip */}
+  {/* Header Bar */}
   <header class="diag-header-bar">
     <div class="diag-container diag-header-content">
-      <div class="diag-telemetry-badge">
-        <span class="diag-pulse-dot" aria-hidden="true"></span>
-        <span class="diag-code">ESTADO DEL SISTEMA // NOMINAL</span>
-      </div>
       <div class="diag-brand">
-        <Icon name="cpu" size={18} />
+        <Icon name="cpu" size={20} />
         <span class="diag-brand-title">{siteName}</span>
       </div>
-      <div class="diag-metrics-pill">
-        <span>DIAGNÓSTICO DE PRECISIÓN</span>
-      </div>
+      {contacts?.phone && (
+        <a href={`tel:${contacts.phone}`} class="diag-header-phone">
+          <Icon name="phone" size={14} />
+          <span>{contacts.phone}</span>
+        </a>
+      )}
     </div>
   </header>
 
-  {/* Active Promotion Advisory Banner */}
+  {/* Active Promotion Carousel Ticker */}
   {activePromotions.length > 0 && (
-    <aside class="diag-advisory-banner" aria-label="Aviso promocional activo">
-      <div class="diag-container diag-advisory-flex">
-        <Badge variant="accent" size="sm">AVISO // ACTIVO</Badge>
-        <span class="diag-advisory-title">{activePromotions[0]?.title}</span>
-        {activePromotions[0]?.discountLabel && (
-          <span class="diag-advisory-discount">[{activePromotions[0]?.discountLabel}]</span>
-        )}
-        {activePromotions[0]?.couponCode && (
-          <code class="diag-advisory-code">CÓDIGO: {activePromotions[0]?.couponCode}</code>
-        )}
+    <aside class="diag-promo-carousel-wrapper" aria-label="Promociones activas">
+      <div class="diag-promo-carousel-track">
+        {Array.from({ length: 4 }).flatMap(() => activePromotions).map((promo) => (
+          <div class="diag-promo-item">
+            <Icon name="bolt" size={14} class="diag-promo-icon" />
+            <span class="diag-promo-title">{promo.title}</span>
+            {promo.discountLabel && (
+              <span class="diag-promo-discount">{promo.discountLabel}</span>
+            )}
+            {promo.couponCode && (
+              <code class="diag-promo-code">CÓDIGO: {promo.couponCode}</code>
+            )}
+            <span class="diag-promo-separator" aria-hidden="true">✦</span>
+          </div>
+        ))}
       </div>
     </aside>
   )}
@@ -253,56 +257,110 @@ const activePromotions = promotions.filter((p) => p.isActive);
     flex-wrap: wrap;
   }
 
-  .diag-telemetry-badge {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-space-2, 0.5rem);
-    font-family: var(--ds-font-mono);
-    color: #10b981;
-    font-weight: 600;
-  }
-
-  .diag-pulse-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #10b981;
-    box-shadow: 0 0 8px #10b981;
-  }
-
   .diag-brand {
     display: flex;
     align-items: center;
     gap: var(--ds-space-2, 0.5rem);
     font-weight: 700;
     letter-spacing: 0.05em;
+    font-size: var(--ds-text-base, 1rem);
   }
 
-  .diag-metrics-pill {
-    color: var(--ds-color-muted, #94a3b8);
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-  }
-
-  .diag-advisory-banner {
-    background: rgba(245, 158, 11, 0.1);
-    border-bottom: 1px solid rgba(245, 158, 11, 0.3);
-    padding: var(--ds-space-2, 0.5rem) 0;
-  }
-
-  .diag-advisory-flex {
-    display: flex;
+  .diag-header-phone {
+    display: inline-flex;
     align-items: center;
-    gap: var(--ds-space-3, 0.75rem);
-    flex-wrap: wrap;
+    gap: 0.4rem;
+    color: var(--ds-color-muted, #94a3b8);
+    text-decoration: none;
+    font-family: var(--ds-font-mono);
     font-size: var(--ds-text-xs, 0.75rem);
+    transition: color 0.15s ease;
   }
 
-  .diag-advisory-code {
-    background: rgba(0, 0, 0, 0.4);
-    padding: 0.15rem 0.4rem;
-    border-radius: 2px;
+  .diag-header-phone:hover {
+    color: var(--ds-color-primary, #60a5fa);
+  }
+
+  .diag-promo-carousel-wrapper {
+    overflow: hidden;
+    white-space: nowrap;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(234, 88, 12, 0.12));
+    border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+    padding: 0.55rem 0;
+    position: relative;
+    user-select: none;
+  }
+
+  .diag-promo-carousel-wrapper:hover .diag-promo-carousel-track {
+    animation-play-state: paused;
+  }
+
+  .diag-promo-carousel-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 2rem;
+    width: max-content;
+    animation: diag-carousel-rotate 25s linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes diag-carousel-rotate {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .diag-promo-carousel-track {
+      animation: none;
+      flex-wrap: wrap;
+    }
+  }
+
+  .diag-promo-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--ds-text-xs, 0.75rem);
+    font-weight: 600;
+    color: var(--ds-color-text, #f8fafc);
+  }
+
+  .diag-promo-icon {
+    color: #f59e0b;
+    flex-shrink: 0;
+  }
+
+  .diag-promo-title {
+    color: var(--ds-color-text, #f8fafc);
+  }
+
+  .diag-promo-discount {
+    background: #f59e0b;
+    color: #0b0f19;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  .diag-promo-code {
+    background: rgba(0, 0, 0, 0.5);
+    color: #fbbf24;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
     border: 1px dashed rgba(245, 158, 11, 0.5);
+    font-family: var(--ds-font-mono);
+  }
+
+  .diag-promo-separator {
+    color: rgba(245, 158, 11, 0.6);
+    margin-left: 1.5rem;
+    font-size: 0.7rem;
   }
 
   .diag-hero-section {
